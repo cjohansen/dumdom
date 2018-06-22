@@ -82,6 +82,10 @@
                  (set! (.. rendered -data -hook -insert)
                        (fn [vnode]
                          (apply on-mount (.-elm vnode) data args))))
+               (when-let [on-update (:on-update opt)]
+                 (set! (.. rendered -data -hook -update)
+                       (fn [old-vnode vnode]
+                         (apply on-update (.-elm vnode) data args))))
                (swap! instances assoc fullpath (assoc instance
                                                       :vdom rendered
                                                       :data data))

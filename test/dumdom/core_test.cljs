@@ -107,3 +107,26 @@
       (sut/render (component {:text "LOL"}) el)
       (sut/render (component {:text "Hello"}) el)
       (is (= 1 (count @on-mount))))))
+
+(deftest on-update-test
+  (testing "Does not call on-update when component first mounts"
+    (let [el (js/document.createElement "div")
+          on-update (atom nil)
+          component (sut/component
+                     (fn [_] (d/div {} "LOL"))
+                     {:on-update (fn [node & args]
+                                   (reset! on-update (apply vector node args)))})]
+      (sut/render (component {:a 42} {:static "Prop"} {:another "Static"}) el)
+      (is (nil? @on-update))))
+
+  (testing "Calls on-update on each update"
+    (let [el (js/document.createElement "div")
+          on-update (atom [])
+          component (sut/component
+                     (fn [data] (d/div {} (:text data)))
+                     {:on-update (fn [node data]
+                                   (swap! on-update conj data))})]
+      (sut/render (component {:text "LOL"}) el)
+      (sut/render (component {:text "Hello"}) el)
+      (sut/render (component {:text "Aight"}) el)
+      (is (= [{:text "Hello"} {:text "Aight"}] @on-update)))))
