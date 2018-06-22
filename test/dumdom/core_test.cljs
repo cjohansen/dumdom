@@ -97,6 +97,17 @@
       (is (= [(.-firstChild el) {:a 42} {:static "Prop"} {:another "Static"}]
              @on-mount))))
 
+  (testing "Calls both on-mount and ref callback"
+    (let [el (js/document.createElement "div")
+          on-mount (atom nil)
+          ref (atom nil)
+          component (sut/component
+                     (fn [data] (d/div {:ref #(reset! ref data)} (:text data)))
+                     {:on-mount #(reset! on-mount %2)})]
+      (sut/render (component {:text "Look ma!"}) el)
+      (is (= {:text "Look ma!"} @on-mount))
+      (is (= {:text "Look ma!"} @ref))))
+
   (testing "Does not call on-mount on update"
     (let [el (js/document.createElement "div")
           on-mount (atom [])

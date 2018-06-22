@@ -79,9 +79,11 @@
                (when key
                  (set! (.-key rendered) key))
                (when-let [on-mount (or (:on-mount opt) (:on-render opt))]
-                 (set! (.. rendered -data -hook -insert)
-                       (fn [vnode]
-                         (apply on-mount (.-elm vnode) data args))))
+                 (let [insert-hook (.. rendered -data -hook -insert)]
+                   (set! (.. rendered -data -hook -insert)
+                         (fn [vnode]
+                           (when insert-hook (insert-hook vnode))
+                           (apply on-mount (.-elm vnode) data args)))))
                (when-let [on-update (or (:on-update opt) (:on-render opt))]
                  (set! (.. rendered -data -hook -update)
                        (fn [old-vnode vnode]
