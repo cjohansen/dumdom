@@ -18,6 +18,18 @@ an implementation detail, and may be subject to change.
 **dumdom** is currently under development. Documentation will follow when the
 library is functional and usable.
 
+## Differences from Quiescent
+
+Dumdom strives to be API compliant with Quiescent to the degree that it should
+be a drop-in replacement for Quiescent in any project that does not rely
+explicitly on any React APIs or third-party components. It does not necessarily
+commit to all the same restrictions that the Quiescent API imposes. The
+following is a list of minor details between the two:
+
+- Quiescent does not allow the use of `:on-render` along with either of
+  `:on-mount` and `:on-update`. Dumdom acknowledges that some components will
+  implement `:on-render` *and* `:on-mount` or `:on-update`, and allows this.
+
 ## License
 
 Copyright © 2018 Christian Johansen
