@@ -78,11 +78,11 @@
              (let [rendered ((apply render data args) fullpath 0)]
                (when key
                  (set! (.-key rendered) key))
-               (when-let [on-mount (:on-mount opt)]
+               (when-let [on-mount (or (:on-mount opt) (:on-render opt))]
                  (set! (.. rendered -data -hook -insert)
                        (fn [vnode]
                          (apply on-mount (.-elm vnode) data args))))
-               (when-let [on-update (:on-update opt)]
+               (when-let [on-update (or (:on-update opt) (:on-render opt))]
                  (set! (.. rendered -data -hook -update)
                        (fn [old-vnode vnode]
                          (apply on-update (.-elm vnode) data args))))
