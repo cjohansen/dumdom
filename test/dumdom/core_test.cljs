@@ -84,3 +84,26 @@
     (let [el (js/document.createElement "div")]
       (sut/render (d/div {} "Hello") el)
       (is (= "<div>Hello</div>" (.-innerHTML el))))))
+
+(deftest on-mount-test
+  (testing "Calls on-mount when component first mounts"
+    (let [el (js/document.createElement "div")
+          on-mount (atom nil)
+          component (sut/component
+                     (fn [_] (d/div {} "LOL"))
+                     {:on-mount (fn [node & args]
+                                  (reset! on-mount (apply vector node args)))})]
+      (sut/render (component {:a 42} {:static "Prop"} {:another "Static"}) el)
+      (is (= [(.-firstChild el) {:a 42} {:static "Prop"} {:another "Static"}]
+             @on-mount))))
+
+  (testing "Does not call on-mount on update"
+    (let [el (js/document.createElement "div")
+          on-mount (atom [])
+          component (sut/component
+                     (fn [data] (d/div {} (:text data)))
+                     {:on-mount (fn [node data]
+                                  (swap! on-mount conj data))})]
+      (sut/render (component {:text "LOL"}) el)
+      (sut/render (component {:text "Hello"}) el)
+      (is (= 1 (count @on-mount))))))

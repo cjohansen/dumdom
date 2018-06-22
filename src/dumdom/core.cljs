@@ -78,6 +78,10 @@
              (let [rendered ((apply render data args) fullpath 0)]
                (when key
                  (set! (.-key rendered) key))
+               (when-let [on-mount (:on-mount opt)]
+                 (set! (.. rendered -data -hook -insert)
+                       (fn [vnode]
+                         (apply on-mount (.-elm vnode) data args))))
                (swap! instances assoc fullpath (assoc instance
                                                       :vdom rendered
                                                       :data data))
