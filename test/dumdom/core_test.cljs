@@ -168,3 +168,35 @@
               {:text "Hello"}
               {:text "Aight"}] @on-render)))))
 
+(deftest on-unmount-test
+  (testing "Does not call on-unmount when component first mounts"
+    (let [el (js/document.createElement "div")
+          on-unmount (atom nil)
+          component (sut/component
+                     (fn [_] (d/div {} "LOL"))
+                     {:on-unmount #(reset! on-unmount %)})]
+      (sut/render (component {:a 42}) el)
+      (is (nil? @on-unmount))))
+
+  (testing "Does not call on-unmount when updating component"
+    (let [el (js/document.createElement "div")
+          on-unmount (atom nil)
+          component (sut/component
+                     (fn [_] (d/div {} "LOL"))
+                     {:on-unmount #(reset! on-unmount %)})]
+      (sut/render (component {:a 42}) el)
+      (sut/render (component {:a 13}) el)
+      (is (nil? @on-unmount))))
+
+  (testing "Calls on-unmount when removing component"
+    (let [el (js/document.createElement "div")
+          on-unmount (atom nil)
+          component (sut/component
+                     (fn [data] (d/div {} (:text data)))
+                     {:on-unmount (fn [node & args]
+                                    (reset! on-unmount (apply vector node args)))})]
+      (sut/render (component {:text "LOL"}) el)
+      (let [rendered (.-firstChild el)]
+        (sut/render (d/h1 {} "Gone!") el)
+        (is (= [rendered {:text "LOL"}] @on-unmount))))))
+

@@ -62,7 +62,11 @@
   :on-render - A function which will be invoked immediately after an updated is
   flushed to the DOM, but not on the initial render. It is passed the underlying
   DOM node, the value, the old value, and any constant arguments passed to the
-  render function."
+  render function.
+
+  :on-unmount - A function which will be invoked immediately before the
+  component is unmounted from the DOM. It is passed the underlying DOM node, the
+  most recent value and the most recent constant args passed to the render fn."
   ([render] (component render {}))
   ([render opt]
    (let [instances (atom {})]
@@ -88,6 +92,10 @@
                  (set! (.. rendered -data -hook -update)
                        (fn [old-vnode vnode]
                          (apply on-update (.-elm vnode) data args))))
+               (when-let [on-unmount (:on-unmount opt)]
+                 (set! (.. rendered -data -hook -destroy)
+                       (fn [vnode]
+                         (apply on-unmount (.-elm vnode) data args))))
                (swap! instances assoc fullpath (assoc instance
                                                       :vdom rendered
                                                       :data data))
