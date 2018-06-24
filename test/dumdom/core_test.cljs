@@ -154,6 +154,21 @@
       (is (= [(.-firstChild el) {:a 42} {:static "Prop"} {:another "Static"}]
              @on-render))))
 
+  (testing "Calls on-render and on-mount when component first mounts"
+    (let [el (js/document.createElement "div")
+          on-render (atom nil)
+          on-mount (atom nil)
+          component (sut/component
+                     (fn [_] (d/div {} "LOL"))
+                     {:on-render (fn [node & args]
+                                   (reset! on-render (apply vector node args)))
+                      :on-mount (fn [node & args]
+                                   (reset! on-mount (apply vector node args)))})]
+      (sut/render (component {:a 42} {:static "Prop"} {:another "Static"}) el)
+      (is (= [(.-firstChild el) {:a 42} {:static "Prop"} {:another "Static"}]
+             @on-render
+             @on-mount))))
+
   (testing "Calls on-render on each update"
     (let [el (js/document.createElement "div")
           on-render (atom [])
@@ -166,7 +181,26 @@
       (sut/render (component {:text "Aight"}) el)
       (is (= [{:text "LOL"}
               {:text "Hello"}
-              {:text "Aight"}] @on-render)))))
+              {:text "Aight"}] @on-render))))
+
+  (testing "Calls on-render and on-update on each update"
+    (let [el (js/document.createElement "div")
+          on-render (atom [])
+          on-update (atom [])
+          component (sut/component
+                     (fn [data] (d/div {} (:text data)))
+                     {:on-render (fn [node data]
+                                   (swap! on-render conj data))
+                      :on-update (fn [node data]
+                                   (swap! on-update conj data))})]
+      (sut/render (component {:text "LOL"}) el)
+      (sut/render (component {:text "Hello"}) el)
+      (sut/render (component {:text "Aight"}) el)
+      (is (= [{:text "LOL"}
+              {:text "Hello"}
+              {:text "Aight"}] @on-render))
+      (is (= [{:text "Hello"}
+              {:text "Aight"}] @on-update)))))
 
 (deftest on-unmount-test
   (testing "Does not call on-unmount when component first mounts"

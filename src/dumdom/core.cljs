@@ -36,6 +36,22 @@
 (defn- should-component-update? [component-state data]
   (not= (:data component-state) data))
 
+(defn- setup-mount-hook [rendered {:keys [on-mount on-render]} data args]
+  (when (or on-mount on-render)
+    (let [insert-hook (.. rendered -data -hook -insert)]
+      (set! (.. rendered -data -hook -insert)
+            (fn [vnode]
+              (when insert-hook (insert-hook vnode))
+              (when on-mount (apply on-mount (.-elm vnode) data args))
+              (when on-render (apply on-render (.-elm vnode) data args)))))))
+
+(defn- setup-update-hook [rendered {:keys [on-update on-render]} data args]
+  (when (or on-update on-render)
+    (set! (.. rendered -data -hook -update)
+          (fn [old-vnode vnode]
+            (when on-update (apply on-update (.-elm vnode) data args))
+            (when on-render (apply on-render (.-elm vnode) data args))))))
+
 (defn component
   "Returns a component function that uses the provided function for rendering. The
   resulting component will only call through to its rendering function when
@@ -82,16 +98,8 @@
              (let [rendered ((apply render data args) fullpath 0)]
                (when key
                  (set! (.-key rendered) key))
-               (when-let [on-mount (or (:on-mount opt) (:on-render opt))]
-                 (let [insert-hook (.. rendered -data -hook -insert)]
-                   (set! (.. rendered -data -hook -insert)
-                         (fn [vnode]
-                           (when insert-hook (insert-hook vnode))
-                           (apply on-mount (.-elm vnode) data args)))))
-               (when-let [on-update (or (:on-update opt) (:on-render opt))]
-                 (set! (.. rendered -data -hook -update)
-                       (fn [old-vnode vnode]
-                         (apply on-update (.-elm vnode) data args))))
+               (setup-mount-hook rendered opt data args)
+               (setup-update-hook rendered opt data args)
                (when-let [on-unmount (:on-unmount opt)]
                  (set! (.. rendered -data -hook -destroy)
                        (fn [vnode]
