@@ -36,7 +36,7 @@
 (defn- should-component-update? [component-state data]
   (not= (:data component-state) data))
 
-(defn- setup-mount-hook [rendered {:keys [on-mount on-render will-enter did-enter]} data args anim-fns]
+(defn- setup-mount-hook [rendered {:keys [on-mount on-render will-enter did-enter]} data args animation]
   (when (or on-mount on-render will-enter)
     (let [insert-hook (.. rendered -data -hook -insert)]
       (set! (.. rendered -data -hook -insert)
@@ -44,12 +44,13 @@
               (when insert-hook (insert-hook vnode))
               (when on-mount (apply on-mount (.-elm vnode) data args))
               (when on-render (apply on-render (.-elm vnode) data args))
-              (let [{:keys [will-enter]} @anim-fns]
+              (let [{:keys [will-enter]} @animation]
                 (when will-enter
+                  (swap! animation assoc :ready? false)
                   (apply will-enter
                          (.-elm vnode)
                          (fn []
-                           (swap! anim-fns assoc :ready? true)
+                           (swap! animation assoc :ready? true)
                            (when did-enter (apply did-enter (.-elm vnode) data args)))
                          data
                          args))))))))
@@ -60,6 +61,26 @@
           (fn [old-vnode vnode]
             (when on-update (apply on-update (.-elm vnode) data args))
             (when on-render (apply on-render (.-elm vnode) data args))))))
+
+(defn- setup-unmount-hook [rendered component data args animation]
+  (when-let [on-unmount (:on-unmount component)]
+    (set! (.. rendered -data -hook -destroy)
+          (fn [vnode]
+            (apply on-unmount (.-elm vnode) data args))))
+  (when-let [will-leave (:will-leave component)]
+    (set! (.. rendered -data -hook -remove)
+          (fn [vnode snabbdom-callback]
+            (let [callback (fn []
+                             (when-let [did-leave (:did-leave component)]
+                               (apply did-leave (.-elm vnode) data args))
+                             (snabbdom-callback))]
+              (if (:ready? @animation)
+                (apply will-leave (.-elm vnode) callback data args)
+                (add-watch animation :leave
+                  (fn [k r o n]
+                    (when (:ready? n)
+                      (remove-watch animation :leave)
+                      (apply will-leave (.-elm vnode) callback data args))))))))))
 
 (defn component
   "Returns a component function that uses the provided function for rendering. The
@@ -103,19 +124,16 @@
                             {:render render
                              :opt opt
                              :path fullpath})
-               anim-fns (atom {})]
+               animation (atom {:ready? true})]
            (if (should-component-update? instance data)
              (let [rendered ((apply render data args) fullpath 0)]
                (when key
                  (set! (.-key rendered) key))
                (when-let [will-enter (:will-enter opt)]
-                 (set! (.-willEnter rendered) #(swap! anim-fns assoc :will-enter will-enter)))
-               (setup-mount-hook rendered opt data args anim-fns)
+                 (set! (.-willEnter rendered) #(swap! animation assoc :will-enter will-enter)))
+               (setup-mount-hook rendered opt data args animation)
                (setup-update-hook rendered opt data args)
-               (when-let [on-unmount (:on-unmount opt)]
-                 (set! (.. rendered -data -hook -destroy)
-                       (fn [vnode]
-                         (apply on-unmount (.-elm vnode) data args))))
+               (setup-unmount-hook rendered opt data args animation)
                (swap! instances assoc fullpath (assoc instance
                                                       :vdom rendered
                                                       :data data))

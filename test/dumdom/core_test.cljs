@@ -234,7 +234,7 @@
         (sut/render (d/h1 {} "Gone!") el)
         (is (= [rendered {:text "LOL"}] @on-unmount))))))
 
-(deftest will-enter-test
+(deftest animation-callbacks-test
   (testing "Does not call will-enter when parent mounts"
     (let [el (js/document.createElement "div")
           will-enter (atom nil)
@@ -269,4 +269,57 @@
       (sut/render (d/div {} (component {:text "LOL"})) el)
       (is (nil? @did-enter))
       (@will-enter)
-      (is (= [(.. el -firstChild -firstChild) {:text "LOL"}] @did-enter)))))
+      (is (= [(.. el -firstChild -firstChild) {:text "LOL"}] @did-enter))))
+
+  (testing "Calls the will-leave callback when unmounting the DOM node"
+    (let [el (js/document.createElement "div")
+          will-leave (atom nil)
+          component (sut/component
+                     (fn [data] (d/div {} (:text data)))
+                     {:will-leave (fn [node callback & args]
+                                    (reset! will-leave (apply vector node args)))})]
+      (sut/render (d/div {} (component {:text "LOL"})) el)
+      (sut/render (d/div {}) el)
+      (is (= [(.. el -firstChild -firstChild) {:text "LOL"}] @will-leave))))
+
+  (testing "Does not call will-leave until enter callback is called"
+    (let [el (js/document.createElement "div")
+          will-enter (atom nil)
+          will-leave (atom nil)
+          component (sut/component
+                     (fn [data] (d/div {} (:text data)))
+                     {:will-enter (fn [node callback] (reset! will-enter callback))
+                      :will-leave (fn [node callback & args]
+                                    (reset! will-leave (apply vector node args)))})]
+      (sut/render (d/div {}) el)
+      (sut/render (d/div {} (component {:text "LOL"})) el)
+      (sut/render (d/div {}) el)
+      (is (nil? @will-leave))
+      (@will-enter)
+      (is (= [(.. el -firstChild -firstChild) {:text "LOL"}] @will-leave))))
+
+  (testing "Calls did-leave when the callback passed to will-leave is called"
+    (let [el (js/document.createElement "div")
+          will-leave (atom nil)
+          did-leave (atom nil)
+          component (sut/component
+                     (fn [data] (d/div {} (:text data)))
+                     {:will-leave (fn [node callback & args] (reset! will-leave callback))
+                      :did-leave (fn [node & args]
+                                   (reset! did-leave (apply vector node args)))})]
+      (sut/render (d/div {} (component {:text "LOL"})) el)
+      (sut/render (d/div {}) el)
+      (let [element (.. el -firstChild -firstChild)]
+        (is (nil? @did-leave))
+        (@will-leave)
+        (is (= [element {:text "LOL"}] @did-leave)))))
+
+  (testing "Does not call will-leave when parent element is removed"
+    (let [el (js/document.createElement "div")
+          will-leave (atom nil)
+          component (sut/component
+                     (fn [data] (d/div {} (:text data)))
+                     {:will-leave (fn [node callback & args] (reset! will-leave callback))})]
+      (sut/render (d/div {} (d/div {} (component {:text "LOL"}))) el)
+      (sut/render (d/div {}) el)
+      (is (nil? @will-leave)))))
