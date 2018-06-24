@@ -323,3 +323,20 @@
       (sut/render (d/div {} (d/div {} (component {:text "LOL"}))) el)
       (sut/render (d/div {}) el)
       (is (nil? @will-leave)))))
+
+(deftest TransitionGroup-test
+  (testing "TransitionGroup creates span component"
+    (let [el (js/document.createElement "div")]
+      (sut/render (sut/TransitionGroup {} []) el)
+      (is (= (.-innerHTML el) "<span></span>"))))
+
+  (testing "Creates TransitionGroup with custom component tag"
+    (let [el (js/document.createElement "div")]
+      (sut/render (sut/TransitionGroup {:component "div"} []) el)
+      (is (= (.-innerHTML el) "<div></div>"))))
+
+  (testing "Creates TransitionGroup with custom attributes"
+    (let [el (js/document.createElement "div")]
+      (sut/render (sut/TransitionGroup {:component "div" :className "lol" :id "ok"} []) el)
+      (is (= (.. el -firstChild -className) "lol"))
+      (is (= (.. el -firstChild -id) "ok")))))

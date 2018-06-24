@@ -139,3 +139,6 @@
                                                       :data data))
                rendered)
              (:vdom instance))))))))
+
+(defn TransitionGroup [opt children]
+  (apply d/el (or (:component opt) "span") opt children))
