@@ -14,9 +14,9 @@
   (testing "Does not re-render when immutable value hasn't changed"
     (let [mutable-state (atom [1 2 3])
           comp (sut/component (fn [data]
-                                 (let [v (first @mutable-state)]
-                                   (swap! mutable-state rest)
-                                   (d/div {} v))))]
+                                (let [v (first @mutable-state)]
+                                  (swap! mutable-state rest)
+                                  (d/div {} v))))]
       (is (= "<div>1</div>" (render-str (comp {:number 1}))))
       (is (= "<div>1</div>" (render-str (comp {:number 1}))))
       (is (= "<div>2</div>" (render-str (comp {:number 2}))))))
@@ -24,9 +24,9 @@
   (testing "Re-renders instance of component at different position in tree"
     (let [mutable-state (atom [1 2 3])
           comp (sut/component (fn [data]
-                                 (let [v (first @mutable-state)]
-                                   (swap! mutable-state rest)
-                                   (d/div {} v))))]
+                                (let [v (first @mutable-state)]
+                                  (swap! mutable-state rest)
+                                  (d/div {} v))))]
       (is (= "<div>1</div>" (render-str (comp {:number 1}) [] 0)))
       (is (= "<div>2</div>" (render-str (comp {:number 1}) [] 1)))
       (is (= "<div>1</div>" (render-str (comp {:number 1}) [] 0)))
@@ -36,10 +36,10 @@
   (testing "Ignores provided position when component has a keyfn"
     (let [mutable-state (atom [1 2 3])
           comp (sut/component (fn [data]
-                                 (let [v (first @mutable-state)]
-                                   (swap! mutable-state rest)
-                                   (d/div {} v)))
-                               {:keyfn :id})]
+                                (let [v (first @mutable-state)]
+                                  (swap! mutable-state rest)
+                                  (d/div {} v)))
+                              {:keyfn :id})]
       (is (= "<div>1</div>" (render-str (comp {:id "c1" :number 1}) [] 0)))
       (is (= "<div>1</div>" (render-str (comp {:id "c1" :number 1}) [] 1)))
       (is (= "<div>2</div>" (render-str (comp {:id "c2" :number 1}) [] 0)))
@@ -48,21 +48,21 @@
 
   (testing "Sets key on vdom node"
     (let [comp (sut/component (fn [data]
-                                 (d/div {} (:val data)))
-                               {:keyfn :id})]
+                                (d/div {} (:val data)))
+                              {:keyfn :id})]
       (is (= "c1" (.-key (render (comp {:id "c1" :val 1})))))))
 
   (testing "keyfn overrides vdom node key"
     (let [comp (sut/component (fn [data]
-                                 (d/div {:key "key"} (:val data)))
-                               {:keyfn :id})]
+                                (d/div {:key "key"} (:val data)))
+                              {:keyfn :id})]
       (is (= "c1" (.-key (render (comp {:id "c1" :val 1})))))))
 
   (testing "Passes constant args to component, but does not re-render when they change"
     (let [calls (atom [])
           comp (sut/component (fn [& args]
-                                 (swap! calls conj args)
-                                 (d/div {:key "key"} "OK")))]
+                                (swap! calls conj args)
+                                (d/div {:key "key"} "OK")))]
       (render (comp {:id "v1"} 1 2 3))
       (render (comp {:id "v1"} 2 3 4))
       (render (comp {:id "v2"} 3 4 5))
@@ -73,8 +73,8 @@
               [{:id "v3"} 5 6 7]] @calls))))
 
   (testing "Renders component as child of DOM element"
-      (let [comp (sut/component (fn [data]
-                                 (d/p {} "From component")))]
+    (let [comp (sut/component (fn [data]
+                                (d/p {} "From component")))]
       (is (= "<div class=\"wrapper\"><p>From component</p></div>"
              (render-str (d/div {:className "wrapper"}
                            (comp {:id "v1"} 1 2 3))))))))
@@ -234,3 +234,39 @@
         (sut/render (d/h1 {} "Gone!") el)
         (is (= [rendered {:text "LOL"}] @on-unmount))))))
 
+(deftest will-enter-test
+  (testing "Does not call will-enter when parent mounts"
+    (let [el (js/document.createElement "div")
+          will-enter (atom nil)
+          component (sut/component
+                     (fn [data] (d/div {} (:text data)))
+                     {:will-enter (fn [node & args]
+                                    (reset! will-enter (apply vector node args)))})]
+      (sut/render (d/div {} (component {:text "LOL"})) el)
+      (is (nil? @will-enter))))
+
+  (testing "Calls will-enter when mounting element inside existing parent"
+    (let [el (js/document.createElement "div")
+          will-enter (atom nil)
+          component (sut/component
+                     (fn [data] (d/div {} (:text data)))
+                     {:will-enter (fn [node callback & args]
+                                    (reset! will-enter (apply vector node args)))})]
+      (sut/render (d/div {}) el)
+      (sut/render (d/div {} (component {:text "LOL"})) el)
+      (is (= [(.. el -firstChild -firstChild) {:text "LOL"}] @will-enter))))
+
+  (testing "Calls did-enter when the callback passed to will-enter is called"
+    (let [el (js/document.createElement "div")
+          will-enter (atom nil)
+          did-enter (atom nil)
+          component (sut/component
+                     (fn [data] (d/div {} (:text data)))
+                     {:will-enter (fn [node callback & args] (reset! will-enter callback))
+                      :did-enter (fn [node & args]
+                                   (reset! did-enter (apply vector node args)))})]
+      (sut/render (d/div {}) el)
+      (sut/render (d/div {} (component {:text "LOL"})) el)
+      (is (nil? @did-enter))
+      (@will-enter)
+      (is (= [(.. el -firstChild -firstChild) {:text "LOL"}] @did-enter)))))

@@ -36,14 +36,23 @@
 (defn- should-component-update? [component-state data]
   (not= (:data component-state) data))
 
-(defn- setup-mount-hook [rendered {:keys [on-mount on-render]} data args]
-  (when (or on-mount on-render)
+(defn- setup-mount-hook [rendered {:keys [on-mount on-render will-enter did-enter]} data args anim-fns]
+  (when (or on-mount on-render will-enter)
     (let [insert-hook (.. rendered -data -hook -insert)]
       (set! (.. rendered -data -hook -insert)
             (fn [vnode]
               (when insert-hook (insert-hook vnode))
               (when on-mount (apply on-mount (.-elm vnode) data args))
-              (when on-render (apply on-render (.-elm vnode) data args)))))))
+              (when on-render (apply on-render (.-elm vnode) data args))
+              (let [{:keys [will-enter]} @anim-fns]
+                (when will-enter
+                  (apply will-enter
+                         (.-elm vnode)
+                         (fn []
+                           (swap! anim-fns assoc :ready? true)
+                           (when did-enter (apply did-enter (.-elm vnode) data args)))
+                         data
+                         args))))))))
 
 (defn- setup-update-hook [rendered {:keys [on-update on-render]} data args]
   (when (or on-update on-render)
@@ -93,12 +102,15 @@
                instance (or (@instances fullpath)
                             {:render render
                              :opt opt
-                             :path fullpath})]
+                             :path fullpath})
+               anim-fns (atom {})]
            (if (should-component-update? instance data)
              (let [rendered ((apply render data args) fullpath 0)]
                (when key
                  (set! (.-key rendered) key))
-               (setup-mount-hook rendered opt data args)
+               (when-let [will-enter (:will-enter opt)]
+                 (set! (.-willEnter rendered) #(swap! anim-fns assoc :will-enter will-enter)))
+               (setup-mount-hook rendered opt data args anim-fns)
                (setup-update-hook rendered opt data args)
                (when-let [on-unmount (:on-unmount opt)]
                  (set! (.. rendered -data -hook -destroy)
