@@ -117,6 +117,18 @@
                                   (swap! on-mount conj data))})]
       (sut/render (component {:text "LOL"}) el)
       (sut/render (component {:text "Hello"}) el)
+      (is (= 1 (count @on-mount)))))
+
+  (testing "Does not call on-mount when keyed component changes position"
+    (let [el (js/document.createElement "div")
+          on-mount (atom [])
+          component (sut/component
+                     (fn [data] (d/div {} (:text data)))
+                     {:on-mount (fn [node data]
+                                  (swap! on-mount conj data))
+                      :keyfn #(str "key")})]
+      (sut/render (d/div {} (component {:text "LOL"})) el)
+      (sut/render (d/div {} (d/div {} "Look:") (component {:text "Hello"})) el)
       (is (= 1 (count @on-mount))))))
 
 (deftest on-update-test
@@ -255,6 +267,18 @@
       (sut/render (d/div {}) el)
       (sut/render (d/div {} (component {:text "LOL"})) el)
       (is (= [(.. el -firstChild -firstChild) {:text "LOL"}] @will-enter))))
+
+  (testing "Does not call will-enter when moving element inside existing parent"
+    (let [el (js/document.createElement "div")
+          will-enter (atom 0)
+          component (sut/component
+                     (fn [data] (d/div {} (:text data)))
+                     {:will-enter #(swap! will-enter inc)
+                      :keyfn #(str "comp")})]
+      (sut/render (d/div {}) el)
+      (sut/render (d/div {} (component {:text "LOL"})) el)
+      (sut/render (d/div {} (d/div {} "Hmm") (component {:text "LOL"})) el)
+      (is (= 1 @will-enter))))
 
   (testing "Calls did-enter when the callback passed to will-enter is called"
     (let [el (js/document.createElement "div")
