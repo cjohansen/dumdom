@@ -419,6 +419,16 @@
        el)
       (is (= "example-enter" (.. el -firstChild -firstChild -className)))))
 
+  (testing "Grabs enter class name from map argument"
+    (let [el (js/document.createElement "div")]
+      (sut/render (sut/CSSTransitionGroup {:transitionName {:enter "examplez-enter"}} []) el)
+      (sut/render
+       (sut/CSSTransitionGroup
+        {:transitionName {:enter "examplez-enter"}}
+        [(d/div {:key "#1"} "I will enter")])
+       el)
+      (is (= "examplez-enter" (.. el -firstChild -firstChild -className)))))
+
   (testing "Does not add enter class name when enter transition is disabled"
     (let [el (js/document.createElement "div")]
       (sut/render (sut/CSSTransitionGroup {:transitionName "example"
@@ -453,6 +463,32 @@
         (js/setTimeout
          (fn []
            (is (= "example-enter example-enter-active" (.. el -firstChild -firstChild -className)))
+           (done))
+         0))))
+
+  (testing "Adds custom enter-active class name on next tick"
+    (async done
+      (let [el (js/document.createElement "div")
+            props {:transitionName {:enter "swoosh" :enterActive "lol"}}]
+        (sut/render (sut/CSSTransitionGroup props []) el)
+        (sut/render (sut/CSSTransitionGroup props [(d/div {:key "#3"} "I will enter")])
+         el)
+        (js/setTimeout
+         (fn []
+           (is (= "swoosh lol" (.. el -firstChild -firstChild -className)))
+           (done))
+         0))))
+
+  (testing "Uses custom enter class name for missing enterActive class name"
+    (async done
+      (let [el (js/document.createElement "div")
+            props {:transitionName {:enter "swoosh"}}]
+        (sut/render (sut/CSSTransitionGroup props []) el)
+        (sut/render (sut/CSSTransitionGroup props [(d/div {:key "#3"} "I will enter")])
+                    el)
+        (js/setTimeout
+         (fn []
+           (is (= "swoosh swoosh-active" (.. el -firstChild -firstChild -className)))
            (done))
          0))))
 

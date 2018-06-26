@@ -168,14 +168,21 @@
       (reset! callback-fn f)
       (.addEventListener node "transitionend" f))))
 
+(defn- transition-classes [transitionName transition]
+  (if (string? transitionName)
+    [(str transitionName "-" transition) (str transitionName "-" transition "-active")]
+    (let [k (keyword transition)
+          k-active (keyword (str transition "Active"))]
+      [(k transitionName) (get transitionName k-active (str (k transitionName) "-active"))])))
+
 (defn- animate [transition {:keys [enabled-by-default?]}]
   (let [timeout (keyword (str "transition" transition "Timeout"))]
     (fn [node callback {:keys [transitionName] :as props}]
       (if (get props (keyword (str "transition" transition)) enabled-by-default?)
-        (do
-          (.add (.-classList node) (str transitionName "-" (.toLowerCase transition)))
+        (let [[init-class active-class] (transition-classes transitionName (.toLowerCase transition))]
+          (.add (.-classList node) init-class)
           (complete-transition node (get props timeout) callback)
-          (js/setTimeout #(.add (.-classList node) (str transitionName "-" (.toLowerCase transition) "-active")) 0))
+          (js/setTimeout #(.add (.-classList node) active-class) 0))
         (callback)))))
 
 (defn- cleanup-animation [transition]
