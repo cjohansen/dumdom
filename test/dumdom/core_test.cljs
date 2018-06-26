@@ -367,34 +367,34 @@
       (is (= (.. el -firstChild -id) "ok")))))
 
 (deftest CSSTransitionGroupTest
-  (testing "Adds class names according to the transition name"
+  (testing "Adds enter class name according to the transition name"
     (let [el (js/document.createElement "div")]
       (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
       (sut/render
        (sut/CSSTransitionGroup
         {:transitionName "example"}
-        [(d/div {} "I will enter")])
+        [(d/div {:key "#1"} "I will enter")])
        el)
       (is (= "example-enter" (.. el -firstChild -firstChild -className)))))
 
-  (testing "Adds class names to existing ones"
+  (testing "Adds enter class name to existing ones"
     (let [el (js/document.createElement "div")]
       (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
       (sut/render
        (sut/CSSTransitionGroup
         {:transitionName "example"}
-        [(d/div {:className "item"} "I will enter")])
+        [(d/div {:key "#2" :className "item"} "I will enter")])
        el)
       (is (= "item example-enter" (.. el -firstChild -firstChild -className)))))
 
-  (testing "Adds active class name on next tick"
+  (testing "Adds enter-active class name on next tick"
     (async done
       (let [el (js/document.createElement "div")]
         (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
         (sut/render
          (sut/CSSTransitionGroup
           {:transitionName "example"}
-          [(d/div {} "I will enter")])
+          [(d/div {:key "#3"} "I will enter")])
          el)
         (js/setTimeout
          (fn []
@@ -402,7 +402,7 @@
            (done))
          0))))
 
-  (testing "Removes transition class names after timeout"
+  (testing "Removes enter transition class names after timeout"
     (async done
       (let [el (js/document.createElement "div")]
         (sut/render (sut/CSSTransitionGroup {:transitionName "example"
@@ -411,10 +411,35 @@
          (sut/CSSTransitionGroup
           {:transitionName "example"
            :transitionEnterTimeout 10}
-          [(d/div {:className "do not remove"} "I will enter")])
+          [(d/div {:key "#4" :className "do not remove"} "I will enter")])
          el)
         (js/setTimeout
          (fn []
            (is (= "do not remove" (.. el -firstChild -firstChild -className)))
            (done))
-         10)))))
+         10))))
+
+  (testing "Removes enter transition class names after completed transition"
+    (async done
+      (let [el (js/document.createElement "div")
+            style (or (js/document.getElementById "transition-css")
+                      (let [style (js/document.createElement "style")]
+                        (set! (.-type style) "text/css")
+                        (set! (.-id style) "transition-css")
+                        (js/document.head.appendChild style)
+                        style))]
+        (set! (.-innerHTML style) (str ".transition-example-enter {transition: color 10ms; color: #000;}"
+                                       ".transition-example-enter-active {color: #f00;}"))
+        (js/document.body.appendChild el)
+        (sut/render (sut/CSSTransitionGroup {:transitionName "transition-example"} []) el)
+        (sut/render
+         (sut/CSSTransitionGroup
+          {:transitionName "transition-example"}
+          [(d/div {:key "#5"} "Check test document CSS")])
+         el)
+        (js/setTimeout
+         (fn []
+           (is (= "" (.. el -firstChild -firstChild -className)))
+           (.removeChild (.-parentNode el) el)
+           (done))
+         50)))))
