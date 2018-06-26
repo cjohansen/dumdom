@@ -1,6 +1,5 @@
 (ns dumdom.core-test
-  (:require [cljs.test :as t :refer-macros [testing is]]
-            [clojure.string :as str]
+  (:require [cljs.test :as t :refer-macros [async is testing]]
             [devcards.core :refer-macros [deftest]]
             [dumdom.core :as sut]
             [dumdom.dom :as d]
@@ -364,3 +363,56 @@
       (sut/render (sut/TransitionGroup {:component "div" :className "lol" :id "ok"} []) el)
       (is (= (.. el -firstChild -className) "lol"))
       (is (= (.. el -firstChild -id) "ok")))))
+
+(deftest CSSTransitionGroupTest
+  (testing "Adds class names according to the transition name"
+    (let [el (js/document.createElement "div")]
+      (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
+      (sut/render
+       (sut/CSSTransitionGroup
+        {:transitionName "example"}
+        [(d/div {} "I will enter")])
+       el)
+      (is (= "example-enter" (.. el -firstChild -firstChild -className)))))
+
+  (testing "Adds class names to existing ones"
+    (let [el (js/document.createElement "div")]
+      (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
+      (sut/render
+       (sut/CSSTransitionGroup
+        {:transitionName "example"}
+        [(d/div {:className "item"} "I will enter")])
+       el)
+      (is (= "item example-enter" (.. el -firstChild -firstChild -className)))))
+
+  (testing "Adds active class name on next tick"
+    (async done
+      (let [el (js/document.createElement "div")]
+        (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
+        (sut/render
+         (sut/CSSTransitionGroup
+          {:transitionName "example"}
+          [(d/div {} "I will enter")])
+         el)
+        (js/setTimeout
+         (fn []
+           (is (= "example-enter example-enter-active" (.. el -firstChild -firstChild -className)))
+           (done))
+         0))))
+
+  (testing "Removes transition class names after timeout"
+    (async done
+      (let [el (js/document.createElement "div")]
+        (sut/render (sut/CSSTransitionGroup {:transitionName "example"
+                                             :transitionEnterTimeout 10} []) el)
+        (sut/render
+         (sut/CSSTransitionGroup
+          {:transitionName "example"
+           :transitionEnterTimeout 10}
+          [(d/div {:className "do not remove"} "I will enter")])
+         el)
+        (js/setTimeout
+         (fn []
+           (is (= "do not remove" (.. el -firstChild -firstChild -className)))
+           (done))
+         10)))))

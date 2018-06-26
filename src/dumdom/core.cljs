@@ -142,3 +142,23 @@
 
 (defn TransitionGroup [opt children]
   (apply d/el (or (:component opt) "span") opt children))
+
+(defn- add-class [el class-name]
+  (.add (.-classList el) class-name))
+
+(def TransitioningElement
+  (component
+   (fn [{:keys [child]}]
+     child)
+   {:will-enter (fn [node callback {:keys [transitionName transitionEnterTimeout]}]
+                  (add-class node (str transitionName "-enter"))
+                  (js/setTimeout #(add-class node (str transitionName "-enter-active")) 0)
+                  (if transitionEnterTimeout
+                    (js/setTimeout callback transitionEnterTimeout)
+                    (.addEventListener node "transitionend" callback)))
+    :did-enter (fn [node {:keys [transitionName]}]
+                 (.remove (.-classList node) (str transitionName "-enter"))
+                 (.remove (.-classList node) (str transitionName "-enter-active")))}))
+
+(defn CSSTransitionGroup [opt children]
+  (TransitionGroup opt (map #(TransitioningElement (assoc opt :child %)) children)))
