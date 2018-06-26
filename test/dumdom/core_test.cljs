@@ -5,6 +5,8 @@
             [dumdom.dom :as d]
             [dumdom.test-helper :refer [render render-str]]))
 
+(sut/purge!)
+
 (deftest component-render
   (testing "Renders component"
     (let [comp (sut/component (fn [data] (d/div {:className "lol"} data)))]

@@ -24,6 +24,9 @@
   (set! (.-innerHTML element) "<div></div>")
   (.-firstChild element))
 
+(defn purge! []
+  (reset! current-nodes {}))
+
 (defn render
   "Render the virtual DOM node created by the compoennt into the specified DOM
   element"
