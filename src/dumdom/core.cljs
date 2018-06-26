@@ -1,5 +1,6 @@
 (ns dumdom.core
-  (:require [dumdom.dom :as d]
+  (:require [cljs.core.async :refer [timeout]]
+            [dumdom.dom :as d]
             [snabbdom :as sd]
             ["snabbdom/modules/eventlisteners" :as events]
             ["snabbdom/modules/props" :as props]
@@ -167,25 +168,30 @@
       (reset! callback-fn f)
       (.addEventListener node "transitionend" f))))
 
+(defn- animate [transition {:keys [enabled-by-default?]}]
+  (let [timeout (keyword (str "transition" transition "Timeout"))]
+    (fn [node callback {:keys [transitionName] :as props}]
+      (if (get props (keyword (str "transition" transition)) enabled-by-default?)
+        (do
+          (.add (.-classList node) (str transitionName "-" (.toLowerCase transition)))
+          (complete-transition node (get props timeout) callback)
+          (js/setTimeout #(.add (.-classList node) (str transitionName "-" (.toLowerCase transition) "-active")) 0))
+        (callback)))))
+
+(defn- cleanup-animation [transition]
+  (fn [node {:keys [transitionName]}]
+    (.remove (.-classList node) (str transitionName "-" transition))
+    (.remove (.-classList node) (str transitionName "-" transition "-active"))))
+
 (def TransitioningElement
   (component
    (fn [{:keys [child]}]
      child)
-   {:will-appear (fn [node callback {:keys [transitionName transitionAppearTimeout]}]
-                  (add-class node (str transitionName "-appear"))
-                  (complete-transition node transitionAppearTimeout callback)
-                  (js/setTimeout #(add-class node (str transitionName "-appear-active")) 0))
-    :will-enter (fn [node callback {:keys [transitionName transitionEnterTimeout]}]
-                  (add-class node (str transitionName "-enter"))
-                  (complete-transition node transitionEnterTimeout callback)
-                  (js/setTimeout #(add-class node (str transitionName "-enter-active")) 0))
-    :did-enter (fn [node {:keys [transitionName]}]
-                 (.remove (.-classList node) (str transitionName "-enter"))
-                 (.remove (.-classList node) (str transitionName "-enter-active")))
-    :will-leave (fn [node callback {:keys [transitionName transitionLeaveTimeout]}]
-                  (add-class node (str transitionName "-leave"))
-                  (complete-transition node transitionLeaveTimeout callback)
-                  (js/setTimeout #(add-class node (str transitionName "-leave-active")) 0))}))
+   {:will-appear (animate "Appear" {:enabled-by-default? false})
+    :did-appear (cleanup-animation "appear")
+    :will-enter (animate "Enter" {:enabled-by-default? true})
+    :did-enter (cleanup-animation "enter")
+    :will-leave (animate "Leave" {:enabled-by-default? true})}))
 
 (defn CSSTransitionGroup [opt children]
   (TransitionGroup opt (map #(TransitioningElement (assoc opt :child %)) children)))

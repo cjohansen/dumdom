@@ -408,7 +408,7 @@
                                        [(d/span {} "Hey") (d/span {} "there!")]) el)
       (is (= (.-innerHTML el) "<h1><span>Hey</span><span>there!</span></h1>")))))
 
-(deftest CSSTransitionGroupTest
+(deftest CSSTransitionGroupEnterTest
   (testing "Adds enter class name according to the transition name"
     (let [el (js/document.createElement "div")]
       (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
@@ -418,6 +418,18 @@
         [(d/div {:key "#1"} "I will enter")])
        el)
       (is (= "example-enter" (.. el -firstChild -firstChild -className)))))
+
+  (testing "Does not add enter class name when enter transition is disabled"
+    (let [el (js/document.createElement "div")]
+      (sut/render (sut/CSSTransitionGroup {:transitionName "example"
+                                           :transitionEnter false} []) el)
+      (sut/render
+       (sut/CSSTransitionGroup
+        {:transitionName "example"
+         :transitionEnter false}
+        [(d/div {:key "#1"} "I will enter")])
+       el)
+      (is (= "" (.. el -firstChild -firstChild -className)))))
 
   (testing "Adds enter class name to existing ones"
     (let [el (js/document.createElement "div")]
@@ -484,56 +496,118 @@
            (is (= "" (.. el -firstChild -firstChild -className)))
            (.removeChild (.-parentNode el) el)
            (done))
-         50))))
+         50)))))
 
-  (testing "Adds leave class name according to the transition name"
+(deftest CSSTransitionGroupAppearTest
+  (testing "Adds appear class name according to the transition name"
     (let [el (js/document.createElement "div")]
       (sut/render
        (sut/CSSTransitionGroup
-        {:transitionName "example"}
-        [(d/div {:key "#1"} "I will leave")])
+        {:transitionName "example"
+         :transitionAppear true}
+        [(d/div {:key "#1"} "I will appear")])
        el)
-      (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
-      (is (= "example-leave" (.. el -firstChild -firstChild -className)))))
+      (is (= "example-appear" (.. el -firstChild -firstChild -className)))))
 
-  (testing "Adds leave class name to existing ones"
-    (let [el (js/document.createElement "div")]
-      (sut/render
-       (sut/CSSTransitionGroup
-        {:transitionName "example"}
-        [(d/div {:key "#2" :className "item"} "I will leave")])
-       el)
-      (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
-      (is (= "item example-leave" (.. el -firstChild -firstChild -className)))))
+   (testing "Does not add appear class name when appear transition is disabled"
+     (let [el (js/document.createElement "div")]
+       (sut/render
+        (sut/CSSTransitionGroup
+         {:transitionName "example"}
+         [(d/div {:key "#1"} "I will appear")])
+        el)
+       (is (= "" (.. el -firstChild -firstChild -className)))))
 
-  (testing "Adds leave-active class name on next tick"
-    (async done
-      (let [el (js/document.createElement "div")]
-        (sut/render
-         (sut/CSSTransitionGroup
-          {:transitionName "example"}
-          [(d/div {:key "#3"} "I will leave")])
-         el)
-        (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
-        (js/setTimeout
-         (fn []
-           (is (= "example-leave example-leave-active" (.. el -firstChild -firstChild -className)))
-           (done))
-         0))))
+   (testing "Adds appear class name to existing ones"
+     (let [el (js/document.createElement "div")]
+       (sut/render
+        (sut/CSSTransitionGroup
+         {:transitionName "example"
+          :transitionAppear true}
+         [(d/div {:key "#2" :className "item"} "I will appear")])
+        el)
+       (is (= "item example-appear" (.. el -firstChild -firstChild -className)))))
 
-  (testing "Removes node after leave timeout"
-    (async done
-      (let [el (js/document.createElement "div")]
-        (sut/render
-         (sut/CSSTransitionGroup
-          {:transitionName "example"
-           :transitionLeaveTimeout 10}
-          [(d/div {:key "#4"} "I will leave")])
-         el)
-        (sut/render (sut/CSSTransitionGroup {:transitionName "example"
-                                             :transitionLeaveTimeout 10} []) el)
-        (js/setTimeout
-         (fn []
-           (is (nil? (.. el -firstChild -firstChild)))
-           (done))
-         10)))))
+   (testing "Adds appear-active class name on next tick"
+     (async done
+       (let [el (js/document.createElement "div")]
+         (sut/render
+          (sut/CSSTransitionGroup
+           {:transitionName "example"
+            :transitionAppear true}
+           [(d/div {:key "#3"} "I will appear")])
+          el)
+         (js/setTimeout
+          (fn []
+            (is (= "example-appear example-appear-active" (.. el -firstChild -firstChild -className)))
+            (done))
+          0))))
+
+   (testing "Removes appear transition class names after timeout"
+     (async done
+       (let [el (js/document.createElement "div")]
+         (sut/render
+          (sut/CSSTransitionGroup
+           {:transitionName "example"
+            :transitionAppear true
+            :transitionAppearTimeout 10}
+           [(d/div {:key "#4" :className "do not remove"} "I will appear")])
+          el)
+         (js/setTimeout
+          (fn []
+            (is (= "do not remove" (.. el -firstChild -firstChild -className)))
+            (done))
+          10)))))
+
+(deftest CSSTransitionGroupLeaveTest
+   (testing "Adds leave class name according to the transition name"
+     (let [el (js/document.createElement "div")]
+       (sut/render
+        (sut/CSSTransitionGroup
+         {:transitionName "example"}
+         [(d/div {:key "#1"} "I will leave")])
+        el)
+       (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
+       (is (= "example-leave" (.. el -firstChild -firstChild -className)))))
+
+   (testing "Adds leave class name to existing ones"
+     (let [el (js/document.createElement "div")]
+       (sut/render
+        (sut/CSSTransitionGroup
+         {:transitionName "example"}
+         [(d/div {:key "#2" :className "item"} "I will leave")])
+        el)
+       (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
+       (is (= "item example-leave" (.. el -firstChild -firstChild -className)))))
+
+   (testing "Adds leave-active class name on next tick"
+     (async done
+       (let [el (js/document.createElement "div")]
+         (sut/render
+          (sut/CSSTransitionGroup
+           {:transitionName "example"}
+           [(d/div {:key "#3"} "I will leave")])
+          el)
+         (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
+         (js/setTimeout
+          (fn []
+            (is (= "example-leave example-leave-active" (.. el -firstChild -firstChild -className)))
+            (done))
+          0))))
+
+   (testing "Removes node after leave timeout"
+     (async done
+       (let [el (js/document.createElement "div")]
+         (sut/render
+          (sut/CSSTransitionGroup
+           {:transitionName "example"
+            :transitionLeaveTimeout 10}
+           [(d/div {:key "#4"} "I will leave")])
+          el)
+         (sut/render (sut/CSSTransitionGroup {:transitionName "example"
+                                              :transitionLeaveTimeout 10} []) el)
+         (js/setTimeout
+          (fn []
+            (is (nil? (.. el -firstChild -firstChild)))
+            (done))
+          10)))))
