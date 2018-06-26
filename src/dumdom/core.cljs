@@ -155,10 +155,15 @@
      child)
    {:will-enter (fn [node callback {:keys [transitionName transitionEnterTimeout]}]
                   (add-class node (str transitionName "-enter"))
-                  (js/setTimeout #(add-class node (str transitionName "-enter-active")) 0)
                   (if transitionEnterTimeout
                     (js/setTimeout callback transitionEnterTimeout)
-                    (.addEventListener node "transitionend" callback)))
+                    (let [callback-fn (atom nil)
+                          f (fn []
+                              (callback)
+                              (.removeEventListener node "transitionend" @callback-fn))]
+                      (reset! callback-fn f)
+                      (.addEventListener node "transitionend" f)))
+                  (js/setTimeout #(add-class node (str transitionName "-enter-active")) 0))
     :did-enter (fn [node {:keys [transitionName]}]
                  (.remove (.-classList node) (str transitionName "-enter"))
                  (.remove (.-classList node) (str transitionName "-enter-active")))}))
