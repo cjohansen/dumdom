@@ -29,7 +29,7 @@
   element"
   [component element]
   (let [current-node (or (@current-nodes element) (init-node! element))
-        vnode (component [] 0)]
+        vnode (component [(count @current-nodes)] 0)]
     (patch current-node vnode)
     (swap! current-nodes assoc element vnode)))
 
