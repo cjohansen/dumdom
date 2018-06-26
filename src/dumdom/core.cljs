@@ -149,24 +149,31 @@
 (defn- add-class [el class-name]
   (.add (.-classList el) class-name))
 
+(defn- complete-transition [node timeout callback]
+  (if timeout
+    (js/setTimeout callback timeout)
+    (let [callback-fn (atom nil)
+          f (fn []
+              (callback)
+              (.removeEventListener node "transitionend" @callback-fn))]
+      (reset! callback-fn f)
+      (.addEventListener node "transitionend" f))))
+
 (def TransitioningElement
   (component
    (fn [{:keys [child]}]
      child)
    {:will-enter (fn [node callback {:keys [transitionName transitionEnterTimeout]}]
                   (add-class node (str transitionName "-enter"))
-                  (if transitionEnterTimeout
-                    (js/setTimeout callback transitionEnterTimeout)
-                    (let [callback-fn (atom nil)
-                          f (fn []
-                              (callback)
-                              (.removeEventListener node "transitionend" @callback-fn))]
-                      (reset! callback-fn f)
-                      (.addEventListener node "transitionend" f)))
+                  (complete-transition node transitionEnterTimeout callback)
                   (js/setTimeout #(add-class node (str transitionName "-enter-active")) 0))
     :did-enter (fn [node {:keys [transitionName]}]
                  (.remove (.-classList node) (str transitionName "-enter"))
-                 (.remove (.-classList node) (str transitionName "-enter-active")))}))
+                 (.remove (.-classList node) (str transitionName "-enter-active")))
+    :will-leave (fn [node callback {:keys [transitionName transitionLeaveTimeout]}]
+                  (add-class node (str transitionName "-leave"))
+                  (complete-transition node transitionLeaveTimeout callback)
+                  (js/setTimeout #(add-class node (str transitionName "-leave-active")) 0))}))
 
 (defn CSSTransitionGroup [opt children]
   (TransitionGroup opt (map #(TransitioningElement (assoc opt :child %)) children)))

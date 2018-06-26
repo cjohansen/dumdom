@@ -442,4 +442,56 @@
            (is (= "" (.. el -firstChild -firstChild -className)))
            (.removeChild (.-parentNode el) el)
            (done))
-         50)))))
+         50))))
+
+  (testing "Adds leave class name according to the transition name"
+    (let [el (js/document.createElement "div")]
+      (sut/render
+       (sut/CSSTransitionGroup
+        {:transitionName "example"}
+        [(d/div {:key "#1"} "I will leave")])
+       el)
+      (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
+      (is (= "example-leave" (.. el -firstChild -firstChild -className)))))
+
+  (testing "Adds leave class name to existing ones"
+    (let [el (js/document.createElement "div")]
+      (sut/render
+       (sut/CSSTransitionGroup
+        {:transitionName "example"}
+        [(d/div {:key "#2" :className "item"} "I will leave")])
+       el)
+      (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
+      (is (= "item example-leave" (.. el -firstChild -firstChild -className)))))
+
+  (testing "Adds leave-active class name on next tick"
+    (async done
+      (let [el (js/document.createElement "div")]
+        (sut/render
+         (sut/CSSTransitionGroup
+          {:transitionName "example"}
+          [(d/div {:key "#3"} "I will leave")])
+         el)
+        (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
+        (js/setTimeout
+         (fn []
+           (is (= "example-leave example-leave-active" (.. el -firstChild -firstChild -className)))
+           (done))
+         0))))
+
+  (testing "Removes node after leave timeout"
+    (async done
+      (let [el (js/document.createElement "div")]
+        (sut/render
+         (sut/CSSTransitionGroup
+          {:transitionName "example"
+           :transitionLeaveTimeout 10}
+          [(d/div {:key "#4"} "I will leave")])
+         el)
+        (sut/render (sut/CSSTransitionGroup {:transitionName "example"
+                                             :transitionLeaveTimeout 10} []) el)
+        (js/setTimeout
+         (fn []
+           (is (nil? (.. el -firstChild -firstChild)))
+           (done))
+         10)))))
