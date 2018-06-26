@@ -150,7 +150,9 @@
              (:vdom instance))))))))
 
 (defn TransitionGroup [opt children]
-  (apply d/el (or (:component opt) "span") opt children))
+  (if (ifn? (:component opt))
+    ((:component opt) children)
+    (apply d/el (or (:component opt) "span") opt children)))
 
 (defn- add-class [el class-name]
   (.add (.-classList el) class-name))

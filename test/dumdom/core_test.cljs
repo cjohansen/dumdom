@@ -398,7 +398,15 @@
     (let [el (js/document.createElement "div")]
       (sut/render (sut/TransitionGroup {:component "div" :className "lol" :id "ok"} []) el)
       (is (= (.. el -firstChild -className) "lol"))
-      (is (= (.. el -firstChild -id) "ok")))))
+      (is (= (.. el -firstChild -id) "ok"))))
+
+  (testing "Creates TransitionGroup with custom component"
+    (let [el (js/document.createElement "div")
+          component (sut/component
+                     (fn [children] (d/h1 {} children)))]
+      (sut/render (sut/TransitionGroup {:component component}
+                                       [(d/span {} "Hey") (d/span {} "there!")]) el)
+      (is (= (.-innerHTML el) "<h1><span>Hey</span><span>there!</span></h1>")))))
 
 (deftest CSSTransitionGroupTest
   (testing "Adds enter class name according to the transition name"
