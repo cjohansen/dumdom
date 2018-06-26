@@ -45,10 +45,13 @@
   (fn [path k]
     (let [fullpath (conj path k)]
       (sd/h type
-            (clj->js (assoc-in (prep-props attrs) [:hook :update]
-                               (fn [old-vnode new-vnode]
-                                 (doseq [node (filter #(.-willEnter %) (.-children new-vnode))]
-                                   ((.-willEnter node))))))
+            (clj->js (-> (prep-props attrs)
+                         (assoc-in [:hook :update]
+                                   (fn [old-vnode new-vnode]
+                                     (doseq [node (filter #(.-willEnter %) (.-children new-vnode))]
+                                       ((.-willEnter node)))
+                                     (doseq [node (filter #(.-willAppear %) (.-children new-vnode))]
+                                       ((.-willAppear node)))))))
             (->> children
                  (mapcat #(if (coll? %) % [%]))
                  (map-indexed #(if (fn? %2)

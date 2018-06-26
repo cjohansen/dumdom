@@ -39,22 +39,25 @@
 (defn- should-component-update? [component-state data]
   (not= (:data component-state) data))
 
-(defn- setup-mount-hook [rendered {:keys [on-mount on-render will-enter did-enter]} data args animation]
-  (when (or on-mount on-render will-enter)
+(defn- setup-mount-hook [rendered {:keys [on-mount on-render will-appear did-appear will-enter did-enter]} data args animation]
+  (when (or on-mount on-render will-enter will-appear)
     (let [insert-hook (.. rendered -data -hook -insert)]
       (set! (.. rendered -data -hook -insert)
             (fn [vnode]
               (when insert-hook (insert-hook vnode))
               (when on-mount (apply on-mount (.-elm vnode) data args))
               (when on-render (apply on-render (.-elm vnode) data args))
-              (let [{:keys [will-enter]} @animation]
-                (when will-enter
+              (let [{:keys [will-enter will-appear]} @animation]
+                (when-let [callback (or will-enter will-appear)]
                   (swap! animation assoc :ready? false)
-                  (apply will-enter
+                  (apply callback
                          (.-elm vnode)
                          (fn []
                            (swap! animation assoc :ready? true)
-                           (when did-enter (apply did-enter (.-elm vnode) data args)))
+                           (when-let [completion (if (= callback will-enter)
+                                                   did-enter
+                                                   did-appear)]
+                             (apply completion (.-elm vnode) data args)))
                          data
                          args))))))))
 
@@ -134,6 +137,9 @@
                  (set! (.-key rendered) key))
                (when-let [will-enter (:will-enter opt)]
                  (set! (.-willEnter rendered) #(swap! animation assoc :will-enter will-enter)))
+               (when-let [will-appear (:will-appear opt)]
+                 (swap! animation assoc :will-appear will-appear)
+                 (set! (.-willAppear rendered) #(swap! animation dissoc :will-appear)))
                (setup-mount-hook rendered opt data args animation)
                (setup-update-hook rendered opt data args)
                (setup-unmount-hook rendered opt data args animation)
@@ -163,7 +169,11 @@
   (component
    (fn [{:keys [child]}]
      child)
-   {:will-enter (fn [node callback {:keys [transitionName transitionEnterTimeout]}]
+   {:will-appear (fn [node callback {:keys [transitionName transitionAppearTimeout]}]
+                  (add-class node (str transitionName "-appear"))
+                  (complete-transition node transitionAppearTimeout callback)
+                  (js/setTimeout #(add-class node (str transitionName "-appear-active")) 0))
+    :will-enter (fn [node callback {:keys [transitionName transitionEnterTimeout]}]
                   (add-class node (str transitionName "-enter"))
                   (complete-transition node transitionEnterTimeout callback)
                   (js/setTimeout #(add-class node (str transitionName "-enter-active")) 0))

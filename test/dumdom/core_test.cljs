@@ -162,7 +162,7 @@
           component (sut/component
                      (fn [_] (d/div {} "LOL"))
                      {:on-render (fn [node & args]
-                                  (reset! on-render (apply vector node args)))})]
+                                   (reset! on-render (apply vector node args)))})]
       (sut/render (component {:a 42} {:static "Prop"} {:another "Static"}) el)
       (is (= [(.-firstChild el) {:a 42} {:static "Prop"} {:another "Static"}]
              @on-render))))
@@ -176,7 +176,7 @@
                      {:on-render (fn [node & args]
                                    (reset! on-render (apply vector node args)))
                       :on-mount (fn [node & args]
-                                   (reset! on-mount (apply vector node args)))})]
+                                  (reset! on-mount (apply vector node args)))})]
       (sut/render (component {:a 42} {:static "Prop"} {:another "Static"}) el)
       (is (= [(.-firstChild el) {:a 42} {:static "Prop"} {:another "Static"}]
              @on-render
@@ -248,6 +248,40 @@
         (is (= [rendered {:text "LOL"}] @on-unmount))))))
 
 (deftest animation-callbacks-test
+  (testing "Calls will-appear when parent mounts"
+    (let [el (js/document.createElement "div")
+          will-appear (atom nil)
+          component (sut/component
+                     (fn [data] (d/div {} (:text data)))
+                     {:will-appear (fn [node callback & args]
+                                     (reset! will-appear (apply vector node args)))})]
+      (sut/render (d/div {} (component {:text "LOL"})) el)
+      (is (= [(.. el -firstChild -firstChild) {:text "LOL"}] @will-appear))))
+
+  (testing "Calls did-appear when the callback passed to will-appear is called"
+    (let [el (js/document.createElement "div")
+          will-appear (atom nil)
+          did-appear (atom nil)
+          component (sut/component
+                     (fn [data] (d/div {} (:text data)))
+                     {:will-appear (fn [node callback & args] (reset! will-appear callback))
+                      :did-appear (fn [node & args]
+                                   (reset! did-appear (apply vector node args)))})]
+      (sut/render (d/div {} (component {:text "LOL"})) el)
+      (is (nil? @did-appear))
+      (@will-appear)
+      (is (= [(.. el -firstChild -firstChild) {:text "LOL"}] @did-appear))))
+
+  (testing "Does not call will-appear when parent updates"
+    (let [el (js/document.createElement "div")
+          will-appear (atom 0)
+          component (sut/component
+                     (fn [data] (d/div {} (:text data)))
+                     {:will-appear #(swap! will-appear inc)})]
+      (sut/render (d/div {} (component {:text "LOL"})) el)
+      (sut/render (d/div {} (component {:text "LOL!!"})) el)
+      (is (= 1 @will-appear))))
+
   (testing "Does not call will-enter when parent mounts"
     (let [el (js/document.createElement "div")
           will-enter (atom nil)
