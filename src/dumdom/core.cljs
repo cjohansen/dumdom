@@ -11,6 +11,10 @@
   reconcile (render component dom-node) to (patch old-vdom new-vdom)"
   (atom {}))
 
+(def ^:private element-id
+  "A counter used to assign unique ids to root elements"
+  (atom -1))
+
 (def ^:private patch
   "The snabbdom patch function used by render"
   (sd/init (clj->js [(.-default events)
@@ -23,6 +27,7 @@
   and use that as Snabbdom's root, to avoid destroying the provided root node."
   [element]
   (set! (.-innerHTML element) "<div></div>")
+  (set! (.. element -dataset -dumdomId) (swap! element-id inc))
   (.-firstChild element))
 
 (defn purge! []
@@ -32,10 +37,11 @@
   "Render the virtual DOM node created by the compoennt into the specified DOM
   element"
   [component element]
-  (let [current-node (or (@current-nodes element) (init-node! element))
-        vnode (component [(count @current-nodes)] 0)]
+  (let [current-node (or (@current-nodes (.. element -dataset -dumdomId)) (init-node! element))
+        element-id (.. element -dataset -dumdomId)
+        vnode (component [element-id] 0)]
     (patch current-node vnode)
-    (swap! current-nodes assoc element vnode)))
+    (swap! current-nodes assoc element-id vnode)))
 
 (defn- should-component-update? [component-state data]
   (not= (:data component-state) data))
