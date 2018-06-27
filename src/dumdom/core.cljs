@@ -104,22 +104,52 @@
 
   The optional opts argument is a map with additional properties:
 
-  :on-mount - A function which will be invoked once, immediately after initial
-  rendering. It is passed the rendered DOM node, and all arguments passed to the
+  :on-mount - A function invoked once, immediately after initial rendering. It
+  is passed the rendered DOM node, and all arguments passed to the render
+  function.
+
+  :on-update - A function invoked immediately after an updated is flushed to the
+  DOM, but not on the initial render. It is passed the underlying DOM node, the
+  value, and any constant arguments passed to the render function.
+
+  :on-render - A function invoked immediately after the DOM is updated, both on
+  the initial render and subsequent updates. It is passed the underlying DOM
+  node, the value, the old value, and any constant arguments passed to the
   render function.
 
-  :on-update - A function which will be invoked immediately after an updated is
-  flushed to the DOM, but not on the initial render. It is passed the underlying
-  DOM node, the value, and any constant arguments passed to the render function.
+  :on-unmount - A function invoked immediately before the component is unmounted
+  from the DOM. It is passed the underlying DOM node, the most recent value and
+  the most recent constant args passed to the render fn.
 
-  :on-render - A function which will be invoked immediately after an updated is
-  flushed to the DOM, but not on the initial render. It is passed the underlying
-  DOM node, the value, the old value, and any constant arguments passed to the
-  render function.
+  :will-appear - A function invoked when this component is added to a mounting
+  container component. Invoked at the same time as :on-mount. It is passed the
+  underlying DOM node, a callback function, the most recent value and the most
+  recent constant args passed to the render fn. The callback should be called to
+  indicate that the element is done \"appearing\".
 
-  :on-unmount - A function which will be invoked immediately before the
-  component is unmounted from the DOM. It is passed the underlying DOM node, the
-  most recent value and the most recent constant args passed to the render fn."
+  :did-appear - A function invoked immediately after the callback passed
+  to :will-appear is called. It is passed the underlying DOM node, the most
+  recent value, and the most recent constant args passed to the render fn.
+
+  :will-enter - A function invoked when this component is added to an already
+  mounted container component. Invoked at the same time as :on.mount. It is
+  passed the underlying DOM node, a callback function, the value and any
+  constant args passed to the render fn. The callback function should be called
+  to indicate that the element is done entering.
+
+  :did-enter - A function invoked after the callback passed to :will-enter is
+  called. It is passed the underlying DOM node, the value and any constant args
+  passed to the render fn.
+
+  :will-leave - A function invoked when this component is removed from its
+  containing component. Is passed the underlying DOM node, a callback function,
+  the most recent value and the most recent constant args passed to the render
+  fn. The DOM node will not be removed until the callback is called.
+
+  :did-leave - A function invoked after the callback passed to :will-leave is
+  called (at the same time as :on-unmount). Is passed the underlying DOM node,
+  the most recent value and the most recent constant args passed to the render
+  fn."
   ([render] (component render {}))
   ([render opt]
    (let [instances (atom {})]
