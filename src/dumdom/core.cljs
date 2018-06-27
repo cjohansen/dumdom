@@ -75,11 +75,12 @@
             (when on-update (apply on-update (.-elm vnode) data args))
             (when on-render (apply on-render (.-elm vnode) data args))))))
 
-(defn- setup-unmount-hook [rendered component data args animation]
-  (when-let [on-unmount (:on-unmount component)]
-    (set! (.. rendered -data -hook -destroy)
-          (fn [vnode]
-            (apply on-unmount (.-elm vnode) data args))))
+(defn- setup-unmount-hook [rendered component data args animation on-destroy]
+  (set! (.. rendered -data -hook -destroy)
+        (fn [vnode]
+          (when-let [on-unmount (:on-unmount component)]
+            (apply on-unmount (.-elm vnode) data args))
+          (on-destroy)))
   (when-let [will-leave (:will-leave component)]
     (set! (.. rendered -data -hook -remove)
           (fn [vnode snabbdom-callback]
@@ -179,7 +180,7 @@
                  (set! (.-willAppear rendered) #(swap! animation dissoc :will-appear)))
                (setup-mount-hook rendered opt data args animation)
                (setup-update-hook rendered opt data args)
-               (setup-unmount-hook rendered opt data args animation)
+               (setup-unmount-hook rendered opt data args animation #(swap! instances dissoc fullpath))
                (swap! instances assoc fullpath (assoc instance
                                                       :vdom rendered
                                                       :data data))
