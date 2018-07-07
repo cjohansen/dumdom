@@ -10,11 +10,12 @@
        (str/join "")))
 
 (defn dom-str [vnode]
-  (if (nil? (.-sel vnode))
-    (.-text vnode)
-    (str "<" (.-sel vnode) (attrs vnode) ">"
-         (str/join "" (map dom-str (.-children vnode)))
-         "</" (.-sel vnode) ">")))
+  (cond
+    (nil? vnode) ""
+    (nil? (.-sel vnode)) (.-text vnode)
+    :default (str "<" (.-sel vnode) (attrs vnode) ">"
+                  (str/join "" (map dom-str (.-children vnode)))
+                  "</" (.-sel vnode) ">")))
 
 (defn render
   ([el]

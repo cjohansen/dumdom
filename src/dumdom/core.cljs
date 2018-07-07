@@ -170,7 +170,8 @@
                              :path fullpath})
                animation (atom {:ready? true})]
            (if (should-component-update? instance data)
-             (let [rendered ((apply render data args) fullpath 0)]
+             (when-let [rendered (when-let [renderer (apply render data args)]
+                                   (renderer fullpath 0))]
                (when key
                  (set! (.-key rendered) key))
                (when-let [will-enter (:will-enter opt)]

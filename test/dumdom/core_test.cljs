@@ -78,7 +78,26 @@
                                 (d/p {} "From component")))]
       (is (= "<div class=\"wrapper\"><p>From component</p></div>"
              (render-str (d/div {:className "wrapper"}
-                           (comp {:id "v1"} 1 2 3))))))))
+                           (comp {:id "v1"} 1 2 3)))))))
+
+  (testing "Does not freak out when rendering null children"
+    (let [comp (sut/component (fn [data]
+                                (d/div {}
+                                  (d/h1 {} "Hello")
+                                  nil
+                                  (d/p {} "Ok"))))]
+      (is (= "<div class=\"wrapper\"><div><h1>Hello</h1><p>Ok</p></div><div>Meh</div></div>"
+             (render-str (d/div {:className "wrapper"}
+                           (comp {})
+                           nil
+                           (d/div {} "Meh")))))))
+
+  (testing "Allows components to return nil"
+    (let [comp (sut/component (fn [data] nil))]
+      (is (= "<div class=\"wrapper\"><div>Meh</div></div>"
+             (render-str (d/div {:className "wrapper"}
+                           (comp {})
+                           (d/div {} "Meh"))))))))
 
 (deftest render-test
   (testing "Renders vnode to DOM"
