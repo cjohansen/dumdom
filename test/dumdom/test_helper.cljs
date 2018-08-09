@@ -8,7 +8,7 @@
   (str/join "; " (map #(str/join ": " %) styles)))
 
 (defn- attrs [vnode]
-  (->> (merge (js->clj (-> vnode .-data .-props))
+  (->> (merge (js->clj (-> vnode .-data .-attrs))
               (when-let [style(js->clj (-> vnode .-data .-style))]
                 {"style" (render-styles style)}))
        (map (fn [[k v]] (str " " (or (attr-names k) k) "=\"" v "\"")))

@@ -24,7 +24,31 @@
                                        :right 30
                                        :bottom 40
                                        :padding 50
-                                       :margin 20}} "Hello"))))))
+                                       :margin 20}} "Hello")))))
+
+  (testing "Renders SVG element"
+    (let [el (js/document.createElement "div")
+          brush {:fill "none"
+                 :strokeWidth "4"
+                 :strokeLinecap "round"
+                 :strokeLinejoin "round"
+                 :strokeMiterlimit "10"}]
+      (dd/render (d/svg {:viewBox "0 0 64 64"}
+                   (d/circle (merge brush {:cx "32" :cy "32" :r "30"}))
+                   (d/line (merge brush {:x1 "16" :y1 "32" :x2 "48" :y2 "32"}))
+                   (d/line (merge brush {:x1 "32" :y1 "16" :x2 "32" :y2 "48"}))) el)
+      (is (= (str "<svg viewBox=\"0 0 64 64\">"
+                  "<circle fill=\"none\" cx=\"32\" cy=\"32\" r=\"30\" stroke-width=\"4\" "
+                  "stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-miterlimit=\"10\">"
+                  "</circle>"
+                  "<line fill=\"none\" stroke-linejoin=\"round\" y1=\"32\" stroke-linecap=\"round\" "
+                  "stroke-width=\"4\" stroke-miterlimit=\"10\" x1=\"16\" y2=\"32\" x2=\"48\">"
+                  "</line>"
+                  "<line fill=\"none\" stroke-linejoin=\"round\" y1=\"16\" stroke-linecap=\"round\" "
+                  "stroke-width=\"4\" stroke-miterlimit=\"10\" x1=\"32\" y2=\"48\" x2=\"32\">"
+                  "</line>"
+                  "</svg>")
+             (.-innerHTML el))))))
 
 (deftest ref-test
   (testing "Invokes ref callback with DOM element"
