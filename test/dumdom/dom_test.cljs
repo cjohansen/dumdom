@@ -12,7 +12,19 @@
 
   (testing "Renders nested div elements"
     (is (= "<div class=\"test\"><div id=\"yap\">Hello</div></div>"
-           (render-str (d/div {:className "test"} (d/div {:id "yap"} "Hello")))))))
+           (render-str (d/div {:className "test"} (d/div {:id "yap"} "Hello"))))))
+
+  (testing "Renders CSS number values as pixel values"
+    (is (= "<div style=\"width: 100px; right: 30px; top: 20px; height: 50px; margin: 20px; padding: 50px; position: absolute; bottom: 40px; left: 10px\">Hello</div>"
+           (render-str (d/div {:style {:width 100
+                                       :height 50
+                                       :position "absolute"
+                                       :left 10
+                                       :top 20
+                                       :right 30
+                                       :bottom 40
+                                       :padding 50
+                                       :margin 20}} "Hello"))))))
 
 (deftest ref-test
   (testing "Invokes ref callback with DOM element"

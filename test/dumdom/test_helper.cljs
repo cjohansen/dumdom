@@ -4,8 +4,13 @@
 (def attr-names
   {"className" "class"})
 
+(defn- render-styles [styles]
+  (str/join "; " (map #(str/join ": " %) styles)))
+
 (defn- attrs [vnode]
-  (->> (js->clj (-> vnode .-data .-props))
+  (->> (merge (js->clj (-> vnode .-data .-props))
+              (when-let [style(js->clj (-> vnode .-data .-style))]
+                {"style" (render-styles style)}))
        (map (fn [[k v]] (str " " (or (attr-names k) k) "=\"" v "\"")))
        (str/join "")))
 

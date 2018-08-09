@@ -17,16 +17,26 @@
 (defn- event-entry [attrs k]
   [(.toLowerCase (.slice (name k) 2)) (attrs k)])
 
+(defn- pixelize-number [n]
+  (if (number? n)
+    (str n "px")
+    n))
+
+(defn- pixelize [styles]
+  (reduce #(if (%2 %1) (update %1 %2 pixelize-number) %1)
+          styles
+          [:width :height :padding :margin :top :left :right :bottom]))
+
 (defn- prep-props [attrs]
   (let [event-keys (filter #(and (str/starts-with? (name %) "on") (ifn? (attrs %))) (keys attrs))]
     {:props (apply dissoc attrs :style :enter-style :remove-style :destroy-style event-keys)
-     :style (merge (:style attrs)
+     :style (merge (pixelize (:style attrs))
                    (when-let [enter (:enter-style attrs)]
-                     {:delayed enter})
+                     {:delayed (pixelize enter)})
                    (when-let [remove (:remove-style attrs)]
-                     {:remove remove})
+                     {:remove (pixelize remove)})
                    (when-let [destroy (:destroy-style attrs)]
-                     {:destroy destroy}))
+                     {:destroy (pixelize destroy)}))
      :on (->> event-keys
               (mapv #(event-entry attrs %))
               (into {}))
@@ -42,24 +52,27 @@
   and optional children. Returns a function that renders the virtual DOM. This
   function expects a vector path and a key that addresses the component."
   [type attrs & children]
-  (fn [path k]
-    (let [fullpath (conj path k)]
-      (js/snabbdom.h
-       type
-       (clj->js (-> (prep-props attrs)
-                    (assoc-in [:hook :update]
-                              (fn [old-vnode new-vnode]
-                                (doseq [node (filter #(some-> % .-willEnter) (.-children new-vnode))]
-                                  ((.-willEnter node)))
-                                (doseq [node (filter #(some-> % .-willAppear) (.-children new-vnode))]
-                                  ((.-willAppear node)))))))
-       (->> children
-            (filter identity)
-            (mapcat #(if (coll? %) % [%]))
-            (map-indexed #(if (fn? %2)
-                            (%2 fullpath %1)
-                            %2))
-            clj->js)))))
+  (let [el-fn
+        (fn [path k]
+          (let [fullpath (conj path k)]
+            (js/snabbdom.h
+             type
+             (clj->js (-> (prep-props attrs)
+                          (assoc-in [:hook :update]
+                                    (fn [old-vnode new-vnode]
+                                      (doseq [node (filter #(some-> % .-willEnter) (.-children new-vnode))]
+                                        ((.-willEnter node)))
+                                      (doseq [node (filter #(some-> % .-willAppear) (.-children new-vnode))]
+                                        ((.-willAppear node)))))))
+             (->> children
+                  (filter identity)
+                  (mapcat #(if (coll? %) % [%]))
+                  (map-indexed #(if (fn? %2)
+                                  (%2 fullpath %1)
+                                  %2))
+                  clj->js))))]
+    (set! (.-dumdom el-fn) true)
+    el-fn))
 
 (dm/define-tags
   a abbr address area article aside audio b base bdi bdo big blockquote body br
