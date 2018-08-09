@@ -1,7 +1,7 @@
 (ns dumdom.dom
-  (:require [clojure.set :as set]
-            [clojure.string :as str]
-            [snabbdom :as sd])
+  (:require [cljsjs.snabbdom]
+            [clojure.set :as set]
+            [clojure.string :as str])
   (:refer-clojure :exclude [time map meta mask])
   (:require-macros [dumdom.dom :as dm]))
 
@@ -44,7 +44,6 @@
   [type attrs & children]
   (fn [path k]
     (let [fullpath (conj path k)]
-      (sd/h type
             (clj->js (-> (prep-props attrs)
                          (assoc-in [:hook :update]
                                    (fn [old-vnode new-vnode]
@@ -58,6 +57,8 @@
                                  (%2 fullpath %1)
                                  %2))
                  clj->js)))))
+      (js/snabbdom.h
+       type
 
 (dm/define-tags
   a abbr address area article aside audio b base bdi bdo big blockquote body br

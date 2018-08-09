@@ -1,10 +1,8 @@
 (ns dumdom.core
   (:require [cljs.core.async :refer [timeout]]
-            [dumdom.dom :as d]
-            [snabbdom :as sd]
-            ["snabbdom/modules/eventlisteners" :as events]
-            ["snabbdom/modules/props" :as props]
-            ["snabbdom/modules/style" :as style]))
+            [cljsjs.snabbdom]
+            [dumdom.dom :as d])
+  (:require-macros [dumdom.core]))
 
 (def ^:private current-nodes
   "A mapping from root DOM nodes to currently rendered virtual DOM trees. Used to
@@ -17,9 +15,9 @@
 
 (def ^:private patch
   "The snabbdom patch function used by render"
-  (sd/init (clj->js [(.-default events)
-                     (.-default props)
-                     (.-default style)])))
+  (js/snabbdom.init (clj->js [(.-eventlisteners js/snabbdom)
+                              (.-props js/snabbdom)
+                              (.-style js/snabbdom)])))
 
 (defn- init-node!
   "Snabbdom will replace the element provided as the original target for patch.

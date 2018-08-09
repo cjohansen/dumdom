@@ -1,7 +1,8 @@
 (defproject dumdom "1"
   :description "The component library that's only interested in efficiently mapping data to DOM"
   :dependencies [[org.clojure/clojure "1.9.0"]
-                 [org.clojure/clojurescript "1.10.238"]]
+                 [org.clojure/clojurescript "1.10.238"]
+                 [cljsjs/snabbdom "0.7.1-0"]]
   :jvm-opts ["-Djava.awt.headless=true"]
   :plugins [[lein-cljsbuild "1.1.5"]
             [lein-figwheel "0.5.15" :exclusions [org.clojure/clojure
