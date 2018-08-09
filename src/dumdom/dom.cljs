@@ -44,21 +44,22 @@
   [type attrs & children]
   (fn [path k]
     (let [fullpath (conj path k)]
-            (clj->js (-> (prep-props attrs)
-                         (assoc-in [:hook :update]
-                                   (fn [old-vnode new-vnode]
-                                     (doseq [node (filter #(.-willEnter %) (.-children new-vnode))]
-                                       ((.-willEnter node)))
-                                     (doseq [node (filter #(.-willAppear %) (.-children new-vnode))]
-                                       ((.-willAppear node)))))))
-            (->> children
-                 (mapcat #(if (coll? %) % [%]))
-                 (map-indexed #(if (fn? %2)
-                                 (%2 fullpath %1)
-                                 %2))
-                 clj->js)))))
       (js/snabbdom.h
        type
+       (clj->js (-> (prep-props attrs)
+                    (assoc-in [:hook :update]
+                              (fn [old-vnode new-vnode]
+                                (doseq [node (filter #(some-> % .-willEnter) (.-children new-vnode))]
+                                  ((.-willEnter node)))
+                                (doseq [node (filter #(some-> % .-willAppear) (.-children new-vnode))]
+                                  ((.-willAppear node)))))))
+       (->> children
+            (filter identity)
+            (mapcat #(if (coll? %) % [%]))
+            (map-indexed #(if (fn? %2)
+                            (%2 fullpath %1)
+                            %2))
+            clj->js)))))
 
 (dm/define-tags
   a abbr address area article aside audio b base bdi bdo big blockquote body br

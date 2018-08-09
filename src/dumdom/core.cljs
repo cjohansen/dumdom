@@ -159,32 +159,35 @@
   ([render opt]
    (let [instances (atom {})]
      (fn [data & args]
-       (fn [path k]
-         (let [key (when-let [keyfn (:keyfn opt)] (keyfn data))
-               fullpath (conj path (or key k))
-               instance (or (@instances fullpath)
-                            {:render render
-                             :opt opt
-                             :path fullpath})
-               animation (atom {:ready? true})]
-           (if (should-component-update? instance data)
-             (when-let [rendered (when-let [renderer (apply render data args)]
-                                   (renderer fullpath 0))]
-               (when key
-                 (set! (.-key rendered) key))
-               (when-let [will-enter (:will-enter opt)]
-                 (set! (.-willEnter rendered) #(swap! animation assoc :will-enter will-enter)))
-               (when-let [will-appear (:will-appear opt)]
-                 (swap! animation assoc :will-appear will-appear)
-                 (set! (.-willAppear rendered) #(swap! animation dissoc :will-appear)))
-               (setup-mount-hook rendered opt data args animation)
-               (setup-update-hook rendered opt data args)
-               (setup-unmount-hook rendered opt data args animation #(swap! instances dissoc fullpath))
-               (swap! instances assoc fullpath (assoc instance
-                                                      :vdom rendered
-                                                      :data data))
-               rendered)
-             (:vdom instance))))))))
+       (let [comp-fn
+             (fn [path k]
+               (let [key (when-let [keyfn (:keyfn opt)] (keyfn data))
+                     fullpath (conj path (or key k))
+                     instance (or (@instances fullpath)
+                                  {:render render
+                                   :opt opt
+                                   :path fullpath})
+                     animation (atom {:ready? true})]
+                 (if (should-component-update? instance data)
+                   (when-let [rendered (when-let [renderer (apply render data args)]
+                                         (renderer fullpath 0))]
+                     (when key
+                       (set! (.-key rendered) key))
+                     (when-let [will-enter (:will-enter opt)]
+                       (set! (.-willEnter rendered) #(swap! animation assoc :will-enter will-enter)))
+                     (when-let [will-appear (:will-appear opt)]
+                       (swap! animation assoc :will-appear will-appear)
+                       (set! (.-willAppear rendered) #(swap! animation dissoc :will-appear)))
+                     (setup-mount-hook rendered opt data args animation)
+                     (setup-update-hook rendered opt data args)
+                     (setup-unmount-hook rendered opt data args animation #(swap! instances dissoc fullpath))
+                     (swap! instances assoc fullpath (assoc instance
+                                                            :vdom rendered
+                                                            :data data))
+                     rendered)
+                   (:vdom instance))))]
+         (set! (.-dumdom comp-fn) true)
+         comp-fn)))))
 
 (defn TransitionGroup [opt children]
   (if (ifn? (:component opt))
@@ -238,3 +241,6 @@
 
 (defn CSSTransitionGroup [opt children]
   (TransitionGroup opt (map #(TransitioningElement (assoc opt :child %)) children)))
+
+(defn component? [x]
+  (and x (.-dumdom x)))
