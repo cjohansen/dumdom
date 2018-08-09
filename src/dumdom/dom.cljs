@@ -5,15 +5,6 @@
   (:refer-clojure :exclude [time map meta mask])
   (:require-macros [dumdom.dom :as dm]))
 
-(defn- process-classes [attrs]
-  (update-in attrs [:className]
-             #(if (map? %)
-                %
-                (->> (if (string? %) (str/split % #" ") %)
-                     (filter identity)
-                     (mapv (fn [cn] [cn true]))
-                     (into {})))))
-
 (defn- event-entry [attrs k]
   [(.toLowerCase (.slice (name k) 2)) (attrs k)])
 
