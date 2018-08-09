@@ -13,10 +13,28 @@
     (str n "px")
     n))
 
+(def ^:private pixelized-styles
+  [:width
+   :height
+   :padding
+   :paddingLeft
+   :paddingRight
+   :paddingTop
+   :paddingBottom
+   :margin
+   :marginLeft
+   :marginRight
+   :marginTop
+   :marginBottom
+   :top
+   :left
+   :right
+   :bottom])
+
 (defn- pixelize [styles]
   (reduce #(if (%2 %1) (update %1 %2 pixelize-number) %1)
           styles
-          [:width :height :padding :margin :top :left :right :bottom]))
+          pixelized-styles))
 
 (def ^:private attr-mappings
   {:acceptCharset :accept-charset
