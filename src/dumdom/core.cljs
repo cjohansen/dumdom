@@ -47,8 +47,8 @@
 
 (defn- setup-mount-hook [rendered {:keys [on-mount on-render will-appear did-appear will-enter did-enter]} data args animation]
   (when (or on-mount on-render will-enter will-appear)
-    (let [insert-hook (.. rendered -data -hook -insert)]
-      (set! (.. rendered -data -hook -insert)
+    (let [insert-hook (goog.object/getValueByKeys rendered #js ["data" "hook" "insert"])]
+      (set! (.-insert (goog.object/getValueByKeys rendered #js ["data" "hook"]))
             (fn [vnode]
               (when insert-hook (insert-hook vnode))
               (when on-mount (apply on-mount (.-elm vnode) data args))
@@ -69,13 +69,13 @@
 
 (defn- setup-update-hook [rendered {:keys [on-update on-render]} data args]
   (when (or on-update on-render)
-    (set! (.. rendered -data -hook -update)
+    (set! (.-update (goog.object/getValueByKeys rendered #js ["data" "hook"]))
           (fn [old-vnode vnode]
             (when on-update (apply on-update (.-elm vnode) data args))
             (when on-render (apply on-render (.-elm vnode) data args))))))
 
 (defn- setup-unmount-hook [rendered component data args animation on-destroy]
-  (set! (.. rendered -data -hook -destroy)
+  (set! (.-destroy (goog.object/getValueByKeys rendered #js ["data" "hook"]))
         (fn [vnode]
           (when-let [on-unmount (:on-unmount component)]
             (apply on-unmount (.-elm vnode) data args))
