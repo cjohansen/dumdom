@@ -12,6 +12,10 @@
     (let [comp (sut/component (fn [data] (d/div {:className "lol"} data)))]
       (is (= "<div class=\"lol\">1</div>" (render-str (comp 1))))))
 
+  (testing "Does not optimize away initial render when data is nil"
+    (let [comp (sut/component (fn [data] (d/div {:className "lol"} data)))]
+      (is (= "<div class=\"lol\"></div>" (render-str (comp nil))))))
+
   (testing "Does not re-render when immutable value hasn't changed"
     (let [mutable-state (atom [1 2 3])
           comp (sut/component (fn [data]

@@ -42,7 +42,8 @@
     (swap! current-nodes assoc element-id vnode)))
 
 (defn- should-component-update? [component-state data]
-  (not= (:data component-state) data))
+  (or (not (contains? component-state :data))
+      (not= (:data component-state) data)))
 
 (defn- setup-mount-hook [rendered {:keys [on-mount on-render will-appear did-appear will-enter did-enter]} data args animation]
   (when (or on-mount on-render will-enter will-appear)
