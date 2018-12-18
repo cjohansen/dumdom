@@ -17,6 +17,7 @@
   "The snabbdom patch function used by render"
   (js/snabbdom.init (clj->js [(.-eventlisteners js/snabbdom)
                               (.-attributes js/snabbdom)
+                              (.-props js/snabbdom)
                               (.-style js/snabbdom)])))
 
 (defn- init-node!

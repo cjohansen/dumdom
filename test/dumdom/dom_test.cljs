@@ -71,3 +71,24 @@
       (dd/render (d/h1 {} "So long") el)
       (is (= 2 (count @calls)))
       (is (nil? (second @calls))))))
+
+(deftest input-test
+  (testing "Renders values in inputs"
+    (let [el (js/document.createElement "div")]
+      (dd/render (d/input {:value "Yowsa" :width "100" :type "text"}) el)
+      (is (= "Yowsa" (.. el -firstChild -value)))))
+
+  (testing "Does not render explicit 'null' for input value"
+    (let [el (js/document.createElement "div")]
+      (dd/render (d/input {:value nil}) el)
+      (is (= "" (.. el -firstChild -value)))))
+
+  (testing "Sets value for text areas"
+    (let [el (js/document.createElement "div")]
+      (dd/render (d/textarea {:value "Aloha"}) el)
+      (is (= "Aloha" (.. el -firstChild -value)))))
+
+  (testing "Does not render explicit 'null' for text areas"
+    (let [el (js/document.createElement "div")]
+      (dd/render (d/textarea {:value nil}) el)
+      (is (= "" (.. el -firstChild -value))))))
