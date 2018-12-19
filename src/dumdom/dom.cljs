@@ -29,7 +29,13 @@
    :top
    :left
    :right
-   :bottom])
+   :bottom
+   :borderWidth
+   :borderRadius
+   :borderTopWidth
+   :borderRightWidth
+   :borderBottomWidth
+   :borderLeftWidth])
 
 (defn- pixelize [styles]
   (reduce #(if (%2 %1) (update %1 %2 pixelize-number) %1)
