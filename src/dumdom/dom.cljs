@@ -1,7 +1,7 @@
 (ns dumdom.dom
-  (:require [cljsjs.snabbdom]
-            [clojure.set :as set]
-            [clojure.string :as str])
+  (:require [clojure.set :as set]
+            [clojure.string :as str]
+            [snabbdom])
   (:refer-clojure :exclude [time map meta mask])
   (:require-macros [dumdom.dom :as dm]))
 

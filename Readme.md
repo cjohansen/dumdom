@@ -101,12 +101,14 @@ Feel free to report bugs and, even better, provide bug fixing pull requests!
 Make sure to add tests for your fixes, and make sure the existing ones stay
 green before submitting fixes.
 
+```sh
+make test
+```
+
 If you have ideas for new features, please open an issue to discuss the idea and
 the API before implementing it to avoid putting lots of work into a pull request
 that might be rejected. I intend to keep **dumdom** a focused package, and don't
 want it to accrete a too wide/too losely coherent set of features.
-
-TODO: How to run tests
 
 ## Documentation
 

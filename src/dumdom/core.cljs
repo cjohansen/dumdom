@@ -1,7 +1,6 @@
 (ns dumdom.core
-  (:require [cljs.core.async :refer [timeout]]
-            [cljsjs.snabbdom]
-            [dumdom.dom :as d])
+  (:require [dumdom.dom :as d]
+            [snabbdom])
   (:require-macros [dumdom.core]))
 
 (def ^:private current-nodes

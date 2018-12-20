@@ -5,3 +5,5 @@ resources/public/js
 target
 checkouts
 /pom.xml
+.cpcache
+cljs-test-runner-out
