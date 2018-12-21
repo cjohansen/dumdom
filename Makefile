@@ -20,4 +20,8 @@ node_modules/.bin/karma:
 test: src/snabbdom/snabbdom.js src/snabbdom/snabbdom.min.js
 	clojure -A:dev -A:test
 
-.PHONY: test foreign-libs
+deploy: test
+	clj -Spom
+	mvn deploy
+
+.PHONY: test foreign-libs deploy
