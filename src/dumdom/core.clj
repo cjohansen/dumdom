@@ -22,7 +22,7 @@
   For example:
 
     (defcomponent Widget
-      'A Widget'
+      \"A Widget\"
       :on-mount #(...)
       :on-render #(...)
       [value constant-value]
