@@ -1,5 +1,5 @@
 ^{:watch-dirs ["src" "test" "dev" "devcards"]
-  :extra-main-files {:tests {:main dumdom.devcards.test-runner}
+  :extra-main-files {:tests {:main dumdom.test-runner}
                      :devcards {:main dumdom.cards}}}
 {:main "dumdom.dev"
  :optimizations :none
@@ -7,4 +7,6 @@
  :source-map true
  :asset-path "/js/dev"
  :output-to "resources/public/js/dev.js"
- :output-dir "resources/public/js/dev"}
+ :output-dir "resources/public/js/dev"
+ :closure-defines {cljs-test-display.core/notifications false
+                   cljs-test-display.core/printing true}}
