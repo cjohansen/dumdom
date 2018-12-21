@@ -32,7 +32,7 @@
   (reset! current-nodes {}))
 
 (defn render
-  "Render the virtual DOM node created by the compoennt into the specified DOM
+  "Render the virtual DOM node created by the component into the specified DOM
   element"
   [component element]
   (let [current-node (or (@current-nodes (.. element -dataset -dumdomId)) (init-node! element))
