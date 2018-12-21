@@ -487,7 +487,7 @@
          (fn []
            (is (= "example-enter example-enter-active" (.. el -firstChild -firstChild -className)))
            (done))
-         0))))
+         100))))
 
   (testing "Adds custom enter-active class name on next tick"
     (async done
@@ -555,7 +555,7 @@
            (is (= "" (.. el -firstChild -firstChild -className)))
            (.removeChild (.-parentNode el) el)
            (done))
-         50)))))
+         100)))))
 
 (deftest CSSTransitionGroupAppearTest
   (testing "Adds appear class name according to the transition name"
