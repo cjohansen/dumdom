@@ -1,5 +1,5 @@
 ^{:watch-dirs ["src" "test" "dev" "devcards"]
-  :extra-main-files {:tests {:main dumdom.test-runner}
+  :extra-main-files {:tests {:main dumdom.devcards.test-runner}
                      :devcards {:main dumdom.cards}}}
 {:main "dumdom.dev"
  :optimizations :none
