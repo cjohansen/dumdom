@@ -1,0 +1,10 @@
+^{:watch-dirs ["src" "test" "dev" "devcards"]
+  :extra-main-files {:tests {:main dumdom.test-runner}
+                     :devcards {:main dumdom.cards}}}
+{:main "dumdom.dev"
+ :optimizations :none
+ :pretty-print true
+ :source-map true
+ :asset-path "/js/dev"
+ :output-to "resources/public/js/dev.js"
+ :output-dir "resources/public/js/dev"}

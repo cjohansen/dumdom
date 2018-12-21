@@ -4,8 +4,31 @@
     "snabbdom": "^0.7.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.2.3",
+    "babelify": "^10.0.0",
+    "browserify": "^16.2.3",
+    "grunt": "^1.0.3",
+    "grunt-contrib-clean": "^2.0.0",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-uglify": "^4.0.0",
     "karma": "^3.1.4",
     "karma-chrome-launcher": "^2.2.0",
-    "karma-cljs-test": "^0.1.0"
+    "karma-cljs-test": "^0.1.0",
+    "uglify": "^0.1.5",
+    "uglifyify": "^5.0.1"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "@babel/preset-env"
+          ]
+        }
+      ]
+    ]
   }
 }

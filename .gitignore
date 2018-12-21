@@ -7,3 +7,5 @@ checkouts
 /pom.xml
 .cpcache
 cljs-test-runner-out
+src/snabbdom/snabbdom.js
+src/snabbdom/snabbdom.min.js
