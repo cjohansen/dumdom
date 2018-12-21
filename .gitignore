@@ -4,7 +4,6 @@ node_modules
 resources/public/js
 target
 checkouts
-/pom.xml
 .cpcache
 cljs-test-runner-out
 src/snabbdom/snabbdom.js
