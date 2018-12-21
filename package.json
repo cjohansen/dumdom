@@ -1,8 +1,4 @@
 {
-  "dependencies": {
-    "@cljs-oss/module-deps": "^1.1.1",
-    "snabbdom": "^0.7.1"
-  },
   "devDependencies": {
     "@babel/core": "^7.2.2",
     "@babel/preset-env": "^7.2.3",
