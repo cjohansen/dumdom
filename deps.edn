@@ -9,4 +9,7 @@
            :dev-clj {:extra-paths ["dev" "test"]}
            :test {:extra-paths ["test" "resources/public"]
                   :extra-deps {olical/cljs-test-runner {:mvn/version "3.3.0"}}
-                  :main-opts ["-m" "cljs-test-runner.main" "--env" "chrome-headless"]}}}
+                  :main-opts ["-m" "cljs-test-runner.main" "--env" "chrome-headless"]}
+           :test-clj {:extra-paths ["test"]
+                      :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-319"}}
+                      :main-opts ["-m" "kaocha.runner"]}}}
