@@ -18,6 +18,8 @@ not explicitly exposed by dumdom is **not** recommended.
 changes will never be intentionally introduced to the codebase. For this reason,
 dumdom does not adhere to the "semantic" versioning scheme.
 
+**dumdom** supports server-side rendering to strings.
+
 ## Table of contents
 
 * [Install](#install)
@@ -28,6 +30,7 @@ dumdom does not adhere to the "semantic" versioning scheme.
 * [Using with Devcards](#using-with-devcards)
 * [Contribute](#contribute)
 * [Documentation](#documentation)
+* [Changelog](#changelog)
 * [License](#license)
 
 ## Install
@@ -316,6 +319,22 @@ Functions are defined for every HTML element:
 Attributes are **not** optional, use an empty map if you don't have attributes.
 Children can be text, components, virtual DOM elements (like the one above), or
 a seq with a mix of those.
+
+### `(dumdom.string/render component)`
+
+Renders component to string. Available on Clojure as well, and can be used to do
+server-side rendering of dumdom components.
+
+## Changelog
+
+### Upcoming release
+
+- Added rendering components to strings
+- Added snabbdom externs that hold up during advanced compilation
+
+### 2018.12.21
+
+Initial release
 
 ## License
 
