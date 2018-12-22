@@ -56,5 +56,5 @@
                   (str/join "" (map dom-str (children vnode)))
                   (closing-tag (tag-name vnode)))))
 
-(defn render [component]
-  (dom-str (component [] 0)))
+(defn render [component & [path k]]
+  (dom-str (component (or path []) (or k 0))))
