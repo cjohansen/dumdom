@@ -327,7 +327,7 @@ server-side rendering of dumdom components.
 
 ## Changelog
 
-### 2019.12.22
+### 2018.12.22
 
 - Added rendering components to strings
 - Added snabbdom externs that hold up during advanced compilation
