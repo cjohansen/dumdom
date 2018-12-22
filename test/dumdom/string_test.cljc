@@ -1,8 +1,9 @@
-(ns dumdom.server-test
+(ns dumdom.string-test
   (:require #?(:clj [clojure.test :refer [deftest testing is]]
                :cljs [cljs.test :refer [deftest testing is]])
             [dumdom.dom :as d]
-            [dumdom.server :as sut]))
+            [dumdom.core :as dumdom]
+            [dumdom.string :as sut]))
 
 (deftest render-test
   (testing "Renders element to string"
@@ -46,5 +47,10 @@
     (is (= "<div><h1>Hello</h1><p>World</p></div>"
            (sut/render (d/div {}
                          (d/h1 {} "Hello")
-                         (d/p {} "World")))))))
+                         (d/p {} "World"))))))
+
+  (testing "Renders custom element to string"
+    (let [comp (dumdom/component (fn [data] (d/div {} (:text data))))]
+      (is (= "<div>LOL</div>"
+             (sut/render (comp {:text "LOL"})))))))
 

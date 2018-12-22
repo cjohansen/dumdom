@@ -1,4 +1,5 @@
-(ns dumdom.core)
+(ns dumdom.core
+  (:require [dumdom.component :as component]))
 
 (defn- extract-docstr
   [[docstr? & forms]]
@@ -12,6 +13,8 @@
     (if (keyword? k)
       (extract-opts forms (assoc opts k v))
       [opts (concat [k v] forms)])))
+
+(def component component/component)
 
 (defmacro defcomponent
   "Creates a component with the given name, a docstring (optional), any number of
