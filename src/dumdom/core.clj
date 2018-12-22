@@ -1,5 +1,6 @@
 (ns dumdom.core
-  (:require [dumdom.component :as component]))
+  (:require [dumdom.component :as component]
+            [dumdom.string :as string]))
 
 (defn- extract-docstr
   [[docstr? & forms]]
@@ -43,3 +44,5 @@
         [argvec & body] forms
         options (merge {:name (str name)} options)]
     `(def ~name ~docstr (dumdom.core/component (fn ~argvec ~@body) ~options))))
+
+(def render-string string/render)

@@ -1,6 +1,7 @@
 (ns dumdom.core
   (:require [dumdom.dom :as d]
             [dumdom.component :as component]
+            [dumdom.string :as string]
             [snabbdom])
   (:require-macros [dumdom.core]))
 
@@ -44,6 +45,7 @@
 
 (def component component/component)
 (def component? component/component?)
+(def render-string string/render)
 
 (defn TransitionGroup [opt children]
   (component/TransitionGroup d/el opt children))

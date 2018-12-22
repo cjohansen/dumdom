@@ -320,7 +320,7 @@ Attributes are **not** optional, use an empty map if you don't have attributes.
 Children can be text, components, virtual DOM elements (like the one above), or
 a seq with a mix of those.
 
-### `(dumdom.string/render component)`
+### `(dumdom.core/render component)`
 
 Renders component to string. Available on Clojure as well, and can be used to do
 server-side rendering of dumdom components.
