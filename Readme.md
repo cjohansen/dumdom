@@ -38,13 +38,13 @@ dumdom does not adhere to the "semantic" versioning scheme.
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2018.12.21"}
+cjohansen/dumdom {:mvn/version "2018.12.22"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2018.12.21"]
+[cjohansen/dumdom "2018.12.22"]
 ```
 
 ## Example
@@ -327,7 +327,7 @@ server-side rendering of dumdom components.
 
 ## Changelog
 
-### Upcoming release
+### 2019.12.22
 
 - Added rendering components to strings
 - Added snabbdom externs that hold up during advanced compilation
