@@ -19,6 +19,7 @@ node_modules/.bin/karma:
 
 test: src/snabbdom/snabbdom.js src/snabbdom/snabbdom.min.js
 	clojure -A:dev -A:test
+	clojure -A:dev -A:test-clj
 
 deploy: test
 	clj -Spom
