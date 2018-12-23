@@ -670,3 +670,15 @@
             (is (nil? (.. el -firstChild -firstChild)))
             (done))
           10)))))
+
+(deftest inflate-rendering
+  (testing "Does not remove existing valid DOM nodes"
+    (let [el (js/document.createElement "div")
+          patch (js/snabbdom.init (clj->js [(.-eventlisteners js/snabbdom)
+                                            (.-attributes js/snabbdom)
+                                            (.-props js/snabbdom)
+                                            (.-style js/snabbdom)]))]
+      (set! (.-innerHTML el) "<h1>Hello</h1>")
+      (set! (.. el -firstChild -marker) "marked")
+      (sut/inflate (d/h1 {} "Hello") el)
+      (is (= "marked" (.. el -firstChild -marker))))))

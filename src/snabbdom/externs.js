@@ -41,5 +41,9 @@ var snabbdom = {
     update: function () {},
     destroy: function () {},
     remove: function () {}
-  }
+  },
+  /**
+   * @return {vdomNode}
+   */
+  tovnode: function () {}
 };

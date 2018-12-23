@@ -25,8 +25,9 @@
   "Snabbdom will replace the element provided as the original target for patch.
   When rendering into a new DOM node, we therefore create an intermediate in it
   and use that as Snabbdom's root, to avoid destroying the provided root node."
-  [element]
-  (set! (.-innerHTML element) "<div></div>")
+  [element & [opt]]
+  (when (get opt :clear? true)
+    (set! (.-innerHTML element) "<div></div>"))
   (set! (.. element -dataset -dumdomId) (swap! element-id inc))
   (.-firstChild element))
 
@@ -50,6 +51,13 @@
     (when-not (.. vnode -key)
       (set! (.. vnode -key) "root-node"))
     (patch current-node vnode)
+    (swap! current-nodes assoc element-id vnode)))
+
+(defn inflate [component element]
+  (let [current-node (or (@current-nodes (.. element -dataset -dumdomId)) (init-node! element {:clear? false}))
+        element-id (.. element -dataset -dumdomId)
+        vnode (component [element-id] 0)]
+    (patch (js/snabbdom.tovnode current-node) vnode)
     (swap! current-nodes assoc element-id vnode)))
 
 (def component component/component)
