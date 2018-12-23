@@ -9,4 +9,4 @@
  :output-to "resources/public/js/dev.js"
  :output-dir "resources/public/js/dev"
  :closure-defines {cljs-test-display.core/notifications false
-                   cljs-test-display.core/printing true}}
+                   cljs-test-display.core/printing false}}
