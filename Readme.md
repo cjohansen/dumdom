@@ -325,11 +325,25 @@ a seq with a mix of those.
 Renders component to string. Available on Clojure as well, and can be used to do
 server-side rendering of dumdom components.
 
+### `(dumdom.core/inflate component el)`
+
+Renders the component into the provided element. If `el` contains
+server-rendered dumdom components, it will be inflated faster than a fresh
+render (which forcefully rebuilds the entire DOM tree).
+
+**NB!** Currently, only string keys are supported. If a component uses
+non-string keys, inflating will not work, and it will be forcefully re-rendered.
+This limitation might be adressed in a future release.
+
 ## Changelog
+
+### 2018.12.xx (to be released)
+
+- Added rendering components to strings
+- Added inflating server-rendered DOM
 
 ### 2018.12.22
 
-- Added rendering components to strings
 - Added snabbdom externs that hold up during advanced compilation
 
 ### 2018.12.21
