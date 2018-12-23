@@ -7,6 +7,7 @@
   {:tag-name type
    :attributes (merge (:attrs attrs) (:props attrs))
    :style (:style attrs)
+   :key (:key attrs)
    :children children})
 
 (defn el [type attrs & children]

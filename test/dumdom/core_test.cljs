@@ -45,11 +45,11 @@
                                   (swap! mutable-state rest)
                                   (d/div {} v)))
                               {:keyfn :id})]
-      (is (= "<div>1</div>" (render-str (comp {:id "c1" :number 1}) [] 0)))
-      (is (= "<div>1</div>" (render-str (comp {:id "c1" :number 1}) [] 1)))
-      (is (= "<div>2</div>" (render-str (comp {:id "c2" :number 1}) [] 0)))
+      (is (= "<div data-key=\"c1\">1</div>" (render-str (comp {:id "c1" :number 1}) [] 0)))
+      (is (= "<div data-key=\"c1\">1</div>" (render-str (comp {:id "c1" :number 1}) [] 1)))
+      (is (= "<div data-key=\"c2\">2</div>" (render-str (comp {:id "c2" :number 1}) [] 0)))
       (is (= "<div>3</div>" (render-str (comp {:number 1}) [] 0)))
-      (is (= "<div>2</div>" (render-str (comp {:id "c2" :number 1}) [] 1)))))
+      (is (= "<div data-key=\"c2\">2</div>" (render-str (comp {:id "c2" :number 1}) [] 1)))))
 
   (testing "Sets key on vdom node"
     (let [comp (sut/component (fn [data]
@@ -673,12 +673,15 @@
 
 (deftest inflate-rendering
   (testing "Does not remove existing valid DOM nodes"
-    (let [el (js/document.createElement "div")
-          patch (js/snabbdom.init (clj->js [(.-eventlisteners js/snabbdom)
-                                            (.-attributes js/snabbdom)
-                                            (.-props js/snabbdom)
-                                            (.-style js/snabbdom)]))]
+    (let [el (js/document.createElement "div")]
       (set! (.-innerHTML el) "<h1>Hello</h1>")
       (set! (.. el -firstChild -marker) "marked")
       (sut/inflate (d/h1 {} "Hello") el)
+      (is (= "marked" (.. el -firstChild -marker)))))
+
+  (testing "Does not replace existing DOM nodes when elements have key"
+    (let [el (js/document.createElement "div")]
+      (set! (.-innerHTML el) "<h1 data-key=\"hello\">Hello</h1>")
+      (set! (.. el -firstChild -marker) "marked")
+      (sut/inflate (d/h1 {:key "hello"} "Hello") el)
       (is (= "marked" (.. el -firstChild -marker))))))

@@ -48,8 +48,11 @@
                                    (d/h1 {} "Hello")
                                    (d/p {} "World"))))))
 
-  (testing "Renders custom element to string"
+  (testing "Renders custom component to string"
     (let [comp (dumdom/component (fn [data] (d/div {} (:text data))))]
       (is (= "<div>LOL</div>"
-             (dumdom/render-string (comp {:text "LOL"})))))))
+             (dumdom/render-string (comp {:text "LOL"}))))))
 
+  (testing "Renders component key as data attribute"
+    (is (= "<div data-key=\"some-key\">LOL</div>"
+           (dumdom/render-string (d/div {:key "some-key"} "LOL"))))))

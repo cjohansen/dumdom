@@ -4,14 +4,15 @@
 
 (deftest element-test
   (testing "Renders element"
-    (is (= {:tag-name "div" :attributes {} :style nil :children ["Hello world"]}
+    (is (= {:tag-name "div" :attributes {} :style nil :children ["Hello world"] :key nil}
            ((sut/div {} "Hello world") [] 0))))
 
   (testing "Renders element with attributes, props, and styles"
     (is (= {:tag-name "input"
             :attributes {:width 10 :value "Hello"}
             :style {:border "1px solid red"}
-            :children ["Hello world"]}
+            :children ["Hello world"]
+            :key nil}
            ((sut/input {:width 10
                         :value "Hello"
                         :style {:border "1px solid red"}}
@@ -21,12 +22,15 @@
     (is (= {:tag-name "div"
             :attributes {}
             :style nil
+            :key nil
             :children [{:tag-name "h1"
+                        :key nil
                         :style {:border "1px solid cyan"}
                         :attributes {}
                         :children ["Hello"]}
                        {:tag-name "img"
                         :style nil
+                        :key nil
                         :attributes {:border "2"}
                         :children []}]}
            ((sut/div {}

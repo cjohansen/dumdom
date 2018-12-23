@@ -13,6 +13,10 @@
   #?(:cljs (merge (js->clj (.. node -data -attrs)) (js->clj (.. node -data -props)))
      :clj (:attributes node)))
 
+(defn- el-key [node]
+  #?(:cljs (.. node -key)
+     :clj (:key node)))
+
 (defn- style [node]
   #?(:cljs (js->clj (.. node -data -style))
      :clj (:style node)))
@@ -32,7 +36,9 @@
   (str/join "; " (map (fn [[k v]] (str (kebab-case (name k)) ": " v)) styles)))
 
 (defn- attrs [vnode]
-  (let [attributes (attributes vnode)
+  (let [k (el-key vnode)
+        attributes (cond-> (attributes vnode)
+                     k (assoc :data-key k))
         style (style vnode)]
     (->> (merge attributes
                 (when style
