@@ -164,24 +164,24 @@
 (defn- prep-attrs [attrs]
   (let [event-keys (filter #(and (str/starts-with? (name %) "on") (ifn? (attrs %))) (keys attrs))
         attrs (set/rename-keys attrs (select-keys attr-mappings (keys attrs)))]
-    {:attrs (apply dissoc attrs :style :enter-style :remove-style :destroy-style :component :value event-keys)
-     :props (select-keys attrs [:value])
-     :style (merge (pixelize (:style attrs))
-                   (when-let [enter (:enter-style attrs)]
-                     {:delayed (pixelize enter)})
-                   (when-let [remove (:remove-style attrs)]
-                     {:remove (pixelize remove)})
-                   (when-let [destroy (:destroy-style attrs)]
-                     {:destroy (pixelize destroy)}))
-     :on (->> event-keys
-              (mapv #(event-entry attrs %))
-              (into {}))
-     :key (:key attrs)
-     :hook (merge
-            {}
-            (when-let [callback (:ref attrs)]
-              {:insert #(callback (.-elm %))
-               :destroy #(callback nil)}))}))
+    (cond-> {:attrs (apply dissoc attrs :style :enter-style :remove-style :destroy-style :component :value event-keys)
+             :props (select-keys attrs [:value])
+             :style (merge (pixelize (:style attrs))
+                           (when-let [enter (:enter-style attrs)]
+                             {:delayed (pixelize enter)})
+                           (when-let [remove (:remove-style attrs)]
+                             {:remove (pixelize remove)})
+                           (when-let [destroy (:destroy-style attrs)]
+                             {:destroy (pixelize destroy)}))
+             :on (->> event-keys
+                      (mapv #(event-entry attrs %))
+                      (into {}))
+             :hook (merge
+                    {}
+                    (when-let [callback (:ref attrs)]
+                      {:insert #(callback (.-elm %))
+                       :destroy #(callback nil)}))}
+      (:key attrs) (assoc :key (:key attrs)))))
 
 (defn create [el-fn type attrs & children]
   (fn [path k]
