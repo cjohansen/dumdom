@@ -16,10 +16,10 @@
 
 (def ^:private patch
   "The snabbdom patch function used by render"
-  (js/snabbdom.init (clj->js [(.. js/snabbdom -eventlisteners -default)
-                              (.. js/snabbdom -attributes -default)
-                              (.. js/snabbdom -props -default)
-                              (.. js/snabbdom -style -default)])))
+  (js/snabbdom.init (clj->js [(.-eventlisteners js/snabbdom)
+                              (.-attributes js/snabbdom)
+                              (.-props js/snabbdom)
+                              (.-style js/snabbdom)])))
 
 (defn- init-node!
   "Snabbdom will replace the element provided as the original target for patch.
