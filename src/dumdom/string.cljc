@@ -38,7 +38,7 @@
 (defn- attrs [vnode]
   (let [k (el-key vnode)
         attributes (cond-> (attributes vnode)
-                     k (assoc :data-key k))
+                     k (assoc :data-dumdom-key k))
         style (style vnode)]
     (->> (merge attributes
                 (when style

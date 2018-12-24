@@ -13,7 +13,7 @@
 
   (testing "Does not replace existing DOM nodes when elements have key"
     (let [el (js/document.createElement "div")]
-      (set! (.-innerHTML el) "<h1 data-key=\"hello\">Hello</h1>")
+      (set! (.-innerHTML el) "<h1 data-dumdom-key=\"hello\">Hello</h1>")
       (set! (.. el -firstChild -marker) "marked")
       (sut/render (d/h1 {:key "hello"} "Hello") el)
       (is (= "marked" (.. el -firstChild -marker))))))

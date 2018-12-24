@@ -25,7 +25,7 @@ snabbdom.tovnode = function toVNode(node, domApi) {
     for (var i = 0, n = elmAttrs.length; i < n; i++) {
       var attrName = elmAttrs[i].nodeName;
 
-      if (attrName === 'data-key') {
+      if (attrName === 'data-dumdom-key') {
         props.key = elmAttrs[i].nodeValue;
       } else if (attrName !== 'id' && attrName !== 'class') {
         props.attrs[attrName] = elmAttrs[i].nodeValue;
