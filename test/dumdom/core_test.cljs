@@ -671,17 +671,3 @@
             (done))
           10)))))
 
-(deftest inflate-rendering
-  (testing "Does not remove existing valid DOM nodes"
-    (let [el (js/document.createElement "div")]
-      (set! (.-innerHTML el) "<h1>Hello</h1>")
-      (set! (.. el -firstChild -marker) "marked")
-      (sut/inflate (d/h1 {} "Hello") el)
-      (is (= "marked" (.. el -firstChild -marker)))))
-
-  (testing "Does not replace existing DOM nodes when elements have key"
-    (let [el (js/document.createElement "div")]
-      (set! (.-innerHTML el) "<h1 data-key=\"hello\">Hello</h1>")
-      (set! (.. el -firstChild -marker) "marked")
-      (sut/inflate (d/h1 {:key "hello"} "Hello") el)
-      (is (= "marked" (.. el -firstChild -marker))))))

@@ -325,7 +325,7 @@ a seq with a mix of those.
 Renders component to string. Available on Clojure as well, and can be used to do
 server-side rendering of dumdom components.
 
-### `(dumdom.core/inflate component el)`
+### `(dumdom.inflate/render component el)`
 
 Renders the component into the provided element. If `el` contains
 server-rendered dumdom components, it will be inflated faster than a fresh

@@ -14,22 +14,30 @@
   "A counter used to assign unique ids to root elements"
   (atom -1))
 
-(def ^:private patch
+(def patch
   "The snabbdom patch function used by render"
   (js/snabbdom.init (clj->js [(.-eventlisteners js/snabbdom)
                               (.-attributes js/snabbdom)
                               (.-props js/snabbdom)
                               (.-style js/snabbdom)])))
 
+(defn set-root-id [element]
+  (set! (.. element -dataset -dumdomId) (swap! element-id inc)))
+
+(defn root-node [element]
+  (@current-nodes (.. element -dataset -dumdomId)))
+
+(defn register-vnode [element-id vnode]
+  (swap! current-nodes assoc element-id vnode))
+
 (defn- init-node!
   "Snabbdom will replace the element provided as the original target for patch.
   When rendering into a new DOM node, we therefore create an intermediate in it
   and use that as Snabbdom's root, to avoid destroying the provided root node."
-  [element & [opt]]
-  (when (get opt :clear? true)
-    (set! (.-innerHTML element) "<div></div>"))
-  (set! (.. element -dataset -dumdomId) (swap! element-id inc))
-  (.-firstChild element))
+  [element]
+  (set! (.-innerHTML element) "<div></div>")
+  (set-root-id element)
+  (.-firstElementChild element))
 
 (defn purge! []
   (reset! current-nodes {}))
@@ -38,7 +46,7 @@
   "Render the virtual DOM node created by the component into the specified DOM
   element"
   [component element]
-  (let [current-node (or (@current-nodes (.. element -dataset -dumdomId)) (init-node! element))
+  (let [current-node (or (root-node element) (init-node! element))
         element-id (.. element -dataset -dumdomId)
         vnode (component [element-id] 0)]
     ;; If the root node does not have a key, Snabbdom will consider it the same
@@ -51,14 +59,7 @@
     (when-not (.. vnode -key)
       (set! (.. vnode -key) "root-node"))
     (patch current-node vnode)
-    (swap! current-nodes assoc element-id vnode)))
-
-(defn inflate [component element]
-  (let [current-node (or (@current-nodes (.. element -dataset -dumdomId)) (init-node! element {:clear? false}))
-        element-id (.. element -dataset -dumdomId)
-        vnode (component [element-id] 0)]
-    (patch (js/snabbdom.tovnode current-node) vnode)
-    (swap! current-nodes assoc element-id vnode)))
+    (register-vnode element-id vnode)))
 
 (def component component/component)
 (def component? component/component?)
