@@ -54,5 +54,15 @@
              (dumdom/render-string (comp {:text "LOL"}))))))
 
   (testing "Renders component key as data attribute"
-    (is (= "<div data-dumdom-key=\"some-key\">LOL</div>"
-           (dumdom/render-string (d/div {:key "some-key"} "LOL"))))))
+    (is (= "<div data-dumdom-key=\"&quot;some-key&quot;\">LOL</div>"
+           (dumdom/render-string (d/div {:key "some-key"} "LOL")))))
+
+  (testing "Escapes ampersands in keys"
+    (is (= "<div data-dumdom-key=\"&quot;some&amp;key&quot;\">LOL</div>"
+           (dumdom/render-string (d/div {:key "some&key"} "LOL")))))
+
+  (testing "Respects existing HTML entities in keys"
+    (is (= "<div data-dumdom-key=\"&quot;some&#34;key&quot;\">LOL</div>"
+           (dumdom/render-string (d/div {:key "some&#34;key"} "LOL"))))))
+
+

@@ -35,10 +35,15 @@
 (defn- render-styles [styles]
   (str/join "; " (map (fn [[k v]] (str (kebab-case (name k)) ": " v)) styles)))
 
+(defn- escape [s]
+  (-> s
+      (str/replace #"&(?!([a-z]+|#\d+);)" "&amp;")
+      (str/replace #"\"" "&quot;")))
+
 (defn- attrs [vnode]
   (let [k (el-key vnode)
         attributes (cond-> (attributes vnode)
-                     k (assoc :data-dumdom-key k))
+                     k (assoc :data-dumdom-key (escape (pr-str k))))
         style (style vnode)]
     (->> (merge attributes
                 (when style

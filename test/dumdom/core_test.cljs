@@ -45,11 +45,11 @@
                                   (swap! mutable-state rest)
                                   (d/div {} v)))
                               {:keyfn :id})]
-      (is (= "<div data-dumdom-key=\"c1\">1</div>" (render-str (comp {:id "c1" :number 1}) [] 0)))
-      (is (= "<div data-dumdom-key=\"c1\">1</div>" (render-str (comp {:id "c1" :number 1}) [] 1)))
-      (is (= "<div data-dumdom-key=\"c2\">2</div>" (render-str (comp {:id "c2" :number 1}) [] 0)))
+      (is (= "<div data-dumdom-key=\"&quot;c1&quot;\">1</div>" (render-str (comp {:id "c1" :number 1}) [] 0)))
+      (is (= "<div data-dumdom-key=\"&quot;c1&quot;\">1</div>" (render-str (comp {:id "c1" :number 1}) [] 1)))
+      (is (= "<div data-dumdom-key=\"&quot;c2&quot;\">2</div>" (render-str (comp {:id "c2" :number 1}) [] 0)))
       (is (= "<div>3</div>" (render-str (comp {:number 1}) [] 0)))
-      (is (= "<div data-dumdom-key=\"c2\">2</div>" (render-str (comp {:id "c2" :number 1}) [] 1)))))
+      (is (= "<div data-dumdom-key=\"&quot;c2&quot;\">2</div>" (render-str (comp {:id "c2" :number 1}) [] 1)))))
 
   (testing "Sets key on vdom node"
     (let [comp (sut/component (fn [data]
