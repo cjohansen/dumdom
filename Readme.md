@@ -31,6 +31,7 @@ dumdom does not adhere to the "semantic" versioning scheme.
 * [Contribute](#contribute)
 * [Documentation](#documentation)
 * [Changelog](#changelog)
+* [Roadmap](#roadmap)
 * [License](#license)
 
 ## Install
@@ -349,6 +350,12 @@ This limitation might be adressed in a future release.
 ### 2018.12.21
 
 Initial release
+
+## Roadmap
+
+- Usage documentation
+- Provide TodoMVC app
+- Port Snabbdom (roughly, not API compatibly) to ClojureScript
 
 ## License
 
