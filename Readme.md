@@ -337,7 +337,7 @@ This limitation might be adressed in a future release.
 
 ## Changelog
 
-### 2018.12.xx (to be released)
+### 2019.01.xx (to be released)
 
 - Added rendering components to strings
 - Added inflating server-rendered DOM
@@ -352,7 +352,7 @@ Initial release
 
 ## License
 
-Copyright © 2018 Christian Johansen
+Copyright © 2018-2019 Christian Johansen
 
 Distributed under the Eclipse Public License either version 1.0 or (at your
 option) any later version.
