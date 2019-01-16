@@ -63,6 +63,10 @@
 
   (testing "Respects existing HTML entities in keys"
     (is (= "<div data-dumdom-key=\"&quot;some&#34;key&quot;\">LOL</div>"
-           (dumdom/render-string (d/div {:key "some&#34;key"} "LOL"))))))
+           (dumdom/render-string (d/div {:key "some&#34;key"} "LOL")))))
 
-
+  (testing "Renders hiccup to string"
+    (is (= "<div style=\"color: red\"><h1>Hello</h1><p>World</p></div>"
+           (dumdom/render-string [:div {:style {:color "red"}}
+                                  [:h1 "Hello"]
+                                  [:p "World"]])))))

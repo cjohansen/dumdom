@@ -183,6 +183,21 @@
                        :destroy #(callback nil)}))}
       (:key attrs) (assoc :key (:key attrs)))))
 
+(declare create)
+
+(defn hiccup? [sexp]
+  (and (vector? sexp) (or (keyword? (first sexp)) (fn? (first sexp)))))
+
+(defn inflate-hiccup [el-fn sexp]
+  (if-not (hiccup? sexp)
+    sexp
+    (let [el-type (first sexp)
+          args (rest sexp)
+          args (if (map? (first args)) args (concat [{}] args))]
+      (if (fn? el-type)
+        (apply el-type (rest sexp))
+        (apply create el-fn (name el-type) args)))))
+
 (defn create [el-fn type attrs & children]
   (fn [path k]
     (let [fullpath (conj path k)]
@@ -197,7 +212,9 @@
                          ((.-willAppear node))))))
        (->> children
             (filter identity)
-            (mapcat #(if (coll? %) % [%]))
-            (map-indexed #(if (fn? %2)
-                            (%2 fullpath %1)
-                            %2)))))))
+            (mapcat #(if (seq? %) % [%]))
+            (map (partial inflate-hiccup el-fn))
+            (map-indexed #(do
+                            (if (fn? %2)
+                             (%2 fullpath %1)
+                             %2))))))))

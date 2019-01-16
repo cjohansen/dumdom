@@ -1,6 +1,7 @@
 (ns dumdom.core
-  (:require [dumdom.dom :as d]
-            [dumdom.component :as component]
+  (:require [dumdom.component :as component]
+            [dumdom.dom :as d]
+            [dumdom.element :as e]
             [dumdom.string :as string]
             [snabbdom])
   (:require-macros [dumdom.core]))
@@ -48,6 +49,7 @@
   [component element]
   (let [current-node (or (root-node element) (init-node! element))
         element-id (.. element -dataset -dumdomId)
+        component (e/inflate-hiccup d/render component)
         vnode (component [element-id] 0)]
     ;; If the root node does not have a key, Snabbdom will consider it the same
     ;; node as the node it is rendered into if they have the same tag name

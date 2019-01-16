@@ -1,4 +1,6 @@
-(ns dumdom.component)
+(ns dumdom.component
+  (:require [dumdom.element :as e]
+            [dumdom.dom :as d]))
 
 (defn- should-component-update? [component-state data]
   (or (not (contains? component-state :data))
@@ -130,7 +132,7 @@
                      animation (atom {:ready? true})]
                  (if (should-component-update? instance data)
                    (when-let [rendered (when-let [renderer (apply render data args)]
-                                         (renderer fullpath 0))]
+                                         ((e/inflate-hiccup d/render renderer) fullpath 0))]
                      #?(:cljs (when key
                                 (set! (.-key rendered) key)))
                      #?(:cljs (when-let [will-enter (:will-enter opt)]
@@ -151,9 +153,11 @@
          comp-fn)))))
 
 (defn TransitionGroup [el-fn opt children]
+  ;; Vectors with a function in the head position are interpreted as hiccup data
+  ;; - force children to be seqs to avoid them being parsed as hiccup.
   (if (ifn? (:component opt))
-    ((:component opt) children)
-    (apply el-fn (or (:component opt) "span") opt children)))
+    ((:component opt) (seq children))
+    (apply el-fn (or (:component opt) "span") opt (seq children))))
 
 (defn- complete-transition [node timeout callback]
   (if timeout

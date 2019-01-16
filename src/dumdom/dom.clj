@@ -3,7 +3,7 @@
             [dumdom.element :as element])
   (:refer-clojure :exclude [time map meta mask]))
 
-(defn- render [type attrs children]
+(defn render [type attrs children]
   {:tag-name type
    :attributes (merge (:attrs attrs) (:props attrs))
    :style (:style attrs)

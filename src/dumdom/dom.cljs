@@ -6,7 +6,7 @@
   (:refer-clojure :exclude [time map meta mask])
   (:require-macros [dumdom.dom-macros :as dm]))
 
-(defn- render [type attrs children]
+(defn render [type attrs children]
   (js/snabbdom.h type (clj->js attrs) (clj->js children)))
 
 (defn el

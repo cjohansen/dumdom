@@ -92,3 +92,29 @@
     (let [el (js/document.createElement "div")]
       (dd/render (d/textarea {:value nil}) el)
       (is (= "" (.. el -firstChild -value))))))
+
+(deftest hiccup-test
+  (testing "Renders hiccup-like"
+    (let [el (js/document.createElement "div")]
+      (dd/render [:div {} "Hello world"] el)
+      (is (= "<div>Hello world</div>" (.-innerHTML el)))))
+
+  (testing "Renders hiccup-like with children"
+    (let [el (js/document.createElement "div")]
+      (dd/render [:div {}
+                  [:h1 {:style {:border "1px solid cyan"}} "Hello"]
+                  [:img {:border "2"}]] el)
+      (is (= "<div><h1 style=\"border: 1px solid cyan;\">Hello</h1><img border=\"2\"></div>" (.. el -innerHTML)))))
+
+  (testing "Renders mixed hiccup and functions"
+    (let [el (js/document.createElement "div")]
+      (dd/render [:div {}
+                  (d/h1 {:style {:border "1px solid cyan"}} [:a {} "Hello"])] el)
+      (is (= "<div><h1 style=\"border: 1px solid cyan;\"><a>Hello</a></h1></div>" (.. el -innerHTML)))))
+
+  (testing "Accepts omission of attribute map in hiccup syntax"
+    (let [el (js/document.createElement "div")]
+      (dd/render [:div
+                  [:h1 "Hello"]
+                  [:img {:border "2"}]] el)
+      (is (= "<div><h1>Hello</h1><img border=\"2\"></div>" (.. el -innerHTML))))))

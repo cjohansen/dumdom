@@ -1,5 +1,7 @@
 (ns dumdom.string
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [dumdom.element :as e]
+            [dumdom.dom :as d]))
 
 (defn- tag-name [node]
   #?(:cljs (.-sel node)
@@ -68,4 +70,5 @@
                   (closing-tag (tag-name vnode)))))
 
 (defn render [component & [path k]]
-  (dom-str (component (or path []) (or k 0))))
+  (let [component (e/inflate-hiccup d/render component)]
+    (dom-str (component (or path []) (or k 0)))))

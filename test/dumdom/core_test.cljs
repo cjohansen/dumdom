@@ -107,7 +107,28 @@
   (testing "Renders vnode to DOM"
     (let [el (js/document.createElement "div")]
       (sut/render (d/div {} "Hello") el)
-      (is (= "<div>Hello</div>" (.-innerHTML el))))))
+      (is (= "<div>Hello</div>" (.-innerHTML el)))))
+
+  (testing "Renders hiccup"
+    (let [el (js/document.createElement "div")]
+      (sut/render [:div {}
+                   [:h1 {:style {:border "1px solid cyan"}} "Hello"]
+                   [:img {:border "2"}]] el)
+      (is (= "<div><h1 style=\"border: 1px solid cyan;\">Hello</h1><img border=\"2\"></div>" (.-innerHTML el)))))
+
+  (testing "Renders custom elements in hiccup"
+    (let [el (js/document.createElement "div")
+          comp (sut/component (fn [data]
+                                (d/a {} "Hi there " (:name data))))]
+      (sut/render [comp {:name "world"}] el)
+      (is (= "<a>Hi there world</a>" (.-innerHTML el)))))
+
+  (testing "Allows custom elements to return hiccup"
+    (let [el (js/document.createElement "div")
+          comp (sut/component (fn [data]
+                                [:a "Hi there " (:name data)]))]
+      (sut/render [comp {:name "world"}] el)
+      (is (= "<a>Hi there world</a>" (.-innerHTML el))))))
 
 (deftest on-mount-test
   (testing "Calls on-mount when component first mounts"
@@ -426,7 +447,8 @@
   (testing "Creates TransitionGroup with custom component"
     (let [el (js/document.createElement "div")
           component (sut/component
-                     (fn [children] (d/h1 {} children)))]
+                     (fn [children]
+                       (d/h1 {} children)))]
       (sut/render (sut/TransitionGroup {:component component}
                                        [(d/span {} "Hey") (d/span {} "there!")]) el)
       (is (= (.-innerHTML el) "<h1><span>Hey</span><span>there!</span></h1>")))))
@@ -670,4 +692,3 @@
             (is (nil? (.. el -firstChild -firstChild)))
             (done))
           10)))))
-
