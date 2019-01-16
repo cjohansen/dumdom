@@ -18,7 +18,11 @@ not explicitly exposed by dumdom is **not** recommended.
 changes will never be intentionally introduced to the codebase. For this reason,
 dumdom does not adhere to the "semantic" versioning scheme.
 
-**dumdom** supports server-side rendering to strings.
+In addition to being API compatible with Quiescent, **dumdom** supports:
+
+- Rendering to strings (useful for server-side rendering from both the JVM and node.js)
+- Efficient "inflation" of server-rendered markup on the client side
+- Hiccup syntax for components
 
 ## Table of contents
 
@@ -49,6 +53,29 @@ With Leiningen:
 ```
 
 ## Example
+
+Using hiccup-style data:
+
+```clj
+(require '[dumdom.core :as dumdom :refer [defcomponent]])
+
+(defcomponent heading
+  :on-render (fn [dom-node val old-val])
+  [data]
+  [:h2 {:style {:background "#000"}} (:text data)])
+
+(defcomponent page [data]
+  [:div
+    [heading (:heading data)]
+    [:p (:body data)]])
+
+(dumdom/render
+ [page {:heading {:text "Hello world"}
+        :body "This is a web page"}]
+ (js/document.getElementById "app"))
+```
+
+Using the Quiescent-compatible function API:
 
 ```clj
 (require '[dumdom.core :as dumdom :refer [defcomponent]]
@@ -167,7 +194,8 @@ want it to accrete a too wide/too losely coherent set of features.
 ### `(dumdom.core/render component element)`
 
 Render the virtual DOM node created by the component into the specified DOM
-element.
+element. Component can be either hiccup-style data, like `[:div {} "Hello"]` or
+the result of calling component functions, e.g. `(dumdom.dom/div {} "Hello")`.
 
 ### `(dumdom.core/component render-fn [opt])`
 
@@ -182,6 +210,9 @@ a single immutable value, followed by any number of other arguments, as desired.
 These additional constant arguments are suitable for passing messaging channels,
 configuration maps, and other utilities that are constant for the lifetime of
 the rendered element.
+
+The rendering function can return hiccup-style data or the result of calling
+component functions.
 
 The optional opts argument is a map with additional properties:
 
@@ -338,8 +369,9 @@ This limitation might be adressed in a future release.
 
 ## Changelog
 
-### 2019.01.xx (to be released)
+### 2019.01.XX (Upcoming)
 
+- Added support for hiccup-style data
 - Added rendering components to strings
 - Added inflating server-rendered DOM
 
