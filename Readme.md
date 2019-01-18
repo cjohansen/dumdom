@@ -43,13 +43,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2018.12.22"}
+cjohansen/dumdom {:mvn/version "2019.01.18"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2018.12.22"]
+[cjohansen/dumdom "2019.01.18"]
 ```
 
 ## Example
@@ -369,7 +369,7 @@ This limitation might be adressed in a future release.
 
 ## Changelog
 
-### 2019.01.XX (Upcoming)
+### 2019.01.18
 
 - Added support for hiccup-style data
 - Added rendering components to strings
