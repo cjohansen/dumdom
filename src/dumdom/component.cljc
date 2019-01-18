@@ -149,7 +149,7 @@
                                                             :data data))
                      rendered)
                    (:vdom instance))))]
-         #(:cljs (set! (.-dumdom comp-fn) true))
+         #?(:cljs (set! (.-dumdom comp-fn) true))
          comp-fn)))))
 
 (defn TransitionGroup [el-fn opt children]
