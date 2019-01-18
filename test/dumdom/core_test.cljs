@@ -128,7 +128,12 @@
           comp (sut/component (fn [data]
                                 [:a "Hi there " (:name data)]))]
       (sut/render [comp {:name "world"}] el)
-      (is (= "<a>Hi there world</a>" (.-innerHTML el))))))
+      (is (= "<a>Hi there world</a>" (.-innerHTML el)))))
+
+  (testing "Renders hiccup with a list of children"
+    (let [el (js/document.createElement "div")]
+      (sut/render [:ul (list [:li "One"] [:li "two"] [:li "three"])] el)
+      (is (= "<ul><li>One</li><li>two</li><li>three</li></ul>" (.-innerHTML el))))))
 
 (deftest on-mount-test
   (testing "Calls on-mount when component first mounts"
