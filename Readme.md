@@ -34,6 +34,15 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 * [Using with Devcards](#using-with-devcards)
 * [Contribute](#contribute)
 * [Documentation](#documentation)
+  * [Building virtual DOM](#building-virtual-dom)
+  * [Event listeners](#event-listeners)
+  * [Creating components](#creating-components)
+  * [CSS transitions](#css-transitions)
+  * [Class name transitions](#class-name-transitions)
+  * [Refs](#refs)
+  * [Server-rendering](#server-rendering)
+  * [API Docs](#api-docs)
+* [Examples](#examples)
 * [Changelog](#changelog)
 * [Roadmap](#roadmap)
 * [License](#license)
@@ -43,13 +52,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2019.01.19"}
+cjohansen/dumdom {:mvn/version "2019.01.21"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2019.01.19"]
+[cjohansen/dumdom "2019.01.21"]
 ```
 
 ## Example
@@ -81,18 +90,18 @@ Using the Quiescent-compatible function API:
 (require '[dumdom.core :as dumdom :refer [defcomponent]]
          '[dumdom.dom :as d])
 
-(defcomponent Heading
+(defcomponent heading
   :on-render (fn [dom-node val old-val])
   [data]
   (d/h2 {:style {:background "#000"}} (:text data)))
 
-(defcomponent Page [data]
+(defcomponent page [data]
   (d/div {}
-    (Heading (:heading data))
+    (heading (:heading data))
     (d/p {} (:body data))))
 
 (dumdom/render
- (Page {:heading {:text "Hello world"}
+ (page {:heading {:text "Hello world"}
         :body "This is a web page"})
  (js/document.getElementById "app"))
 ```
@@ -157,7 +166,7 @@ they need some wrapping for Devcards to make sense of them. This is what the
 (require '[dumdom.devcards :refer-macros [defcard]])
 
 (defcard my-dumdom-card
-  (MyDumDomComponent {:value 0}))
+  (my-dumdom-component {:value 0}))
 ```
 
 `dumdom.devcards.defcard` works exactly the same as
@@ -191,13 +200,300 @@ want it to accrete a too wide/too losely coherent set of features.
 
 ## Documentation
 
-### `(dumdom.core/render component element)`
+The vast majority of use-cases are covered by using [hiccup-style markup]() for
+DOM elements, defining custom components with [`defcomponent`](#defcomponent),
+and rendering the resulting virtual DOM to an element with [`render`](#render):
+
+```clj
+(require '[dumdom.core :as dumdom :refer [defcomponent]])
+
+(defcomponent my-component [data]
+  [:div
+    [:h1 "Hello world!"]
+    [:p (:message data)]])
+
+(dumdom/render
+  (my-component {:message "Hello, indeed"})
+  (js/document.getElementById "app"))
+```
+
+Components defined by `defcomponent` are functions, as demonstrated in the above
+example. You can also use them for hiccup markup, e.g.:
+
+```clj
+(dumdom/render
+  [my-component {:message "Hello, indeed"}]
+  (js/document.getElementById "app"))
+```
+
+The strength of hiccup markup is being able to represent DOM structures as pure
+data. Because functions are not data, there is no real benefit to using hiccup
+syntax for custom components, so I typically don't, but it doesn't make any
+difference either way.
+
+### Building virtual DOM
+
+Virtual DOM elements are built with hiccup markup:
+
+```clj
+[tagname attr? children...]
+```
+
+`tagname` is always a keyword, attributes are in an optional map, and there
+might be one or more children, or a list of children. Beware that children
+should not be provided as a vector, lest it be interpreted as a new hiccup
+element.
+
+**Note:** dumdom currently does not support inlining class names and ids on the
+tag name selector (e.g. `:div.someclass#someid`). This might be added in a
+future release.
+
+For API compatibility with Quiescent, elements can also be created with the
+functions in `dumdom.dom`:
+
+```clj
+(dumdom.dom/div {:style {:border "1px solid red"}} "Hello world")
+```
+
+Note that with these functions, the attribute map is not optional, and must
+always be provided, even if empty.
+
+#### Keys
+
+You can specify the special attribute `:key` do help dumdom recognize DOM
+elements that move. `:key` should be set to a value that is unique among the
+element's siblings. For instance, if you are rendering lists of things, setting
+a key on each item means dumdom can update the rendered view by simply moving
+existing elements around in the DOM. Not setting the key will lead dumdom to
+work harder to align the DOM with the virtual representation:
+
+```clj
+(require '[dumdom.core :as dumdom :refer [defcomponent]])
+
+(defcomponent list-item [fruit]
+  [:li {:key fruit} fruit])
+
+(def el (js/document.getElementById "app"))
+
+(dumdom/render [:ul (map list-item ["Apples" "Oranges" "Kiwis"])] el)
+
+;; This will now result in reordering the DOM elements, instead of recreating them
+(dumdom/render [:ul (map list-item ["Oranges" "Apples" "Kiwis"])] el)
+```
+
+### Event listeners
+
+To attach events to your virtual DOM nodes, provide functions to camel-cased
+event name keys in the attribute map:
+
+```clj
+[:a {:href "#"
+     :onClick (fn [e]
+                (.preventDefault e)
+                (prn "You clicked me!"))} "Click me!"]
+```
+
+### Creating components
+
+You create components with `defcomponent` or `component` - the first is
+just a convenience macro for `def` + `component`:
+
+```clj
+(require '[dumdom.core :refer [component defcomponent]])
+
+(defcomponent my-component
+  :on-render (fn [e] (js/console.log "Rendered" e))
+  [data]
+  [:div "Hello world"])
+
+;; ...is the same as:
+
+(def my-component
+  (component
+    (fn [data]
+      [:div "Hello world"])
+    {:on-render (fn [e] (js/console.log "Rendered" e))}))
+```
+
+Refer to the API docs for [`component`](#component) for details on what options
+it supports, life-cycle hooks etc, and the API docs for
+[`defcomponent`](#defcomponent) for more on how to use it.
+
+A dumdom component is a function. When you call it with data it returns
+something that dumdom knows how to render, e.g.:
+
+```clj
+(dumdom.core/render (my-component {:id 42}) root-el)
+```
+
+You can also invoke the component with hiccup markup, although there is no real
+benefit to doing so - the result is exactly the same:
+
+```clj
+(dumdom.core/render [my-component {:id 42}] root-el)
+```
+
+#### Component arguments
+
+When you call a dumdom component with data, it will recreate the virtual DOM
+node only if the data has changed since it was last called. However, this
+decision is based solely on the first argument passed to the component. So while
+you can pass any number of arguments to a component beware that only the first
+one is used to influence rendering decisions.
+
+This design is inherited from Quiescent, and the idea is that you can pass along
+things like core.async message channels without having them interferring with
+the rendering decisions. When passing more than one argument to a dumdom
+component, make sure that any except the first one are constant for the lifetime
+of the component.
+
+This only applies to components created with `component`/`defcomponent`, not
+virtual DOM functions, which take any number of DOM children.
+
+### CSS transitions
+
+CSS transitions can be defined inline on components to animate the appearing or
+disappearing of elements. There are three keys you can use to achieve this
+effect:
+
+- `:mounted-style` - Styles that will apply after the element has been mounted
+- `:leaving-style` - Styles that will apply before the element is removed from
+  its parent - the element will not be removed until all its transitions
+  complete
+- `:disappearing-style` - Styles that will apply before the element is removed
+  along with its parent element is being removed - the element will not be
+  removed until all its transitions are complete
+
+As an example, if you want an element to fade in, set its opacity to 0, and then
+its `:mounted-style` opacity to 1. To fade it out as well, set its
+`:leaving-styles` opacity to 0 again. Remember to enable transitions for the
+relevant CSS property:
+
+```clj
+[:div {:style {:opacity "0"
+               :transition "opacity 0.25s"}
+       :mounted-style {:opacity "1"}
+       :leaving-style {:opacity "0"}}
+  "I will fade both in and out"]
+```
+
+### Class name transitions
+
+In order to be API compatible with Quiescent, dumdom supports React's
+`CSSTransitionGroup` for doing enter/leave transitions with classs names instead
+of inline CSS. Given the following CSS:
+
+```css
+.example-leave {
+  opacity: 1;
+  transition: opacity 0.25s;
+}
+
+.example-leave-active {
+  opacity: 0;
+}
+```
+
+Then we could fade out an element with:
+
+```clj
+(require '[dumdom.core :refer [CSSTransitionGroup]])
+
+(CSSTransitionGroup {:transitionName "example"}
+  [[:div "I will fade out"]])
+```
+
+Note that `CSSTransitionGroup` takes a vector/seq of children. Refer to the
+[API docs for `CSSTransitionGroup`](#css-transition-group) for more details. In
+general, using inline CSS transitions will be more straight-forward, and is
+recommended.
+
+### Refs
+
+A `:ref` on an element is like an `:on-mount` callback that you can attach from
+"the outside":
+
+```clj
+;; NB! Just an example, there are better ways to do this with CSS
+
+(defn square-element [el]
+  (set! (.. el -style -height) (str (.-offsetWidth el) "px")))
+
+[:div {:style {:border "1px solid red"}
+       :ref square-element} "I will be in a square box"]
+```
+
+The `:ref` function will be called only once, when the element is first mounted.
+Use this feature with care - do not use it with functions that behave
+differently at different times. Consider this example:
+
+```clj
+(defcomponent my-component [data]
+  [:div
+    [:h1 "Example"]
+    [:div {:ref (when (:actionable? data)
+                  setup-click-indicator)}
+      "I might or might not be clickable"]])
+```
+
+While this looks reasonable, refs are only called when the element mounts. Thus,
+if the value of `(:actionable? data)` changes, the changes will not be reflected
+on the element. If you need to conditionally make changes to an element this
+way, create a custom component and use the `:on-render` hook instead, which is
+called every time data changes.
+
+### Server rendering
+
+Dumdom supports rendering your components to strings on the server and then
+"inflating" the view client-side. Inflating consists of associating the
+resulting DOM elements with their respective virtual DOM nodes, so dumdom can
+efficiently update your UI, and adding client-side event handlers so users can
+interact with your app.
+
+Even though it sounds straight-forward, using server rendering requires that
+you write your entire UI layer in a way that can be loaded on both the server
+and client. This is easier said than done.
+
+To render your UI to a string on the server:
+
+```clj
+(require '[dumdom.string :as dumdom])
+
+(defn body []
+  (str "<html><body><div id=\"app\">"
+       (dumdom/render [:div [:h1 "Hello world"]])
+       "</div></body></html>"))
+
+(defn index [req]
+  {:status 200
+   :headers {"content-type" "text/html"}
+   :body (body)})
+```
+
+Then, on the client:
+
+```clj
+(require '[dumdom.inflate :as dumdom])
+
+(dumdom/render
+  [:div [:h1 "Hello world]]
+  (js/document.getElementById "app"))
+```
+
+To update your view, either call `dumdom.inflate/render` again, or use
+`dumdom.core/render`.
+
+### API Docs
+
+<a id="render"></a>
+#### `(dumdom.core/render component element)`
 
 Render the virtual DOM node created by the component into the specified DOM
 element. Component can be either hiccup-style data, like `[:div {} "Hello"]` or
 the result of calling component functions, e.g. `(dumdom.dom/div {} "Hello")`.
 
-### `(dumdom.core/component render-fn [opt])`
+<a id="component"></a>
+#### `(dumdom.core/component render-fn [opt])`
 
 Returns a component that uses the provided function for rendering. The resulting
 component will only call through to its rendering function when called with data
@@ -262,7 +558,8 @@ The DOM node will not be removed until the callback is called.
 called (at the same time as :on-unmount). Is passed the underlying DOM node, the
 most recent value and the most recent constant args passed to the render fn.
 
-### `(dumdom.core/defcomponent name & args)`
+<a id="defcomponent"></a>
+#### `(dumdom.core/defcomponent name & args)`
 
 Creates a component with the given name, a docstring (optional), any number of
 option->value pairs (optional), an argument vector and any number of forms body,
@@ -271,7 +568,7 @@ which will be used as the rendering function to dumdom.core/component.
 For example:
 
 ```clj
-(defcomponent Widget
+(defcomponent widget
   \"A Widget\"
   :on-mount #(...)
   :on-render #(...)
@@ -282,18 +579,19 @@ For example:
 Is shorthand for:
 
 ```clj
-(def Widget (dumdom.core/component
+(def widget (dumdom.core/component
   (fn [value constant-value] (some-child-components))
   {:on-mount #(...)
-  :on-render #(...)}))
+   :on-render #(...)}))
 ```
 
-### `(dumdom.core/TransitionGroup opt children)`
+#### `(dumdom.core/TransitionGroup opt children)`
 
 Exists solely for drop-in compatibility with Quiescent. Effectively does
 nothing. Do not use for new applications.
 
-### `(dumdom.core/CSSTransitionGroup opt children)`
+<a id="css-transition-group"></a>
+#### `(dumdom.core/CSSTransitionGroup opt children)`
 
 Automates animation of entering and leaving elements via class names. If called
 with `{:transitionName "example"}` as `opt`, child elements will have class
@@ -316,7 +614,7 @@ removed after transitions complete.
 You can control which transitions are used on elements, and how their classes
 are named with the following options:
 
-#### `transitionName`
+##### `transitionName`
 
 When set to a string: base-name for all classes. Can also be set to a map to
 control individual class names:
@@ -328,19 +626,19 @@ control individual class names:
 
 And similarly for `:leave`/`:leaveActive` and `:appear`/`:appearActive`.
 
-#### `transitionEnter`
+##### `transitionEnter`
 
 Boolean, set to `false` to disable enter transitions. Defaults to `true`.
 
-#### `transitionAppear`
+##### `transitionAppear`
 
 Boolean, set to `true` to enable appear transitions. Defaults to `false`.
 
-#### `transitionLeave`
+##### `transitionLeave`
 
 Boolean, set to `false` to disable leave transitions. Defaults to `true`.
 
-### `(dumdom.dom/[el] attr children)`
+#### `(dumdom.dom/[el] attr children)`
 
 Functions are defined for every HTML element:
 
@@ -352,12 +650,12 @@ Attributes are **not** optional, use an empty map if you don't have attributes.
 Children can be text, components, virtual DOM elements (like the one above), or
 a seq with a mix of those.
 
-### `(dumdom.core/render-string component)`
+#### `(dumdom.core/render-string component)`
 
 Renders component to string. Available on Clojure as well, and can be used to do
 server-side rendering of dumdom components.
 
-### `(dumdom.inflate/render component el)`
+#### `(dumdom.inflate/render component el)`
 
 Renders the component into the provided element. If `el` contains
 server-rendered dumdom components, it will be inflated faster than a fresh
@@ -367,7 +665,17 @@ render (which forcefully rebuilds the entire DOM tree).
 non-string keys, inflating will not work, and it will be forcefully re-rendered.
 This limitation might be adressed in a future release.
 
+## Examples
+
+Unfortunately, there is no TodoMVC implementation yet, but there is
+[Yahtzee](https://github.com/cjohansen/yahtzee/)! Please get in touch if you've
+used dumdom for anything and I'll happily include a link to your app.
+
 ## Changelog
+
+### 2019.01.21
+
+- Document and launch `:mounted-style`, `:leaving-style`, and `:disappearing-style`
 
 ### 2019.01.19
 
@@ -385,7 +693,6 @@ Initial release
 
 ## Roadmap
 
-- Usage documentation
 - Provide TodoMVC app
 - Port Snabbdom (roughly, not API compatibly) to ClojureScript
 

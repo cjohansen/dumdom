@@ -164,14 +164,14 @@
 (defn- prep-attrs [attrs]
   (let [event-keys (filter #(and (str/starts-with? (name %) "on") (ifn? (attrs %))) (keys attrs))
         attrs (set/rename-keys attrs (select-keys attr-mappings (keys attrs)))]
-    (cond-> {:attrs (apply dissoc attrs :style :enter-style :remove-style :destroy-style :component :value :key event-keys)
+    (cond-> {:attrs (apply dissoc attrs :style :mounted-style :leaving-style :disappearing-style :component :value :key event-keys)
              :props (select-keys attrs [:value])
              :style (merge (pixelize (:style attrs))
-                           (when-let [enter (:enter-style attrs)]
+                           (when-let [enter (:mounted-style attrs)]
                              {:delayed (pixelize enter)})
-                           (when-let [remove (:remove-style attrs)]
+                           (when-let [remove (:leaving-style attrs)]
                              {:remove (pixelize remove)})
-                           (when-let [destroy (:destroy-style attrs)]
+                           (when-let [destroy (:disappearing-style attrs)]
                              {:destroy (pixelize destroy)}))
              :on (->> event-keys
                       (mapv #(event-entry attrs %))
