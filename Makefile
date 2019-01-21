@@ -21,7 +21,7 @@ test: src/snabbdom/snabbdom.js src/snabbdom/snabbdom.min.js
 	clojure -A:dev -A:test
 	clojure -A:dev -A:test-clj
 
-dumdom.jar:
+dumdom.jar: src/**/*
 	clj -A:jar
 
 deploy: test dumdom.jar
