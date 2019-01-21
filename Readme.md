@@ -668,7 +668,7 @@ This limitation might be adressed in a future release.
 ## Examples
 
 Unfortunately, there is no TodoMVC implementation yet, but there is
-[Yahtzee](https://github.com/cjohansen/yahtzee/)! Please get in touch if you've
+[Yahtzee](https://github.com/cjohansen/yahtzee-cljs/)! Please get in touch if you've
 used dumdom for anything and I'll happily include a link to your app.
 
 ## Changelog
