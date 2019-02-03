@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>cjohansen</groupId>
   <artifactId>dumdom</artifactId>
-  <version>2019.02.03</version>
+  <version>2019.02.03-1</version>
   <name>dumdom</name>
   <dependencies>
     <dependency>
@@ -42,6 +42,9 @@
     </license>
   </licenses>
   <scm>
+    <connection>scm:git:git://github.com/cjohansen/dumdom.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/cjohansen/dumdom.git</developerConnection>
+    <tag>88e74a54d7b425934561640e8582790d4f54845c</tag>
     <url>https://github.com/cjohansen/dumdom</url>
   </scm>
 </project>
