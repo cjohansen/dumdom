@@ -52,13 +52,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2019.01.21"}
+cjohansen/dumdom {:mvn/version "2019.02.03"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2019.01.21"]
+[cjohansen/dumdom "2019.02.03"]
 ```
 
 ## Example
@@ -672,6 +672,11 @@ Unfortunately, there is no TodoMVC implementation yet, but there is
 used dumdom for anything and I'll happily include a link to your app.
 
 ## Changelog
+
+### 2019.02.03
+
+- Built jar with a different version of `pack.alpha`, so
+  [cljdoc](https://cljdoc.org) is able to analyze it
 
 ### 2019.01.21
 

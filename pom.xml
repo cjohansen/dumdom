@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>cjohansen</groupId>
   <artifactId>dumdom</artifactId>
-  <version>2019.01.21</version>
+  <version>2019.02.03</version>
   <name>dumdom</name>
   <dependencies>
     <dependency>

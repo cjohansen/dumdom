@@ -14,5 +14,5 @@
                       :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-319"}}
                       :main-opts ["-m" "kaocha.runner"]}
            :jar {:extra-deps {pack/pack.alpha {:git/url "https://github.com/juxt/pack.alpha.git"
-                                               :sha "90a84a01c365fdac224bf4eef6e9c8e1d018a29e"}}
+                                               :sha "8acf80dd4d6e5173585f5c6fec7af28a310f3ed7"}}
                  :main-opts ["-m" "mach.pack.alpha.skinny" "--no-libs" "--project-path" "dumdom.jar"]}}}
