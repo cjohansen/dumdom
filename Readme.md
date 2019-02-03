@@ -52,13 +52,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2019.02.03-2"}
+cjohansen/dumdom {:mvn/version "2019.02.03-3"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2019.02.03-2"]
+[cjohansen/dumdom "2019.02.03-3"]
 ```
 
 ## Example
@@ -673,7 +673,7 @@ used dumdom for anything and I'll happily include a link to your app.
 
 ## Changelog
 
-### 2019.02.03-1
+### 2019.02.03-3
 
 - Built jar with a different version of `pack.alpha`, so
   [cljdoc](https://cljdoc.org) is able to analyze it
