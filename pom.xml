@@ -50,7 +50,7 @@
   <scm>
     <connection>scm:git:git://github.com/cjohansen/dumdom.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/cjohansen/dumdom.git</developerConnection>
-    <tag>88e74a54d7b425934561640e8582790d4f54845c</tag>
+    <tag>f491f7fb6f5e7cefbe41b56ed71aa771749fd0fd</tag>
     <url>https://github.com/cjohansen/dumdom</url>
   </scm>
 </project>
