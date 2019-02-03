@@ -52,13 +52,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2019.02.03-1"}
+cjohansen/dumdom {:mvn/version "2019.02.03-2"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2019.02.0-13"]
+[cjohansen/dumdom "2019.02.03-2"]
 ```
 
 ## Example

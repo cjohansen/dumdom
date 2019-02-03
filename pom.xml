@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>cjohansen</groupId>
   <artifactId>dumdom</artifactId>
-  <version>2019.02.03-1</version>
+  <version>2019.02.03-2</version>
   <name>dumdom</name>
   <dependencies>
     <dependency>
@@ -15,6 +15,12 @@
       <groupId>org.clojure</groupId>
       <artifactId>clojurescript</artifactId>
       <version>1.10.439</version>
+    </dependency>
+    <dependency>
+      <groupId>devcards</groupId>
+      <artifactId>devcards</artifactId>
+      <version>0.2.6</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>
