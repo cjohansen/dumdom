@@ -671,6 +671,9 @@ Unfortunately, there is no TodoMVC implementation yet, but there is
 [Yahtzee](https://github.com/cjohansen/yahtzee-cljs/)! Please get in touch if you've
 used dumdom for anything and I'll happily include a link to your app.
 
+Check out this cool [dungeon crawler](http://heck.8620.cx/)
+([source](https://github.com/uosl/heckendorf)) made with dumdom.
+
 ## Changelog
 
 ### 2019.02.03-3
