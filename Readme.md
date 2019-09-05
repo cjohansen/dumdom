@@ -52,13 +52,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2019.09.05"}
+cjohansen/dumdom {:mvn/version "2019.09.05-1"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2019.09.05"]
+[cjohansen/dumdom "2019.09.05-1"]
 ```
 
 ## Example
@@ -675,6 +675,12 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 ([source](https://github.com/uosl/heckendorf)) made with dumdom.
 
 ## Changelog
+
+### 2019.09.05-1
+
+- Support using dashed cased attributes, e.g. `:xlink-href`, `:view-box` etc
+- When passing `nil` to an attribute, do not render that attribute with the
+  string "null" or an empty value - remove the attribute
 
 ### 2019.09.05
 
