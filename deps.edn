@@ -11,7 +11,7 @@
                   :extra-deps {olical/cljs-test-runner {:mvn/version "3.3.0"}}
                   :main-opts ["-m" "cljs-test-runner.main" "--env" "chrome-headless"]}
            :test-clj {:extra-paths ["test"]
-                      :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-319"}}
+                      :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-529"}}
                       :main-opts ["-m" "kaocha.runner"]}
            :jar {:extra-deps {pack/pack.alpha {:git/url "https://github.com/juxt/pack.alpha.git"
                                                :sha "8acf80dd4d6e5173585f5c6fec7af28a310f3ed7"}}
