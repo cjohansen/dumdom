@@ -35,4 +35,35 @@
                         :children []}]}
            ((sut/div {}
                      (sut/h1 {:style {:border "1px solid cyan"}} "Hello")
-                     (sut/img {:border "2"})) [] 0)))))
+                     (sut/img {:border "2"})) [] 0))))
+
+  (testing "Parses hiccup element name for classes"
+    (is (= {:tag-name "div"
+            :attributes {}
+            :style nil
+            :key nil
+            :children [{:tag-name "h1"
+                        :key nil
+                        :style nil
+                        :attributes {:class "something nice and beautiful"}
+                        :children ["Hello"]}]}
+           ((sut/div {} [:h1.something.nice.and.beautiful "Hello"]) [] 0))))
+
+  (testing "Parses hiccup element name for id and classes, combines with existing"
+    (is (= {:tag-name "div"
+            :attributes {}
+            :style nil
+            :key nil
+            :children [{:tag-name "h1"
+                        :key nil
+                        :style nil
+                        :attributes {:id "helau", :class "andhere here"}
+                        :children ["Hello"]}
+                       {:tag-name "h1"
+                        :key nil
+                        :style nil
+                        :attributes {:id "first", :class "lol"}
+                        :children ["Hello"]}]}
+           ((sut/div {}
+                     [:h1.here#helau {:className "andhere"} "Hello"]
+                     [:h1#first.lol {} "Hello"]) [] 0)))))

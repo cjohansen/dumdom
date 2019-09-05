@@ -117,4 +117,9 @@
       (dd/render [:div
                   [:h1 "Hello"]
                   [:img {:border "2"}]] el)
-      (is (= "<div><h1>Hello</h1><img border=\"2\"></div>" (.. el -innerHTML))))))
+      (is (= "<div><h1>Hello</h1><img border=\"2\"></div>" (.. el -innerHTML)))))
+
+  (testing "Parses hiccup element name for classes"
+    (let [el (js/document.createElement "div")]
+      (dd/render [:div.something.nice.and.beautiful "Hello"] el)
+      (is (= "<div class=\"something nice and beautiful\">Hello</div>" (.. el -innerHTML))))))

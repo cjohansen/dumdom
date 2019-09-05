@@ -188,6 +188,15 @@
 (defn hiccup? [sexp]
   (and (vector? sexp) (or (keyword? (first sexp)) (fn? (first sexp)))))
 
+(defn parse-hiccup-symbol [sym attrs]
+  (let [[_ id] (re-find #"#([^\.#]+)" sym)
+        [el & classes] (-> (str/replace sym #"#([^#\.]+)" "")
+                           (str/split #"\."))]
+    [el
+     (cond-> attrs
+       id (assoc :id id)
+       (seq classes) (update :className #(str/join " " (if % (conj classes %) classes))))]))
+
 (defn inflate-hiccup [el-fn sexp]
   (if-not (hiccup? sexp)
     sexp
@@ -196,7 +205,8 @@
           args (if (map? (first args)) args (concat [{}] args))]
       (if (fn? el-type)
         (apply el-type (rest sexp))
-        (apply create el-fn (name el-type) args)))))
+        (let [[element attrs] (parse-hiccup-symbol (name el-type) (first args))]
+          (apply create el-fn element attrs (rest args)))))))
 
 (defn create [el-fn type attrs & children]
   (fn [path k]
