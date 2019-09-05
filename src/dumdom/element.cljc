@@ -169,6 +169,7 @@
   (let [event-keys (filter #(and (str/starts-with? (name %) "on") (ifn? (attrs %))) (keys attrs))
         attrs (->> attrs
                    (map (fn [[k v]] [(keyword (camelCase (name k))) v]))
+                   (remove (fn [[k v]] (nil? v)))
                    (into {}))
         attrs (->> (keys attrs)
                    (select-keys attr-mappings)

@@ -30,6 +30,10 @@
     (is (= "<div class=\"hello\"></div>"
            (render-str (d/div {:class-name "hello"})))))
 
+  (testing "Purges nil attribute values"
+    (is (= "<img width=\"100\">"
+           (render-str (d/img {:width 100 :height nil})))))
+
   (testing "Renders SVG element"
     (let [el (js/document.createElement "div")
           brush {:fill "none"
