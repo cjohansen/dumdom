@@ -52,13 +52,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2019.02.03-3"}
+cjohansen/dumdom {:mvn/version "2019.09.05"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2019.02.03-3"]
+[cjohansen/dumdom "2019.09.05"]
 ```
 
 ## Example
@@ -675,6 +675,10 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 ([source](https://github.com/uosl/heckendorf)) made with dumdom.
 
 ## Changelog
+
+### 2019.09.05
+
+- Support `:div.class#id` style hiccup in server-rendering as well.
 
 ### 2019.02.03-3
 
