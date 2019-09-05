@@ -161,9 +161,18 @@
    :xmlLang :xml:lang
    :xmlSpace :xml:space})
 
+(defn- camelCase [s]
+  (let [[f & rest] (str/split s #"-")]
+    (str f (str/join "" (map str/capitalize rest)))))
+
 (defn- prep-attrs [attrs]
   (let [event-keys (filter #(and (str/starts-with? (name %) "on") (ifn? (attrs %))) (keys attrs))
-        attrs (set/rename-keys attrs (select-keys attr-mappings (keys attrs)))]
+        attrs (->> attrs
+                   (map (fn [[k v]] [(keyword (camelCase (name k))) v]))
+                   (into {}))
+        attrs (->> (keys attrs)
+                   (select-keys attr-mappings)
+                   (set/rename-keys attrs))]
     (cond-> {:attrs (apply dissoc attrs :style :mounted-style :leaving-style :disappearing-style :component :value :key event-keys)
              :props (select-keys attrs [:value])
              :style (merge (pixelize (:style attrs))

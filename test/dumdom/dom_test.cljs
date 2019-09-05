@@ -26,6 +26,10 @@
                                        :padding 50
                                        :margin 20}} "Hello")))))
 
+  (testing "Supports dashed attribute names"
+    (is (= "<div class=\"hello\"></div>"
+           (render-str (d/div {:class-name "hello"})))))
+
   (testing "Renders SVG element"
     (let [el (js/document.createElement "div")
           brush {:fill "none"
