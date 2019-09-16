@@ -3,9 +3,10 @@
         org.clojure/clojurescript {:mvn/version "1.10.439"}
         devcards {:mvn/version "0.2.6" :scope "provided"}}
  :aliases {:dev {:extra-paths ["dev" "test" "resources" "devcards"]
-                 :main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]
                  :extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.0-SNAPSHOT"}
                               com.bhauman/cljs-test-display {:mvn/version "0.1.1"}}}
+           :repl {:extra-deps {com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}}
+                  :main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]}
            :dev-clj {:extra-paths ["dev" "test"]}
            :test {:extra-paths ["test" "resources/public"]
                   :extra-deps {olical/cljs-test-runner {:mvn/version "3.3.0"}}
