@@ -193,10 +193,26 @@ clojure -A:dev:repl
 
 Then open [http://localhost:9595/figwheel-extra-main/tests](http://localhost:9595/figwheel-extra-main/tests).
 
+If you're not yet sure how to formulate a test for your feature, fire up
+[http://localhost:9595/](http://localhost:9595/) and play around in
+[./dev/dumdom/dev.cljs](./dev/dumdom/dev.cljs) until you figure it out. More
+visually oriented code can be tested with devcards instead. Add a devcard to
+[./devcards/dumdom](./devcards/dumdom), and inspect the results at
+[http://localhost:9595/devcards.html](http://localhost:9595/devcards.html)
+
 If you have ideas for new features, please open an issue to discuss the idea and
 the API before implementing it to avoid putting lots of work into a pull request
 that might be rejected. I intend to keep **dumdom** a focused package, and don't
 want it to accrete a too wide/too losely coherent set of features.
+
+### Running from Emacs
+
+There is a `.dir-locals.el` file in the root of this repo to help you out. Run
+`cider-jack-in-cljs`, and you should get a REPL and figwheel running on port 9595:
+
+- [Dev scratchpad](http://localhost:9595/)
+- [Devcards](http://localhost:9595/devcards.html)
+- [Tests](http://localhost:9595/figwheel-extra-main/tests)
 
 ## Documentation
 
