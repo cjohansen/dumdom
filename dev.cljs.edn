@@ -1,6 +1,7 @@
 ^{:watch-dirs ["src" "test" "dev" "devcards"]
   :extra-main-files {:tests {:main dumdom.test-runner}
-                     :devcards {:main dumdom.cards}}}
+                     :devcards {:main dumdom.cards}}
+  :ring-server-options {:port 9595}}
 {:main "dumdom.dev"
  :optimizations :none
  :pretty-print true

@@ -188,10 +188,10 @@ You can also run the tests in a browser with figwheel, which might be more
 useful during development:
 
 ```sh
-clojure -A:dev
+clojure -A:dev:repl
 ```
 
-Then open [http://localhost:9500/figwheel-extra-main/tests](http://localhost:9500/figwheel-extra-main/tests).
+Then open [http://localhost:9595/figwheel-extra-main/tests](http://localhost:9595/figwheel-extra-main/tests).
 
 If you have ideas for new features, please open an issue to discuss the idea and
 the API before implementing it to avoid putting lots of work into a pull request
