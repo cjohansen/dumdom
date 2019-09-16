@@ -19,3 +19,21 @@
   (fn [store]
     (SomeStuff (:title @store)))
   {:title "Lol"})
+
+(defcard dumdom-animated-component
+  "This component has a child that should fade in and out"
+  (fn [store]
+    (when (< (:faces @store) 5)
+      (js/setTimeout #(reset! store
+                              (-> @store
+                                  (update :visible? not)
+                                  (update :fades inc))) 5000))
+    [:div {}
+     (when (:visible? @store)
+       [:div {:style {:opacity "0"
+                      :transition "opacity 0.25s"}
+              :mounted-style {:opacity "1"}
+              :leaving-style {:opacity "0"}}
+        "I will fade both in and out"])])
+  {:visible? false
+   :fades 0})

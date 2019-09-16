@@ -159,7 +159,10 @@
    :xlinkType :xlink:type
    :xmlBase :xml:base
    :xmlLang :xml:lang
-   :xmlSpace :xml:space})
+   :xmlSpace :xml:space
+   :mountedStyle :mounted-style
+   :leavingStyle :leaving-style
+   :disappearingStyle :disappearing-style})
 
 (defn- camelCase [s]
   (let [[f & rest] (str/split s #"-")]
