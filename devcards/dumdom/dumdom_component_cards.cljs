@@ -37,3 +37,10 @@
         "I will fade both in and out"])])
   {:visible? false
    :fades 0})
+
+(defcard dumdom-component-with-inner-html
+  "This component uses dangerouslySetInnerHTML"
+  [:div {:dangerouslySetInnerHTML
+         {:__html "<p>I am pre-chewed <strong>markup</strong></p>"}}]
+  {:visible? false
+   :fades 0})

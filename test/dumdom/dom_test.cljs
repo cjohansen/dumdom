@@ -56,7 +56,11 @@
                   "stroke-width=\"4\" stroke-miterlimit=\"10\" x1=\"32\" y2=\"48\" x2=\"32\">"
                   "</line>"
                   "</svg>")
-             (.-innerHTML el))))))
+             (.-innerHTML el)))))
+
+  (testing "Renders inner html"
+    (is (= "<div><p>Ok</p></div>"
+           (render-str (d/div {:dangerouslySetInnerHTML {:__html "<p>Ok</p>"}}))))))
 
 (deftest ref-test
   (testing "Invokes ref callback with DOM element"
@@ -130,4 +134,14 @@
   (testing "Parses hiccup element name for classes"
     (let [el (js/document.createElement "div")]
       (dd/render [:div.something.nice.and.beautiful "Hello"] el)
-      (is (= "<div class=\"something nice and beautiful\">Hello</div>" (.. el -innerHTML))))))
+      (is (= "<div class=\"something nice and beautiful\">Hello</div>" (.. el -innerHTML)))))
+
+  (testing "Combines hiccup symbol classes with attribute classes"
+    (let [el (js/document.createElement "div")]
+      (dd/render [:div.something {:className "nice"} "Hello"] el)
+      (is (= "<div class=\"nice something\">Hello</div>" (.. el -innerHTML)))))
+
+  (testing "Sets inner HTML"
+    (let [el (js/document.createElement "div")]
+      (dd/render [:div {:dangerouslySetInnerHTML {:__html "<h2>LOL!</h2>"}}] el)
+      (is (= "<div><h2>LOL!</h2></div>" (.. el -innerHTML))))))

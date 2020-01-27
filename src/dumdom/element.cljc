@@ -177,8 +177,11 @@
         attrs (->> (keys attrs)
                    (select-keys attr-mappings)
                    (set/rename-keys attrs))]
-    (cond-> {:attrs (apply dissoc attrs :style :mounted-style :leaving-style :disappearing-style :component :value :key event-keys)
-             :props (select-keys attrs [:value])
+    (cond-> {:attrs (apply dissoc attrs :style :mounted-style :leaving-style :disappearing-style
+                           :component :value :key :dangerouslySetInnerHTML event-keys)
+             :props (merge (select-keys attrs [:value])
+                           (when-let [html (-> attrs :dangerouslySetInnerHTML :__html)]
+                             {:innerHTML html}))
              :style (merge (pixelize (:style attrs))
                            (when-let [enter (:mounted-style attrs)]
                              {:delayed (pixelize enter)})

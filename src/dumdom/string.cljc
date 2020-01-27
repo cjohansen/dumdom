@@ -44,7 +44,7 @@
 
 (defn- attrs [vnode]
   (let [k (el-key vnode)
-        attributes (cond-> (attributes vnode)
+        attributes (cond-> (dissoc (attributes vnode) :innerHTML "innerHTML")
                      k (assoc :data-dumdom-key (escape (pr-str k))))
         style (style vnode)]
     (->> (merge attributes
@@ -66,7 +66,10 @@
     (nil? vnode) ""
     (text-node? vnode) (text vnode)
     :default (str "<" (tag-name vnode) (attrs vnode) ">"
-                  (str/join "" (map dom-str (children vnode)))
+                  (let [attrs (attributes vnode)]
+                    (or (get attrs :innerHTML)
+                        (get attrs "innerHTML")
+                        (str/join "" (map dom-str (children vnode)))))
                   (closing-tag (tag-name vnode)))))
 
 (defn render [component & [path k]]

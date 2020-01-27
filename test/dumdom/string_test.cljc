@@ -69,4 +69,12 @@
     (is (= "<div style=\"color: red\"><h1>Hello</h1><p>World</p></div>"
            (dumdom/render-string [:div {:style {:color "red"}}
                                   [:h1 "Hello"]
-                                  [:p "World"]])))))
+                                  [:p "World"]]))))
+
+  (testing "Renders block element with innerHTML"
+    (is (= "<div><p style=\"color: red\">Hello</p></div>"
+           (dumdom/render-string [:div {:dangerouslySetInnerHTML {:__html "<p style=\"color: red\">Hello</p>"}}]))))
+
+  (testing "Renders inline element with innerHTML"
+    (is (= "<span><em>Hello</em></span>"
+           (dumdom/render-string [:span {:dangerouslySetInnerHTML {:__html "<em>Hello</em>"}}])))))
