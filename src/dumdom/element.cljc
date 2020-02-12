@@ -3,7 +3,7 @@
             [clojure.string :as str]))
 
 (defn- event-entry [attrs k]
-  [(.toLowerCase (.slice (name k) 2)) (attrs k)])
+  [(.toLowerCase (.substring (name k) 2)) (attrs k)])
 
 (defn- pixelize-number [n]
   (if (number? n)

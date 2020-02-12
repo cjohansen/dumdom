@@ -81,4 +81,8 @@
 
   (testing "Renders multiple child elements, strings and numbers alike"
     (is (= "<span>These are 9 things</span>"
-           (dumdom/render-string [:span "These are " 9 " things"])))))
+           (dumdom/render-string [:span "These are " 9 " things"]))))
+
+  (testing "Ignores event handlers"
+    (is (= "<a>Ok!</a>"
+           (dumdom/render-string [:a {:onClick (fn [_])} "Ok!"])))))
