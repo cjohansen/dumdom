@@ -25,7 +25,7 @@
 
 (defn- text-node? [vnode]
   #?(:cljs (nil? (.-sel vnode))
-     :clj (string? vnode)))
+     :clj (not (map? vnode))))
 
 (defn- text [vnode]
   #?(:cljs (.-text vnode)

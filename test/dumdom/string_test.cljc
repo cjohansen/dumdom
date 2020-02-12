@@ -77,4 +77,8 @@
 
   (testing "Renders inline element with innerHTML"
     (is (= "<span><em>Hello</em></span>"
-           (dumdom/render-string [:span {:dangerouslySetInnerHTML {:__html "<em>Hello</em>"}}])))))
+           (dumdom/render-string [:span {:dangerouslySetInnerHTML {:__html "<em>Hello</em>"}}]))))
+
+  (testing "Renders multiple child elements, strings and numbers alike"
+    (is (= "<span>These are 9 things</span>"
+           (dumdom/render-string [:span "These are " 9 " things"])))))
