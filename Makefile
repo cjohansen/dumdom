@@ -22,7 +22,7 @@ test: src/snabbdom/snabbdom.js src/snabbdom/snabbdom.min.js
 	clojure -A:dev -A:test-clj
 
 dumdom.jar: src/dumdom/* src/dumdom/dom/*
-	clj -A:jar
+	rm dumdom.jar && clj -A:jar
 
 deploy: test dumdom.jar
 	mvn deploy:deploy-file -Dfile=dumdom.jar -DrepositoryId=clojars -Durl=https://clojars.org/repo -DpomFile=pom.xml
