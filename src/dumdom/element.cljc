@@ -213,6 +213,16 @@
        id (assoc :id id)
        (seq classes) (update :className #(str/join " " (if % (conj classes %) classes))))]))
 
+(defn explode-styles [s]
+  (->> (str/split s #";")
+       (map #(let [[k v] (map str/trim (str/split % #":"))]
+               [k v]))
+       (into {})))
+
+(defn prep-hiccup-attrs [attrs]
+  (cond-> attrs
+    (string? (:style attrs)) (update :style explode-styles)))
+
 (defn inflate-hiccup [el-fn sexp]
   (if-not (hiccup? sexp)
     sexp
@@ -222,7 +232,7 @@
       (if (fn? el-type)
         (apply el-type (rest sexp))
         (let [[element attrs] (parse-hiccup-symbol (name el-type) (first args))]
-          (apply create el-fn element attrs (rest args)))))))
+          (apply create el-fn element (prep-hiccup-attrs attrs) (rest args)))))))
 
 (defn create [el-fn type attrs & children]
   (fn [path k]

@@ -86,3 +86,7 @@
   (testing "Ignores event handlers"
     (is (= "<a>Ok!</a>"
            (dumdom/render-string [:a {:onClick (fn [_])} "Ok!"])))))
+
+(deftest renders-string-styles
+  (is (= "<a style=\"text-decoration: none\">Ok</a>"
+         (dumdom/render-string [:a {:style "text-decoration:none;"} "Ok"]))))

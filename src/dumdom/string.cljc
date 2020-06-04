@@ -35,7 +35,9 @@
   (str/lower-case (str/replace s #"([a-z])([A-Z])" "$1-$2")))
 
 (defn- render-styles [styles]
-  (str/join "; " (map (fn [[k v]] (str (kebab-case (name k)) ": " v)) styles)))
+  (if (string? styles)
+    styles
+    (str/join "; " (map (fn [[k v]] (str (kebab-case (name k)) ": " v)) styles))))
 
 (defn- escape [s]
   (-> s
