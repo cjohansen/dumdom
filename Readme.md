@@ -52,13 +52,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2020.02.12"}
+cjohansen/dumdom {:mvn/version "2020.06.04"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2020.02.12"]
+[cjohansen/dumdom "2020.06.04"]
 ```
 
 ## Example
@@ -692,10 +692,15 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ## Changelog
 
+### 2020.06.04
+
+- Added support for styles as strings in hiccup elements, e.g.
+  `[:a {:style "padding: 2px"}]`
+
 ### 2020.02.12
 
 - Bugfix: Don't trip on numbers when rendering to string
-- Bugfix: DOn't trip on event handlers when rendering to string
+- Bugfix: Don't trip on event handlers when rendering to string
 
 ### 2020.01.27
 
