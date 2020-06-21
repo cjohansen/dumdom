@@ -178,7 +178,7 @@
                    (select-keys attr-mappings)
                    (set/rename-keys attrs))]
     (cond-> {:attrs (apply dissoc attrs :style :mounted-style :leaving-style :disappearing-style
-                           :component :value :key :dangerouslySetInnerHTML event-keys)
+                           :component :value :key :ref :dangerouslySetInnerHTML event-keys)
              :props (merge (select-keys attrs [:value])
                            (when-let [html (-> attrs :dangerouslySetInnerHTML :__html)]
                              {:innerHTML html}))
