@@ -37,7 +37,10 @@
 (defn- render-styles [styles]
   (if (string? styles)
     styles
-    (str/join "; " (map (fn [[k v]] (str (kebab-case (name k)) ": " v)) styles))))
+    (->> styles
+         (remove (comp nil? second))
+         (map (fn [[k v]] (str (kebab-case (name k)) ": " v)))
+         (str/join "; "))))
 
 (defn- escape [s]
   (-> s

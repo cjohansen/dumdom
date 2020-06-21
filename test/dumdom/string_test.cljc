@@ -30,6 +30,11 @@
            (dumdom/render-string (d/div {:style {:border "1px solid red"
                                                  :background "yellow"}} "Text")))))
 
+  (testing "Does not render nil styles"
+    (is (= "<div style=\"background: yellow\">Text</div>"
+           (dumdom/render-string (d/div {:style {:border nil
+                                                 :background "yellow"}} "Text")))))
+
   (testing "Renders element with properly cased styles"
     (is (= "<div style=\"padding-left: 10px\">Text</div>"
            (dumdom/render-string (d/div {:style {:paddingLeft "10px"}} "Text")))))
