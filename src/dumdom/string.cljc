@@ -69,6 +69,7 @@
 (defn- dom-str [vnode]
   (cond
     (nil? vnode) ""
+    (seq? vnode) (str/join "" (map dom-str vnode))
     (text-node? vnode) (text vnode)
     :default (str "<" (tag-name vnode) (attrs vnode) ">"
                   (let [attrs (attributes vnode)]

@@ -35,6 +35,10 @@
            (dumdom/render-string (d/div {:style {:border nil
                                                  :background "yellow"}} "Text")))))
 
+  (testing "Does not trip on nil children"
+    (is (= "<div style=\"background: yellow\"><div>Ok</div></div>"
+           (dumdom/render-string (d/div {:style {:background "yellow"}} nil [:div "Ok"])))))
+
   (testing "Renders element with properly cased styles"
     (is (= "<div style=\"padding-left: 10px\">Text</div>"
            (dumdom/render-string (d/div {:style {:paddingLeft "10px"}} "Text")))))
@@ -95,3 +99,8 @@
 (deftest renders-string-styles
   (is (= "<a style=\"text-decoration: none\">Ok</a>"
          (dumdom/render-string [:a {:style "text-decoration:none;"} "Ok"]))))
+
+(deftest renders-nested-lists-and-lazy-seqs
+  (is (= "<li>Text</li>"
+         (dumdom/render-string
+          [:li {} (list (list (map identity (list "Text"))))]))))
