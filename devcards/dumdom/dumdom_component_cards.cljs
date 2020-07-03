@@ -42,3 +42,8 @@
   "This component uses dangerouslySetInnerHTML"
   [:div {:dangerouslySetInnerHTML
          {:__html "<p>I am pre-chewed <strong>markup</strong></p>"}}])
+
+(defcard dumdom-component-with-nested-seqs
+  "This component contains a nested seq"
+  (do
+    [:div {} (map identity (list (map identity (list (list "Ok")))))]))

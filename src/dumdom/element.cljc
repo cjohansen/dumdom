@@ -225,6 +225,14 @@
   (cond-> attrs
     (string? (:style attrs)) (update :style explode-styles)))
 
+(defn flatten-seqs [xs]
+  (loop [res []
+         [x & xs] xs]
+    (cond
+      (nil? x) res
+      (seq? x) (recur (into res (flatten-seqs x)) xs)
+      :default (recur (conj res x) xs))))
+
 (defn inflate-hiccup [el-fn sexp]
   (if-not (hiccup? sexp)
     sexp
@@ -234,7 +242,7 @@
       (if (fn? el-type)
         (apply el-type (rest sexp))
         (let [[element attrs] (parse-hiccup-symbol (name el-type) (first args))]
-          (apply create el-fn element (prep-hiccup-attrs attrs) (rest args)))))))
+          (apply create el-fn element (prep-hiccup-attrs attrs) (flatten-seqs (rest args))))))))
 
 (defn create [el-fn type attrs & children]
   (fn [path k]

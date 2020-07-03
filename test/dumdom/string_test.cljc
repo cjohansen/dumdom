@@ -99,3 +99,8 @@
 (deftest renders-string-styles
   (is (= "<a style=\"text-decoration: none\">Ok</a>"
          (dumdom/render-string [:a {:style "text-decoration:none;"} "Ok"]))))
+
+(deftest renders-nested-lists-and-lazy-seqs
+  (is (= "<li>Text</li>"
+         (dumdom/render-string
+          [:li {} (list (map identity (list "Text")))]))))

@@ -52,13 +52,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2020.06.21"}
+cjohansen/dumdom {:mvn/version "2020.07.03"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2020.06.21"]
+[cjohansen/dumdom "2020.07.03"]
 ```
 
 ## Example
@@ -691,6 +691,10 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 ([source](https://github.com/uosl/heckendorf)) made with dumdom.
 
 ## Changelog
+
+### 2020.07.03
+
+- Properly render nested seqs to DOM strings
 
 ### 2020.06.21
 
