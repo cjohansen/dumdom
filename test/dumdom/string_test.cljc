@@ -104,3 +104,10 @@
   (is (= "<li>Text</li>"
          (dumdom/render-string
           [:li {} (list (map identity (list "Text")))]))))
+
+(deftest does-not-stop-on-nil-children
+  (is (= "<a href=\"/\" class=\"button text-m\">Click it</a>"
+         (dumdom/render-string
+          [:a {:className "button text-m" :href "/"}
+           nil
+           "Click it"]))))

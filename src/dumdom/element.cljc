@@ -229,7 +229,8 @@
   (loop [res []
          [x & xs] xs]
     (cond
-      (nil? x) res
+      (and (nil? xs) (nil? x)) (seq res)
+      (nil? x) (recur res xs)
       (seq? x) (recur (into res (flatten-seqs x)) xs)
       :default (recur (conj res x) xs))))
 
