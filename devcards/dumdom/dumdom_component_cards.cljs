@@ -23,7 +23,7 @@
 (defcard dumdom-animated-component
   "This component has a child that should fade in and out"
   (fn [store]
-    (when (< (:faces @store) 5)
+    (when (< (:fades @store) 5)
       (js/setTimeout #(reset! store
                               (-> @store
                                   (update :visible? not)
