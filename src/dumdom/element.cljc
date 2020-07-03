@@ -202,7 +202,9 @@
 (declare create)
 
 (defn hiccup? [sexp]
-  (and (vector? sexp) (or (keyword? (first sexp)) (fn? (first sexp)))))
+  (and (vector? sexp)
+       (not (map-entry? sexp))
+       (or (keyword? (first sexp)) (fn? (first sexp)))))
 
 (defn parse-hiccup-symbol [sym attrs]
   (let [[_ id] (re-find #"#([^\.#]+)" sym)
