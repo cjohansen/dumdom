@@ -366,6 +366,24 @@ of the component.
 This only applies to components created with `component`/`defcomponent`, not
 virtual DOM functions, which take any number of DOM children.
 
+#### Passing children to components
+
+There's no built-in mechanism for passing children to components - it can be
+done with no extra APIs or tricks.
+
+```clj
+(defcomponent my-layout [props & children]
+  [:div {:id "page-layout"}
+    [:div "My sidebar"]
+    children])
+    
+;; Using it:
+
+[my-layout {:foo 123}
+  [:div "This is my page"]
+  [:p "Hello, world!"]
+```
+
 ### CSS transitions
 
 CSS transitions can be defined inline on components to animate the appearing or
