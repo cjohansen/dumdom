@@ -1,3 +1,0 @@
-[submodule "snabbdom"]
-	path = snabbdom
-	url = https://github.com/snabbdom/snabbdom.git
