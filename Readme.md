@@ -52,13 +52,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2020.10.15"}
+cjohansen/dumdom {:mvn/version "2020.10.19"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2020.10.15"]
+[cjohansen/dumdom "2020.10.19"]
 ```
 
 ## Example
@@ -692,7 +692,7 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ## Changelog
 
-### 2020.10.15
+### 2020.10.19
 
 - Add support for Shadow CLJS
 
