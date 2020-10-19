@@ -2,12 +2,12 @@
   (:require [clojure.set :as set]
             [clojure.string :as str]
             [dumdom.element :as element]
-            [snabbdom :as snabbdom])
+            [snabbdom])
   (:refer-clojure :exclude [time map meta mask])
   (:require-macros [dumdom.dom-macros :as dm]))
 
 (defn render [type attrs children]
-  (snabbdom/h type (clj->js attrs) (clj->js children)))
+  (js/snabbdom.h type (clj->js attrs) (clj->js children)))
 
 (defn el
   "Creates a virtual DOM element component of the specified type with attributes

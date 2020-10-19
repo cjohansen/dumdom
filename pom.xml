@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>cjohansen</groupId>
   <artifactId>dumdom</artifactId>
-  <version>2020.10.15</version>
+  <version>2020.07.04</version>
   <name>dumdom</name>
   <dependencies>
     <dependency>
@@ -15,11 +15,6 @@
       <groupId>org.clojure</groupId>
       <artifactId>clojurescript</artifactId>
       <version>1.10.439</version>
-    </dependency>
-    <dependency>
-      <groupId>cljsjs</groupId>
-      <artifactId>snabbdom</artifactId>
-      <version>0.7.4-1</version>
     </dependency>
     <dependency>
       <groupId>devcards</groupId>
@@ -55,7 +50,7 @@
   <scm>
     <connection>scm:git:git://github.com/cjohansen/dumdom.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/cjohansen/dumdom.git</developerConnection>
-    <tag>v2020.10.15</tag>
+    <tag>v2020.07.04</tag>
     <url>https://github.com/cjohansen/dumdom</url>
   </scm>
 </project>

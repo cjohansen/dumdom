@@ -1,1 +1,5 @@
-{:npm-deps {"snabbdom" "0.7.4"}}
+{:foreign-libs
+ [{:file "snabbdom/snabbdom.js"
+   :file-min "snabbdom/snabbdom.min.js"
+   :provides ["snabbdom"]}]
+ :externs ["snabbdom/externs.js"]}
