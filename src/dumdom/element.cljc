@@ -37,6 +37,10 @@
     :bottom
     :border-width
     :border-radius
+    :border-top-left-radius
+    :border-top-right-radius
+    :border-bottom-right-radius
+    :border-bottom-left-radius
     :border-top-width
     :border-right-width
     :border-bottom-width
