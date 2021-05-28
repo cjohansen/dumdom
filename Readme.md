@@ -52,13 +52,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2021.05.07"}
+cjohansen/dumdom {:mvn/version "2021.05.28"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2021.05.07"]
+[cjohansen/dumdom "2021.05.28"]
 ```
 
 ## Example
@@ -691,6 +691,20 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 ([source](https://github.com/uosl/heckendorf)) made with dumdom.
 
 ## Changelog
+
+### 2021.05.28
+
+- Bug fix: Using non-primitive values (including keywords) with component keys
+  (both inline `:key` and the result from `:keyfn`) would cause weird rendering
+  issues. Any value can now be safely used as a component key.
+- Bug fix: CSS properties that take pixel values could only be specified as
+  numbers when the camelCased property name was used. Now also supports this
+  behavior with lisp-casing, e.g. `:style {:margin-left 10}` produces a 10 pixel
+  left margin.
+- Bug fix: Support numbers for `border-{bottom,top}-{left,right}-radius` (and
+  their camel cased counterparts).
+- Remove an attempt at a micro-optimization that instead caused a minimal
+  performance penalty.
 
 ### 2021.05.07
 
