@@ -133,8 +133,12 @@
                  (if (should-component-update? instance data)
                    (when-let [rendered (when-let [renderer (apply render data args)]
                                          ((e/inflate-hiccup d/render renderer) fullpath 0))]
-                     #?(:cljs (when key
-                                (set! (.-key rendered) key)))
+                     #?(:cljs (when-let [k (or key (.-key rendered))]
+                                (set! (.-key rendered) (cond
+                                                         (or (string? k)
+                                                             (number? k)) k
+                                                         (keyword? k) (str k)
+                                                         :default (hash k)))))
                      #?(:cljs (when-let [will-enter (:will-enter opt)]
                                 (set! (.-willEnter rendered)
                                       #(swap! animation assoc :will-enter will-enter))))
