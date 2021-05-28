@@ -184,9 +184,7 @@
                    (map (fn [[k v]] [(camel-key k) v]))
                    (remove (fn [[k v]] (nil? v)))
                    (into {}))
-        attrs (->> (keys attrs)
-                   (select-keys attr-mappings)
-                   (set/rename-keys attrs))]
+        attrs (set/rename-keys attrs attr-mappings)]
     (cond-> {:attrs (apply dissoc attrs :style :mounted-style :leaving-style :disappearing-style
                            :component :value :key :ref :dangerouslySetInnerHTML event-keys)
              :props (merge (select-keys attrs [:value])

@@ -52,7 +52,7 @@
                    (d/line (merge brush {:x1 "32" :y1 "16" :x2 "32" :y2 "48"}))) el)
       (is (= (str "<svg viewBox=\"0 0 64 64\">"
                   "<circle fill=\"none\" cx=\"32\" cy=\"32\" r=\"30\" stroke-width=\"4\" "
-                  "stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-miterlimit=\"10\">"
+                  "stroke-linejoin=\"round\" stroke-miterlimit=\"10\" stroke-linecap=\"round\">"
                   "</circle>"
                   "<line fill=\"none\" stroke-linejoin=\"round\" y1=\"32\" stroke-linecap=\"round\" "
                   "stroke-width=\"4\" stroke-miterlimit=\"10\" x1=\"16\" y2=\"32\" x2=\"48\">"
