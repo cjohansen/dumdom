@@ -26,6 +26,11 @@
                                        :padding 50
                                        :margin 20}} "Hello")))))
 
+  (testing "Pixelizes snake-cased and camelCased CSS properties"
+    (is (= "<div style=\"margin-left: 20px; margin-right: 20px\">Hello</div>"
+           (render-str (d/div {:style {:margin-left 20
+                                       :marginRight 20}} "Hello")))))
+
   (testing "Supports dashed attribute names"
     (is (= "<div class=\"hello\"></div>"
            (render-str (d/div {:class-name "hello"})))))

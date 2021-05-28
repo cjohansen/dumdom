@@ -10,29 +10,39 @@
     (str n "px")
     n))
 
+(defn- camelCase [s]
+  (let [[f & rest] (str/split s #"-")]
+    (str f (str/join "" (map str/capitalize rest)))))
+
+(defn- camel-key [k]
+  (keyword (camelCase (name k))))
+
 (def ^:private pixelized-styles
-  [:width
-   :height
-   :padding
-   :paddingLeft
-   :paddingRight
-   :paddingTop
-   :paddingBottom
-   :margin
-   :marginLeft
-   :marginRight
-   :marginTop
-   :marginBottom
-   :top
-   :left
-   :right
-   :bottom
-   :borderWidth
-   :borderRadius
-   :borderTopWidth
-   :borderRightWidth
-   :borderBottomWidth
-   :borderLeftWidth])
+  (->>
+   [:width
+    :height
+    :padding
+    :padding-left
+    :padding-right
+    :padding-top
+    :padding-bottom
+    :margin
+    :margin-left
+    :margin-right
+    :margin-top
+    :margin-bottom
+    :top
+    :left
+    :right
+    :bottom
+    :border-width
+    :border-radius
+    :border-top-width
+    :border-right-width
+    :border-bottom-width
+    :border-left-width]
+   (mapcat (fn [k] [k (camel-key k)]))
+   set))
 
 (defn- pixelize [styles]
   (reduce #(if (%2 %1) (update %1 %2 pixelize-number) %1)
@@ -164,14 +174,10 @@
    :leavingStyle :leaving-style
    :disappearingStyle :disappearing-style})
 
-(defn- camelCase [s]
-  (let [[f & rest] (str/split s #"-")]
-    (str f (str/join "" (map str/capitalize rest)))))
-
 (defn- prep-attrs [attrs]
   (let [event-keys (filter #(and (str/starts-with? (name %) "on") (ifn? (attrs %))) (keys attrs))
         attrs (->> attrs
-                   (map (fn [[k v]] [(keyword (camelCase (name k))) v]))
+                   (map (fn [[k v]] [(camel-key k) v]))
                    (remove (fn [[k v]] (nil? v)))
                    (into {}))
         attrs (->> (keys attrs)
