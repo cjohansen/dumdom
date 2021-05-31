@@ -35,6 +35,11 @@
     :left
     :right
     :bottom
+    :border
+    :border-left
+    :border-right
+    :border-top
+    :border-bottom
     :border-width
     :border-radius
     :border-top-left-radius

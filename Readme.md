@@ -52,13 +52,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2021.05.28"}
+cjohansen/dumdom {:mvn/version "2021.05.31"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2021.05.28"]
+[cjohansen/dumdom "2021.05.31"]
 ```
 
 ## Example
@@ -691,6 +691,11 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 ([source](https://github.com/uosl/heckendorf)) made with dumdom.
 
 ## Changelog
+
+### 2021.05.31
+
+- Support pixel values for `:border`, `:border-left`, `:border-right`,
+  `:border-top`, `:border-bottom`.
 
 ### 2021.05.28
 
