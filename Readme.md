@@ -7,7 +7,8 @@ and embracing ClojureScript features like immutable data structures.
 
 **dumdom** is API compatible with
 [Quiescent](https://github.com/levand/quiescent/), and can be used as a drop-in
-replacement for it so long as you don't use React features directly.
+replacement for it so long as you don't use React features directly. Refer to
+[differences from React](#differences-from-react) for things to be aware of.
 
 **dumdom** is currently a wrapper for
 [Snabbdom](https://github.com/snabbdom/snabbdom), but that should be considered
@@ -154,6 +155,13 @@ following is a list of minor details between the two:
   This may cause breakage in some cases when porting from Quiescent to Dumdom.
   The risk is pretty low, and the upside is significant enough to allow Dumdom
   to take this liberty.
+
+## Differences from React
+
+In React, [`onChange` is really
+`onInput`](https://github.com/facebook/react/issues/9567). This is not true in
+dumdom. When swapping out Quiescent and React for dumdom, you must replace
+all occurrences of `onChange` with `onInput` to retain behavior.
 
 ## Using with Devcards
 
