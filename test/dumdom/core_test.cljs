@@ -133,7 +133,36 @@
   (testing "Renders hiccup with a list of children"
     (let [el (js/document.createElement "div")]
       (sut/render [:ul (list [:li "One"] [:li "two"] [:li "three"])] el)
-      (is (= "<ul><li>One</li><li>two</li><li>three</li></ul>" (.-innerHTML el))))))
+      (is (= "<ul><li>One</li><li>two</li><li>three</li></ul>" (.-innerHTML el)))))
+
+  (testing "Allows components to return nil on first render"
+    (let [el (js/document.createElement "div")
+          comp (sut/component (fn [data] nil))]
+      (sut/render [comp {}] el)
+      (is (= "" (.-innerHTML el)))))
+
+  (testing "Allows components to return nil, then something"
+    (let [el (js/document.createElement "div")
+          comp (sut/component (fn [{:keys [text]}] (if text [:p text] nil)))]
+      (sut/render [comp {}] el)
+      (sut/render [comp {:text "#1"}] el)
+      (sut/render [comp {:text "#2"}] el)
+      (is (= "<p>#2</p>" (.-innerHTML el)))))
+
+  (testing "Allows components to return something, nil"
+    (let [el (js/document.createElement "div")
+          comp (sut/component (fn [{:keys [text]}] (if text [:p text] nil)))]
+      (sut/render [comp {:text "#1"}] el)
+      (sut/render [comp {}] el)
+      (is (= "" (.-innerHTML el)))))
+
+  (testing "Allows components to return something, nil, something"
+    (let [el (js/document.createElement "div")
+          comp (sut/component (fn [{:keys [text]}] (if text [:p text] nil)))]
+      (sut/render [comp {:text "#1"}] el)
+      (sut/render [comp {}] el)
+      (sut/render [comp {:text "#2"}] el)
+      (is (= "<p>#2</p>" (.-innerHTML el))))))
 
 (deftest on-mount-test
   (testing "Calls on-mount when component first mounts"

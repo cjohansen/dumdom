@@ -700,6 +700,11 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ## Changelog
 
+### 2021.06.xx
+
+- Bugfix: Don't throw exceptions when components return nil
+- If the root component returns nil, remove previously rendered content.
+
 ### 2021.05.31
 
 - Support pixel values for `:border`, `:border-left`, `:border-right`,

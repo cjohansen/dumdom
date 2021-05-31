@@ -16,7 +16,7 @@
      :clj (:attributes node)))
 
 (defn- el-key [node]
-  #?(:cljs (.. node -key)
+  #?(:cljs (some-> node .-key)
      :clj (:key node)))
 
 (defn- style [node]

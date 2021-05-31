@@ -35,6 +35,9 @@
 (defn register-vnode [element-id vnode]
   (swap! current-nodes assoc element-id vnode))
 
+(defn unregister-vnode [element-id]
+  (swap! current-nodes dissoc element-id))
+
 (defn- init-node!
   "Snabbdom will replace the element provided as the original target for patch.
   When rendering into a new DOM node, we therefore create an intermediate in it
@@ -55,17 +58,22 @@
         element-id (.. element -dataset -dumdomId)
         component (e/inflate-hiccup d/render component)
         vnode (component [element-id] 0)]
-    ;; If the root node does not have a key, Snabbdom will consider it the same
-    ;; node as the node it is rendered into if they have the same tag name
-    ;; (typically root nodes are divs, and typically they are rendered into
-    ;; divs). When this happens, Snabbdom fires the update hook rather than the
-    ;; insert hook, which breaks dumdom's contract. Forcing the root node to
-    ;; have a key circumvents this problem and ensures the root node has its
-    ;; insert hooks fired on initial render.
-    (when-not (.. vnode -key)
-      (set! (.. vnode -key) "root-node"))
-    (patch current-node vnode)
-    (register-vnode element-id vnode)))
+    (if vnode
+      (do
+        ;; If the root node does not have a key, Snabbdom will consider it the same
+        ;; node as the node it is rendered into if they have the same tag name
+        ;; (typically root nodes are divs, and typically they are rendered into
+        ;; divs). When this happens, Snabbdom fires the update hook rather than the
+        ;; insert hook, which breaks dumdom's contract. Forcing the root node to
+        ;; have a key circumvents this problem and ensures the root node has its
+        ;; insert hooks fired on initial render.
+        (when-not (.. vnode -key)
+          (set! (.. vnode -key) "root-node"))
+        (patch current-node vnode)
+        (register-vnode element-id vnode))
+      (do
+        (set! (.-innerHTML element) "")
+        (unregister-vnode element-id)))))
 
 (def component component/component)
 (def component? component/component?)
