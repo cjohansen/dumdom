@@ -53,13 +53,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2021.05.31"}
+cjohansen/dumdom {:mvn/version "2021.06.01"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2021.05.31"]
+[cjohansen/dumdom "2021.06.01"]
 ```
 
 ## Example
@@ -700,7 +700,7 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ## Changelog
 
-### 2021.06.xx
+### 2021.06.01
 
 - Bugfix: Don't throw exceptions when components return nil
 - If the root component returns nil, remove previously rendered content.
