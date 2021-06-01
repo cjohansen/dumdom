@@ -404,7 +404,7 @@ relevant CSS property:
 ### Class name transitions
 
 In order to be API compatible with Quiescent, dumdom supports React's
-`CSSTransitionGroup` for doing enter/leave transitions with classs names instead
+`CSSTransitionGroup` for doing enter/leave transitions with class names instead
 of inline CSS. Given the following CSS:
 
 ```css

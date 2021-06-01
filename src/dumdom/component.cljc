@@ -156,12 +156,21 @@
          #?(:cljs (set! (.-dumdom comp-fn) true))
          comp-fn)))))
 
+(defn single-child? [x]
+  (or (fn? x) ;; component
+      (and (vector? x)
+           (keyword? (first x))) ;; hiccup
+      ))
+
 (defn TransitionGroup [el-fn opt children]
   ;; Vectors with a function in the head position are interpreted as hiccup data
   ;; - force children to be seqs to avoid them being parsed as hiccup.
-  (if (ifn? (:component opt))
-    ((:component opt) (seq children))
-    (apply el-fn (or (:component opt) "span") opt (seq children))))
+  (let [children (if (single-child? children)
+                   (list children)
+                   (seq children))]
+    (if (ifn? (:component opt))
+      ((:component opt) children)
+      (apply el-fn (or (:component opt) "span") opt children))))
 
 (defn- complete-transition [node timeout callback]
   (if timeout
@@ -206,7 +215,10 @@
     :will-leave (animate "Leave" {:enabled-by-default? true})}))
 
 (defn CSSTransitionGroup [el-fn opt children]
-  (TransitionGroup el-fn opt (map #(TransitioningElement (assoc opt :child %)) children)))
+  (let [children (if (single-child? children)
+                   (list children)
+                   (seq children))]
+    (TransitionGroup el-fn opt (map #(TransitioningElement (assoc opt :child %)) children))))
 
 (defn component? [x]
   (and x (.-dumdom x)))
