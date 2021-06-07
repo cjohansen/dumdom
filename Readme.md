@@ -700,6 +700,12 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ## Changelog
 
+### 2021.06.07
+
+- Pass old data to `:on-render` and `:on-update` functions. Previously, these
+  would receive `[dom-el data statics]`, now they fully match Quiescent's
+  behavior, receiving `[dom-el data old-data statics]`.
+
 ### 2021.06.02
 
 - Allow `TransitionGroup` to take either a single component or a seq of

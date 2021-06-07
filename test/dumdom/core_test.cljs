@@ -242,7 +242,7 @@
                      {:on-render (fn [node & args]
                                    (reset! on-render (apply vector node args)))})]
       (sut/render (component {:a 42} {:static "Prop"} {:another "Static"}) el)
-      (is (= [(.-firstChild el) {:a 42} {:static "Prop"} {:another "Static"}]
+      (is (= [(.-firstChild el) {:a 42} nil {:static "Prop"} {:another "Static"}]
              @on-render))))
 
   (testing "Calls on-render and on-mount when component first mounts"
@@ -256,8 +256,9 @@
                       :on-mount (fn [node & args]
                                   (reset! on-mount (apply vector node args)))})]
       (sut/render (component {:a 42} {:static "Prop"} {:another "Static"}) el)
+      (is (= [(.-firstChild el) {:a 42} nil {:static "Prop"} {:another "Static"}]
+             @on-render))
       (is (= [(.-firstChild el) {:a 42} {:static "Prop"} {:another "Static"}]
-             @on-render
              @on-mount))))
 
   (testing "Calls on-render on each update"
@@ -291,7 +292,34 @@
               {:text "Hello"}
               {:text "Aight"}] @on-render))
       (is (= [{:text "Hello"}
-              {:text "Aight"}] @on-update)))))
+              {:text "Aight"}] @on-update))))
+
+  (testing "Passes previous data to on-render"
+    (let [el (js/document.createElement "div")
+          on-render (atom [])
+          component (sut/component
+                     (fn [data] (d/div {} (:text data)))
+                     {:on-render (fn [node data old-data statics]
+                                   (swap! on-render conj [data old-data statics]))})]
+      (sut/render (component {:text "LOL"} 2) el)
+      (sut/render (component {:text "Hello"} 2) el)
+      (sut/render (component {:text "Aight"} 2) el)
+      (is (= [[{:text "LOL"} nil 2]
+              [{:text "Hello"} {:text "LOL"} 2]
+              [{:text "Aight"} {:text "Hello"} 2]] @on-render))))
+
+  (testing "Passes previous data to on-update"
+    (let [el (js/document.createElement "div")
+          on-update (atom [])
+          component (sut/component
+                     (fn [data] (d/div {} (:text data)))
+                     {:on-update (fn [node data old-data statics]
+                                   (swap! on-update conj [data old-data statics]))})]
+      (sut/render (component {:text "LOL"} 2) el)
+      (sut/render (component {:text "Hello"} 2) el)
+      (sut/render (component {:text "Aight"} 2) el)
+      (is (= [[{:text "Hello"} {:text "LOL"} 2]
+              [{:text "Aight"} {:text "Hello"} 2]] @on-update)))))
 
 (deftest on-unmount-test
   (testing "Does not call on-unmount when component first mounts"

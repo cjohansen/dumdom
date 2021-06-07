@@ -13,7 +13,7 @@
             (fn [vnode]
               (when insert-hook (insert-hook vnode))
               (when on-mount (apply on-mount (.-elm vnode) data args))
-              (when on-render (apply on-render (.-elm vnode) data args))
+              (when on-render (apply on-render (.-elm vnode) data nil args))
               (let [{:keys [will-enter will-appear]} @animation]
                 (when-let [callback (or will-enter will-appear)]
                   (swap! animation assoc :ready? false)
@@ -28,12 +28,12 @@
                          data
                          args))))))))
 
-(defn- setup-update-hook [rendered {:keys [on-update on-render]} data args]
+(defn- setup-update-hook [rendered {:keys [on-update on-render]} data old-data args]
   (when (or on-update on-render)
     (set! (.-update (.. rendered -data -hook))
           (fn [old-vnode vnode]
-            (when on-update (apply on-update (.-elm vnode) data args))
-            (when on-render (apply on-render (.-elm vnode) data args))))))
+            (when on-update (apply on-update (.-elm vnode) data old-data args))
+            (when on-render (apply on-render (.-elm vnode) data old-data args))))))
 
 (defn- setup-unmount-hook [rendered component data args animation on-destroy]
   (set! (.-destroy (.. rendered -data -hook))
@@ -125,10 +125,7 @@
              (fn [path k]
                (let [key (when-let [keyfn (:keyfn opt)] (keyfn data))
                      fullpath (conj path (or key k))
-                     instance (or (@instances fullpath)
-                                  {:render render
-                                   :opt opt
-                                   :path fullpath})
+                     instance (@instances fullpath)
                      animation (atom {:ready? true})]
                  (if (should-component-update? instance data)
                    (when-let [rendered (when-let [renderer (apply render data args)]
@@ -146,7 +143,7 @@
                                 (swap! animation assoc :will-appear will-appear)
                                 (set! (.-willAppear rendered) #(swap! animation dissoc :will-appear))))
                      #?(:cljs (setup-mount-hook rendered opt data args animation))
-                     #?(:cljs (setup-update-hook rendered opt data args))
+                     #?(:cljs (setup-update-hook rendered opt data (:data instance) args))
                      #?(:cljs (setup-unmount-hook rendered opt data args animation #(swap! instances dissoc fullpath)))
                      (swap! instances assoc fullpath (assoc instance
                                                             :vdom rendered
