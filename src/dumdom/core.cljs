@@ -73,7 +73,9 @@
         (register-vnode element-id vnode))
       (do
         (set! (.-innerHTML element) "")
-        (unregister-vnode element-id)))))
+        (unregister-vnode element-id)))
+    (when component/*render-eagerly?*
+      (reset! component/eager-render-required? false))))
 
 (def component component/component)
 (def component? component/component?)

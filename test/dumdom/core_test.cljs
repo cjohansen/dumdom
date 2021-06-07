@@ -2,6 +2,7 @@
   (:require [cljs.test :as t :refer-macros [async is testing]]
             [devcards.core :refer-macros [deftest]]
             [dumdom.core :as sut]
+            [dumdom.component]
             [dumdom.dom :as d]
             [dumdom.test-helper :refer [render render-str]]))
 
@@ -754,3 +755,43 @@
             (is (nil? (.. el -firstChild -firstChild)))
             (done))
           10)))))
+
+(deftest EagerRenderModeTest
+  (testing "Does not re-render old components when new ones are defined by default"
+    (let [el (js/document.createElement "div")
+          on-render (atom [])
+          comp (sut/component
+                (fn [_] (d/div {} "Testing"))
+                {:on-render (fn [node data & args]
+                              (swap! on-render conj data))})]
+      (sut/render (comp {:a 42}) el)
+      (sut/component (fn [_] (d/div {} "Created another component")))
+      (sut/render (comp {:a 42}) el)
+      (is (= 1 (count @on-render)))))
+
+  (testing "Re-renders old components when new ones are defined when configured to"
+    (with-redefs [dumdom.component/*render-eagerly?* true]
+      (let [el (js/document.createElement "div")
+            on-render (atom [])
+            comp (sut/component
+                  (fn [_] (d/div {} "Testing"))
+                  {:on-render (fn [node data & args]
+                                (swap! on-render conj data))})]
+        (sut/render (comp {:a 42}) el)
+        (sut/component (fn [_] (d/div {} "Created another component")))
+        (sut/render (comp {:a 42}) el)
+        (is (= 2 (count @on-render))))))
+
+  (testing "Only re-renders old components after new ones are defined"
+    (with-redefs [dumdom.component/*render-eagerly?* true]
+      (let [el (js/document.createElement "div")
+            on-render (atom [])
+            comp (sut/component
+                  (fn [_] (d/div {} "Testing"))
+                  {:on-render (fn [node data & args]
+                                (swap! on-render conj data))})]
+        (sut/render (comp {:a 42}) el)
+        (sut/component (fn [_] (d/div {} "Created another component")))
+        (sut/render (comp {:a 42}) el)
+        (sut/render (comp {:a 42}) el)
+        (is (= 2 (count @on-render)))))))

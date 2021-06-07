@@ -2,9 +2,23 @@
   (:require [dumdom.element :as e]
             [dumdom.dom :as d]))
 
+(def ^:dynamic *render-eagerly?*
+  "When this var is set to `true`, every existing component will re-render on the
+  next call after a new component has been created, even if the input data has
+  not changed. This can be useful in development - if you have any level of
+  indirection in your rendering code (e.g. passing a component function as the
+  \"static arg\" to another component, multi-methods, etc), you are not
+  guaranteed to have all changed components re-render after a compile and hot
+  swap. With this var set to `true`, changing any code that defines a dumdom
+  component will cause all components to re-render."
+  false)
+
+(def eager-render-required? (atom false))
+
 (defn- should-component-update? [component-state data]
   (or (not (contains? component-state :data))
-      (not= (:data component-state) data)))
+      (not= (:data component-state) data)
+      (and *render-eagerly?* @eager-render-required?)))
 
 (defn- setup-mount-hook [rendered {:keys [on-mount on-render will-appear did-appear will-enter did-enter]} data args animation]
   (when (or on-mount on-render will-enter will-appear)
@@ -119,6 +133,8 @@
   fn."
   ([render] (component render {}))
   ([render opt]
+   (when *render-eagerly?*
+     (reset! eager-render-required? true))
    (let [instances (atom {})]
      (fn [data & args]
        (let [comp-fn

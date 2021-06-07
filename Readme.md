@@ -689,6 +689,25 @@ render (which forcefully rebuilds the entire DOM tree).
 non-string keys, inflating will not work, and it will be forcefully re-rendered.
 This limitation might be adressed in a future release.
 
+<a id="render-eagerly"></a>
+#### `dumdom.component/*render-eagerly?*`
+
+When this var is set to `true`, every existing component will re-render on the
+next call after a new component has been created, even if the input data has not
+changed. This can be useful in development - if you have any level of
+indirection in your rendering code (e.g. passing a component function as the
+"static arg" to another component, multi-methods, etc), you are not guaranteed
+to have all changed components re-render after a compile and hot swap. With this
+var set to `true`, changing any code that defines a dumdom component will cause
+all components to re-render.
+
+The var defaults to `false`, in which case it has no effect. Somewhere in your
+development setup, add
+
+```clj
+(set! dumdom.component/*render-eagerly?* true)
+```
+
 ## Examples
 
 Unfortunately, there is no TodoMVC implementation yet, but there is
@@ -701,6 +720,9 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 ## Changelog
 
 ### 2021.06.07
+
+- Add feature to eagerly re-render components in development, see
+  `*render-eagerly?*` above.
 
 - Pass old data to `:on-render` and `:on-update` functions. Previously, these
   would receive `[dom-el data statics]`, now they fully match Quiescent's
