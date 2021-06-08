@@ -5,11 +5,6 @@
 (defn- event-entry [attrs k]
   [(.toLowerCase (.substring (name k) 2)) (attrs k)])
 
-(defn- pixelize-number [n]
-  (if (number? n)
-    (str n "px")
-    n))
-
 (defn- camelCase [s]
   (let [[f & rest] (str/split s #"-")]
     (str f (str/join "" (map str/capitalize rest)))))
@@ -17,46 +12,45 @@
 (defn- camel-key [k]
   (keyword (camelCase (name k))))
 
-(def ^:private pixelized-styles
+(def ^:private skip-pixelize-attrs
   (->>
-   [:width
-    :height
-    :padding
-    :padding-left
-    :padding-right
-    :padding-top
-    :padding-bottom
-    :margin
-    :margin-left
-    :margin-right
-    :margin-top
-    :margin-bottom
-    :top
-    :left
-    :right
-    :bottom
-    :border
-    :border-left
-    :border-right
-    :border-top
-    :border-bottom
-    :border-width
-    :border-radius
-    :border-top-left-radius
-    :border-top-right-radius
-    :border-bottom-right-radius
-    :border-bottom-left-radius
-    :border-top-width
-    :border-right-width
-    :border-bottom-width
-    :border-left-width]
+   [:animation-iteration-count
+    :box-flex
+    :box-flex-group
+    :box-ordinal-group
+    :column-count
+    :fill-opacity
+    :flex
+    :flex-grow
+    :flex-positive
+    :flex-shrink
+    :flex-negative
+    :flex-order
+    :font-weight
+    :line-clamp
+    :line-height
+    :opacity
+    :order
+    :orphans
+    :stop-opacity
+    :stroke-dashoffset
+    :stroke-opacity
+    :stroke-width
+    :tab-size
+    :widows
+    :z-index
+    :zoom]
    (mapcat (fn [k] [k (camel-key k)]))
    set))
 
 (defn- pixelize [styles]
-  (reduce #(if (%2 %1) (update %1 %2 pixelize-number) %1)
+  (reduce (fn [m [attr v]]
+            (cond-> m
+              (and (number? v)
+                   (not (skip-pixelize-attrs attr)))
+              (update attr str "px")))
           styles
-          pixelized-styles))
+          styles))
 
 (def ^:private attr-mappings
   {:acceptCharset :accept-charset
