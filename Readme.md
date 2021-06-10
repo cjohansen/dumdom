@@ -53,13 +53,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2021.06.08"}
+cjohansen/dumdom {:mvn/version "2021.06.10"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2021.06.08"]
+[cjohansen/dumdom "2021.06.10"]
 ```
 
 ## Example
@@ -718,6 +718,12 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 ([source](https://github.com/uosl/heckendorf)) made with dumdom.
 
 ## Changelog
+
+### 2021.06.10
+
+- Upgrade Snabbdom to version 3.0.3
+- Make sure all style properties are strings. Fixes a strange glitch where
+  `:opacity 0` would not always set opacity to 0.
 
 ### 2021.06.08
 
