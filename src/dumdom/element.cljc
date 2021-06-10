@@ -43,12 +43,13 @@
    (mapcat (fn [k] [k (camel-key k)]))
    set))
 
-(defn- pixelize [styles]
+(defn- normalize-styles [styles]
   (reduce (fn [m [attr v]]
-            (cond-> m
-              (and (number? v)
-                   (not (skip-pixelize-attrs attr)))
-              (update attr str "px")))
+            (if (number? v)
+              (if (skip-pixelize-attrs attr)
+                (update m attr str)
+                (update m attr str "px"))
+              m))
           styles
           styles))
 
@@ -189,13 +190,13 @@
              :props (merge (select-keys attrs [:value])
                            (when-let [html (-> attrs :dangerouslySetInnerHTML :__html)]
                              {:innerHTML html}))
-             :style (merge (pixelize (:style attrs))
+             :style (merge (normalize-styles (:style attrs))
                            (when-let [enter (:mounted-style attrs)]
-                             {:delayed (pixelize enter)})
+                             {:delayed (normalize-styles enter)})
                            (when-let [remove (:leaving-style attrs)]
-                             {:remove (pixelize remove)})
+                             {:remove (normalize-styles remove)})
                            (when-let [destroy (:disappearing-style attrs)]
-                             {:destroy (pixelize destroy)}))
+                             {:destroy (normalize-styles destroy)}))
              :on (->> event-keys
                       (mapv #(event-entry attrs %))
                       (into {}))
