@@ -3,11 +3,7 @@
             [dumdom.dom :as d]
             [dumdom.element :as e]
             [dumdom.string :as string]
-            [snabbdom :as snabbdom]
-            ["snabbdom/modules/eventlisteners" :as eventlisteners]
-            ["snabbdom/modules/attributes" :as attributes]
-            ["snabbdom/modules/props" :as props]
-            ["snabbdom/modules/style" :as style])
+            [snabbdom :as snabbdom])
   (:require-macros [dumdom.core]))
 
 (def ^:private current-nodes
@@ -21,10 +17,10 @@
 
 (def patch
   "The snabbdom patch function used by render"
-  (snabbdom/init (clj->js [(.-default eventlisteners)
-                           (.-default attributes)
-                           (.-default props)
-                           (.-default style)])))
+  (snabbdom/init #js [snabbdom/eventListenersModule
+                      snabbdom/attributesModule
+                      snabbdom/propsModule
+                      snabbdom/styleModule]))
 
 (defn set-root-id [element]
   (set! (.. element -dataset -dumdomId) (swap! element-id inc)))
