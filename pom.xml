@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>cjohansen</groupId>
   <artifactId>dumdom</artifactId>
-  <version>2021.06.10</version>
+  <version>2021.06.11</version>
   <name>dumdom</name>
   <dependencies>
     <dependency>
@@ -55,7 +55,7 @@
   <scm>
     <connection>scm:git:git://github.com/cjohansen/dumdom.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/cjohansen/dumdom.git</developerConnection>
-    <tag>v2021.06.10</tag>
+    <tag>v2021.06.11</tag>
     <url>https://github.com/cjohansen/dumdom</url>
   </scm>
 </project>

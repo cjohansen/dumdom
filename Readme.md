@@ -53,13 +53,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2021.06.10"}
+cjohansen/dumdom {:mvn/version "2021.06.11"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2021.06.10"]
+[cjohansen/dumdom "2021.06.11"]
 ```
 
 ## Example
@@ -718,6 +718,11 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 ([source](https://github.com/uosl/heckendorf)) made with dumdom.
 
 ## Changelog
+
+### 2021.06.11
+
+- Properly support data-attributes. Just include them with the data- prefix, and
+  dumdom will render them: `[:div {:data-id "123"} "Hello"]`.
 
 ### 2021.06.10
 
