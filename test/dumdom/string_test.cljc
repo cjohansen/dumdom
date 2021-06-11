@@ -111,3 +111,7 @@
           [:a {:className "button text-m" :href "/"}
            nil
            "Click it"]))))
+
+(deftest renders-data-attributes
+  (is (= "<div data-stuff=\"Yes\">Content</div>"
+         (dumdom/render-string [:div {:data-stuff "Yes"} "Content"]))))

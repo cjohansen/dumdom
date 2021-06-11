@@ -5,7 +5,12 @@
 
 (defn render [type attrs children]
   {:tag-name type
-   :attributes (merge (:attrs attrs) (:props attrs))
+   :attributes (merge (:attrs attrs)
+                      (:props attrs)
+                      (->> (:dataset attrs)
+                           (clojure.core/map (fn [[k v]]
+                                               [(keyword (str "data-" (name k))) v]))
+                           (into {})))
    :style (:style attrs)
    :key (:key attrs)
    :children children})

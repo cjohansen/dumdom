@@ -12,7 +12,11 @@
      :clj (:children node)))
 
 (defn- attributes [node]
-  #?(:cljs (merge (js->clj (.. node -data -attrs)) (js->clj (.. node -data -props)))
+  #?(:cljs (let [attrs (js->clj (.. node -data -attrs))]
+             (merge (js->clj (.. node -data -attrs))
+                    (js->clj (.. node -data -props))
+                    (->> (js->clj (.. node -data -dataset))
+                         (map (fn [[k v]] [(str "data-" (name k)) v])))))
      :clj (:attributes node)))
 
 (defn- el-key [node]

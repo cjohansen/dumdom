@@ -178,9 +178,17 @@
    :leavingStyle :leaving-style
    :disappearingStyle :disappearing-style})
 
+(defn data-attr? [[k v]]
+  (re-find #"^data-" (name k)))
+
 (defn- prep-attrs [attrs]
   (let [event-keys (filter #(and (str/starts-with? (name %) "on") (ifn? (attrs %))) (keys attrs))
+        dataset (->> attrs
+                     (filter data-attr?)
+                     (map (fn [[k v]] [(str/replace (name k) #"^data-" "") v]))
+                     (into {}))
         attrs (->> attrs
+                   (remove data-attr?)
                    (map (fn [[k v]] [(camel-key k) v]))
                    (remove (fn [[k v]] (nil? v)))
                    (into {}))
@@ -204,7 +212,8 @@
                     {}
                     (when-let [callback (:ref attrs)]
                       {:insert #(callback (.-elm %))
-                       :destroy #(callback nil)}))}
+                       :destroy #(callback nil)}))
+             :dataset dataset}
       (:key attrs) (assoc :key (:key attrs)))))
 
 (declare create)

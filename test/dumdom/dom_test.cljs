@@ -152,3 +152,9 @@
     (let [el (js/document.createElement "div")]
       (dd/render [:div {:dangerouslySetInnerHTML {:__html "<h2>LOL!</h2>"}}] el)
       (is (= "<div><h2>LOL!</h2></div>" (.. el -innerHTML))))))
+
+(deftest data-attributes-test
+  (testing "Renders data attributes"
+    (let [el (js/document.createElement "div")]
+      (dd/render [:div {:data-stuff "32" :data-other 12} "Hello"] el)
+      (is (= "<div data-stuff=\"32\" data-other=\"12\">Hello</div>" (.. el -innerHTML))))))

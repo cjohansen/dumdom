@@ -20,7 +20,8 @@
   (snabbdom/init #js [snabbdom/eventListenersModule
                       snabbdom/attributesModule
                       snabbdom/propsModule
-                      snabbdom/styleModule]))
+                      snabbdom/styleModule
+                      snabbdom/datasetModule]))
 
 (defn set-root-id [element]
   (set! (.. element -dataset -dumdomId) (swap! element-id inc)))
