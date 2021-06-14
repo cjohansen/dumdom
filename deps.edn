@@ -1,10 +1,10 @@
 {:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.10.0"}
-        org.clojure/clojurescript {:mvn/version "1.10.439"}
-        devcards/devcards {:mvn/version "0.2.6" :scope "provided"}}
- :aliases {:dev {:extra-paths ["dev" "test" "resources" "devcards"]
+        org.clojure/clojurescript {:mvn/version "1.10.439"}}
+ :aliases {:dev {:extra-paths ["dev" "test" "resources"]
                  :extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.0-SNAPSHOT"}
-                              com.bhauman/cljs-test-display {:mvn/version "0.1.1"}}}
+                              com.bhauman/cljs-test-display {:mvn/version "0.1.1"}
+                              com.bhauman/devcards {:mvn/version "0.2.7"}}}
            :repl {:extra-deps {com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}}
                   :main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]}
            :dev-clj {:extra-paths ["dev" "test"]}

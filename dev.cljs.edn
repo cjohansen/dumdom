@@ -1,13 +1,11 @@
-^{:watch-dirs ["src" "test" "dev" "devcards"]
-  :extra-main-files {:tests {:main dumdom.test-runner}
-                     :devcards {:main dumdom.cards}}
+^{:watch-dirs ["src" "test" "dev"]
+  :extra-main-files {:tests {:main dumdom.test-runner}}
   :ring-server-options {:port 9595}}
 {:main "dumdom.dev"
  :optimizations :none
  :pretty-print true
  :source-map true
  :asset-path "/js/dev"
- :devcards true
  :output-to "resources/public/js/dev.js"
  :output-dir "resources/public/js/dev"
  :closure-defines {cljs-test-display.core/notifications false

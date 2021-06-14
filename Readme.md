@@ -167,8 +167,11 @@ all occurrences of `onChange` with `onInput` to retain behavior.
 
 [Devcards](https://github.com/bhauman/devcards) is a system for rendering React
 components in isolation. Because **dumdom** components are not React components,
-they need some wrapping for Devcards to make sense of them. This is what the
-`dumdom.devcards` namespace is for:
+they need some wrapping for Devcards to make sense of them.
+
+You need to add [dumdom-devcards](https://github.com/cjohansen/dumdom-devcards)
+as a separate dependency. Then use the `dumdom.devcards` namespace just like you
+would `devcards.core`:
 
 ```clj
 (require '[dumdom.devcards :refer-macros [defcard]])
@@ -176,11 +179,6 @@ they need some wrapping for Devcards to make sense of them. This is what the
 (defcard my-dumdom-card
   (my-dumdom-component {:value 0}))
 ```
-
-`dumdom.devcards.defcard` works exactly the same as
-[devcards.core.defcard](http://rigsomelight.com/devcards/#!/devdemos.defcard_api).
-
-Dumdom requires Devcards 0.2.6.
 
 ## Contribute
 
@@ -721,6 +719,13 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ### 2021.06.14
 
+- BREAKING: Dumdom no longer bundles `dumdom.devcards` - add
+  [dumdom-devcards](https://github.com/cjohansen/dumdom-devcards) separately to
+  your dependencies. This change only affects projects using `dumdom.devcards`,
+  and requires no other changes to your code than adding the separate namespace.
+  I'm very sorry for this breaking change, but including devcards was a mistake
+  that required you to have devcards on path in production, which is not a good
+  place to be.
 - Bug fix: `{:dangerouslySetInnerHTML {:__html nil}}` was mistakenly a noop. It
   now clears any previously set `innerHTML`.
 - Work around [a bug in Snabbdom](https://github.com/snabbdom/snabbdom/issues/970)
