@@ -719,6 +719,11 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ## Changelog
 
+### 2021.06.14
+
+- Work around [a bug in Snabbdom](https://github.com/snabbdom/snabbdom/issues/970)
+  by temporarily bundling a patched version.
+
 ### 2021.06.11
 
 - Properly support data-attributes. Just include them with the data- prefix, and

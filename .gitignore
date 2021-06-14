@@ -6,5 +6,3 @@ target
 checkouts
 .cpcache
 cljs-test-runner-out
-src/snabbdom/snabbdom.js
-src/snabbdom/snabbdom.min.js

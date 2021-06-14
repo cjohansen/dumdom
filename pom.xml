@@ -17,11 +17,6 @@
       <version>1.10.439</version>
     </dependency>
     <dependency>
-      <groupId>cljsjs</groupId>
-      <artifactId>snabbdom</artifactId>
-      <version>3.0.3-0</version>
-    </dependency>
-    <dependency>
       <groupId>devcards</groupId>
       <artifactId>devcards</artifactId>
       <version>0.2.6</version>
