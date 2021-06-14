@@ -721,6 +721,8 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ### 2021.06.14
 
+- Bug fix: `{:dangerouslySetInnerHTML {:__html nil}}` was mistakenly a noop. It
+  now clears any previously set `innerHTML`.
 - Work around [a bug in Snabbdom](https://github.com/snabbdom/snabbdom/issues/970)
   by temporarily bundling a patched version.
 

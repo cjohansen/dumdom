@@ -195,9 +195,11 @@
         attrs (set/rename-keys attrs attr-mappings)]
     (cond-> {:attrs (apply dissoc attrs :style :mounted-style :leaving-style :disappearing-style
                            :component :value :key :ref :dangerouslySetInnerHTML event-keys)
-             :props (merge (select-keys attrs [:value])
-                           (when-let [html (-> attrs :dangerouslySetInnerHTML :__html)]
-                             {:innerHTML html}))
+             :props (cond-> {}
+                      (:value attrs) (assoc :value (:value attrs))
+
+                      (contains? (:dangerouslySetInnerHTML attrs) :__html)
+                      (assoc :innerHTML (-> attrs :dangerouslySetInnerHTML :__html)))
              :style (merge (normalize-styles (:style attrs))
                            (when-let [enter (:mounted-style attrs)]
                              {:delayed (normalize-styles enter)})

@@ -151,7 +151,13 @@
   (testing "Sets inner HTML"
     (let [el (js/document.createElement "div")]
       (dd/render [:div {:dangerouslySetInnerHTML {:__html "<h2>LOL!</h2>"}}] el)
-      (is (= "<div><h2>LOL!</h2></div>" (.. el -innerHTML))))))
+      (is (= "<div><h2>LOL!</h2></div>" (.. el -innerHTML)))))
+
+  (testing "Clears inner HTML"
+    (let [el (js/document.createElement "div")]
+      (dd/render [:div {:dangerouslySetInnerHTML {:__html "<h2>LOL!</h2>"}}] el)
+      (dd/render [:div {:dangerouslySetInnerHTML {:__html nil}}] el)
+      (is (= "<div></div>" (.. el -innerHTML))))))
 
 (deftest data-attributes-test
   (testing "Renders data attributes"
