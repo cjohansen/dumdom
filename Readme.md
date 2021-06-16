@@ -53,13 +53,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2021.06.11"}
+cjohansen/dumdom {:mvn/version "2021.06.16"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2021.06.11"]
+[cjohansen/dumdom "2021.06.16"]
 ```
 
 ## Example
@@ -717,7 +717,7 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ## Changelog
 
-### 2021.06.14
+### 2021.06.16
 
 - BREAKING: Dumdom no longer bundles `dumdom.devcards` - add
   [dumdom-devcards](https://github.com/cjohansen/dumdom-devcards) separately to
