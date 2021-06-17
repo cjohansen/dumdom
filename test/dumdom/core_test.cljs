@@ -14,7 +14,7 @@
       (is (= "<div class=\"lol\">1</div>" (render-str (comp 1))))))
 
   (testing "Does not optimize away initial render when data is nil"
-    (let [comp (sut/component (fn [data] (d/div {:className "lol"} data)))]
+    (let [comp (sut/component (fn [data] (d/div {:className "lol"})))]
       (is (= "<div class=\"lol\"></div>" (render-str (comp nil))))))
 
   (testing "Does not re-render when immutable value hasn't changed"
@@ -85,7 +85,7 @@
              (render-str (d/div {:className "wrapper"}
                            (comp {:id "v1"} 1 2 3)))))))
 
-  (testing "Does not freak out when rendering null children"
+  (testing "Does not freak out when rendering nil children"
     (let [comp (sut/component (fn [data]
                                 (d/div {}
                                   (d/h1 {} "Hello")
@@ -116,6 +116,13 @@
                    [:h1 {:style {:border "1px solid cyan"}} "Hello"]
                    [:img {:border "2"}]] el)
       (is (= "<div><h1 style=\"border: 1px solid cyan;\">Hello</h1><img border=\"2\"></div>" (.-innerHTML el)))))
+
+  (testing "Renders hiccup with comment placeholders for nils"
+    (let [el (js/document.createElement "div")]
+      (sut/render [:div {}
+                   nil
+                   [:img {:border "2"}]] el)
+      (is (= "<div><!--nil--><img border=\"2\"></div>" (.-innerHTML el)))))
 
   (testing "Renders custom elements in hiccup"
     (let [el (js/document.createElement "div")

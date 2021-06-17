@@ -717,6 +717,13 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ## Changelog
 
+### 2021.06.17
+
+- Render comment nodes in place of `nil`s. This works around a quirk of Snabbdom
+  (as compared to React) where replacing a `nil` with an element can prematurely
+  cause transition effects due to how Snabbdom reuses DOM elements. See [this
+  issue](https://github.com/snabbdom/snabbdom/issues/973) for more information.
+
 ### 2021.06.16
 
 - BREAKING: Dumdom no longer bundles `dumdom.devcards` - add

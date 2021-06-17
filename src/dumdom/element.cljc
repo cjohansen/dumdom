@@ -249,13 +249,16 @@
          [x & xs] xs]
     (cond
       (and (nil? xs) (nil? x)) (seq res)
-      (nil? x) (recur res xs)
       (seq? x) (recur (into res (flatten-seqs x)) xs)
       :default (recur (conj res x) xs))))
 
 (defn inflate-hiccup [el-fn sexp]
-  (if-not (hiccup? sexp)
-    sexp
+  (cond
+    (nil? sexp) (el-fn "!" {} "nil")
+
+    (not (hiccup? sexp)) sexp
+
+    :default
     (let [el-type (first sexp)
           args (rest sexp)
           args (if (map? (first args)) args (concat [{}] args))]
@@ -277,10 +280,9 @@
                        (doseq [node (filter #(some-> % .-willAppear) (.-children new-vnode))]
                          ((.-willAppear node))))))
        (->> children
-            (filter identity)
             (mapcat #(if (seq? %) % [%]))
             (map (partial inflate-hiccup el-fn))
             (map-indexed #(do
                             (if (fn? %2)
-                             (%2 fullpath %1)
-                             %2))))))))
+                              (%2 fullpath %1)
+                              %2))))))))

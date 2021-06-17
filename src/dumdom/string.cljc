@@ -31,6 +31,9 @@
   #?(:cljs (nil? (.-sel vnode))
      :clj (not (map? vnode))))
 
+(defn- comment-node? [vnode]
+  (= "!" (tag-name vnode)))
+
 (defn- text [vnode]
   #?(:cljs (.-text vnode)
      :clj vnode))
@@ -72,7 +75,8 @@
 
 (defn- dom-str [vnode]
   (cond
-    (nil? vnode) ""
+    (or (nil? vnode)
+        (comment-node? vnode)) ""
     (text-node? vnode) (text vnode)
     :default (str "<" (tag-name vnode) (attrs vnode) ">"
                   (let [attrs (attributes vnode)]
