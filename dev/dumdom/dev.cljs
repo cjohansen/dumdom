@@ -1,6 +1,7 @@
 (ns dumdom.dev
   (:require [dumdom.core :as dumdom :refer [defcomponent]]
-            [dumdom.dom :as d]))
+            [dumdom.dom :as d]
+            [snabbdom :as snabbdom]))
 
 (enable-console-print!)
 
@@ -40,6 +41,9 @@
                            (render state)))
 (render @store)
 
+(def patch (snabbdom/init #js [snabbdom/styleModule]))
+
+
 (comment
   (swap! store assoc :things [])
 
@@ -60,4 +64,53 @@
                                :id :t4}
                               {:text "Thing 5"
                                :id :t5}])
+
+  (require '[quiescent.core :as q]
+           '[quiescent.dom :as qd])
+
+  (dumdom/render [:div {}
+                  nil
+                  [:div "Dumdom"]] app)
+  (dumdom/render [:div {}
+                  [:div {:style {:opacity 0.3 :transition "opacity 500ms"}} "Hello"]
+                  [:div "Dumdom"]] app)
+  (dumdom/render [:div {}
+                  [:div {:style {:opacity 0.7 :transition "opacity 500ms"}} "Hello"]
+                  [:div "Dumdom"]] app)
+
+  (def qel (js/document.createElement "div"))
+  (js/document.body.appendChild qel)
+
+  (q/render (qd/div {}
+                    nil
+                    (qd/div {} "Quiescent")) qel)
+  (q/render (qd/div {}
+                    (qd/div {:style {:opacity 0.3 :transition "opacity 500ms"}}
+                            "Hello!")
+                    (qd/div {} "Quiescent")) qel)
+
+
+  (def el (js/document.createElement "div"))
+  (js/document.body.appendChild el)
+
+  (js/console.log #js {:style #js {:opacity 0.3 :transition "opacity 500ms"}})
+
+  (def vdom (patch el (snabbdom/h "!" #js {} "nil")))
+  (def vdom (patch vdom (snabbdom/h "div" #js {} #js ["OK"])))
+
+  (def vdom (patch el (snabbdom/vnode "" #js {} #js [])))
+  (def vdom (patch vdom (snabbdom/h "div" #js {} #js ["OK"])))
+
+  (def vdom (patch el (snabbdom/h "div" #js {} #js [(snabbdom/h "div" #js {} #js ["Hello from snabbdom"])])))
+  (def vdom (patch vdom (snabbdom/h
+                         "div"
+                         #js {}
+                         #js [(snabbdom/h
+                               "div"
+                               #js {:style #js {:opacity 0.3 :transition "opacity 500ms"}}
+                               #js ["Hello from snabbdom"])])))
+
+  (set! (.-innerHTML el) "Yo yoyo")
+  (set! (.. el -style -transition) "opacity 0.5s")
+  (set! (.. el -style -opacity) "0.3")
 )
