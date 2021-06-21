@@ -53,13 +53,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2021.06.18"}
+cjohansen/dumdom {:mvn/version "2021.06.21"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2021.06.18"]
+[cjohansen/dumdom "2021.06.21"]
 ```
 
 ## Example
@@ -717,7 +717,7 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ## Changelog
 
-### 2021.06.18
+### 2021.06.21
 
 - Render comment nodes in place of `nil`s. This works around a quirk of Snabbdom
   (as compared to React) where replacing a `nil` with an element can prematurely
@@ -726,6 +726,10 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 - Always bundle the minified Snabbdom file. This makes errors from Snabbdom a
   little more opaque under development, but ensures that the minified file goes
   to production, which was not always the case before.
+
+### 2021.06.18
+
+- Retracted due to a typo which made the artefact unusable. Sorry about that!
 
 ### 2021.06.16
 
