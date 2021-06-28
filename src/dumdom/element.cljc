@@ -181,7 +181,7 @@
 (defn data-attr? [[k v]]
   (re-find #"^data-" (name k)))
 
-(defn- prep-attrs [attrs]
+(defn- prep-attrs [attrs k]
   (let [event-keys (filter #(and (str/starts-with? (name %) "on") (ifn? (attrs %))) (keys attrs))
         dataset (->> attrs
                      (filter data-attr?)
@@ -252,27 +252,74 @@
       (seq? x) (recur (into res (flatten-seqs x)) xs)
       :default (recur (conj res x) xs))))
 
-(defn inflate-hiccup [el-fn sexp]
+(defn add-namespace [vnode]
+  (cond-> vnode
+    (not= "foreignObject" (:sel vnode))
+    (assoc-in [:data :ns] "http://www.w3.org/2000/svg")
+
+    (:children vnode)
+    (update :children #(map add-namespace %))))
+
+(defn svg? [sel]
+  (and (= "s" (nth sel 0))
+       (= "v" (nth sel 1))
+       (= "g" (nth sel 2))
+       (or (= 3 (count sel))
+           (= "." (nth sel 3))
+           (= "#" (nth sel 3)))))
+
+(defn primitive? [x]
+  (or (string? x) (number? x)))
+
+(defn convert-primitive-children [children]
+  (for [c children]
+    (if (primitive? c)
+      {:text c}
+      c)))
+
+;; This is a port of Snabbdom's `h` function, but without the varargs support.
+(defn create-vdom-node [sel attrs children]
+  (let [cmap? (map? children)]
+    (cond-> {:sel sel
+             :data (dissoc attrs :key)}
+      (primitive? children)
+      (assoc :text children)
+
+      cmap?
+      (assoc :children [children])
+
+      (and (seq? children) (not cmap?))
+      (assoc :children children)
+
+      :always (update :children convert-primitive-children)
+
+      (svg? sel)
+      add-namespace
+
+      (:key attrs)
+      (assoc :key (:key attrs)))))
+
+(defn inflate-hiccup [sexp]
   (cond
-    (nil? sexp) (el-fn "!" {} "nil")
+    (nil? sexp) (create-vdom-node "!" {} "nil")
 
     (not (hiccup? sexp)) sexp
 
     :default
-    (let [el-type (first sexp)
+    (let [tag-name (first sexp)
           args (rest sexp)
           args (if (map? (first args)) args (concat [{}] args))]
-      (if (fn? el-type)
-        (apply el-type (rest sexp))
-        (let [[element attrs] (parse-hiccup-symbol (name el-type) (first args))]
-          (apply create el-fn element (prep-hiccup-attrs attrs) (flatten-seqs (rest args))))))))
+      (if (fn? tag-name)
+        (apply tag-name (rest sexp))
+        (let [[element attrs] (parse-hiccup-symbol (name tag-name) (first args))]
+          (apply create element (prep-hiccup-attrs attrs) (flatten-seqs (rest args))))))))
 
-(defn create [el-fn type attrs & children]
+(defn create [tag-name attrs & children]
   (fn [path k]
     (let [fullpath (conj path k)]
-      (el-fn
-       type
-       (-> (prep-attrs attrs)
+      (create-vdom-node
+       tag-name
+       (-> (prep-attrs attrs k)
            (assoc-in [:hook :update]
                      (fn [old-vnode new-vnode]
                        (doseq [node (filter #(some-> % .-willEnter) (.-children new-vnode))]
@@ -281,7 +328,7 @@
                          ((.-willAppear node))))))
        (->> children
             (mapcat #(if (seq? %) % [%]))
-            (map (partial inflate-hiccup el-fn))
+            (map inflate-hiccup)
             (map-indexed #(do
                             (if (fn? %2)
                               (%2 fullpath %1)

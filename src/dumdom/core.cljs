@@ -53,10 +53,10 @@
   [component element]
   (let [current-node (or (root-node element) (init-node! element))
         element-id (.. element -dataset -dumdomId)
-        component (e/inflate-hiccup d/render component)
+        component (e/inflate-hiccup component)
         vnode (component [element-id] 0)]
     (if vnode
-      (do
+      (let [vnode (clj->js vnode)]
         ;; If the root node does not have a key, Snabbdom will consider it the same
         ;; node as the node it is rendered into if they have the same tag name
         ;; (typically root nodes are divs, and typically they are rendered into

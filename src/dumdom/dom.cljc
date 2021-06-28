@@ -1,21 +1,16 @@
 (ns dumdom.dom
-  (:require [clojure.set :as set]
-            [clojure.string :as str]
-            [dumdom.element :as element]
-            [snabbdom :as snabbdom])
+  (:require [dumdom.element :as element]
+            #?(:clj [dumdom.dom-macros :as dm]))
   (:refer-clojure :exclude [time map meta mask])
-  (:require-macros [dumdom.dom-macros :as dm]))
-
-(defn render [type attrs children]
-  (snabbdom/h type (clj->js attrs) (clj->js children)))
+  #?(:cljs (:require-macros [dumdom.dom-macros :as dm])))
 
 (defn el
   "Creates a virtual DOM element component of the specified type with attributes
   and optional children. Returns a function that renders the virtual DOM. This
   function expects a vector path and a key that addresses the component."
   [type attrs & children]
-  (let [el-fn (apply element/create render type attrs children)]
-    (set! (.-dumdom el-fn) true)
+  (let [el-fn (apply element/create type attrs children)]
+    #?(:cljs (set! (.-dumdom el-fn) true))
     el-fn))
 
 (dm/define-tags
