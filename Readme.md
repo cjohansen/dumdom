@@ -514,6 +514,11 @@ Render the virtual DOM node created by the component into the specified DOM
 element. Component can be either hiccup-style data, like `[:div {} "Hello"]` or
 the result of calling component functions, e.g. `(dumdom.dom/div {} "Hello")`.
 
+<a id="unmount"></a>
+#### `(dumdom.core/unmounet element)`
+
+Clear the element and discard any internal state related to it.
+
 <a id="render-once"></a>
 #### `(dumdom.core/render-once component element)`
 
@@ -729,6 +734,7 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ### 2021.06.28
 
+- New featyre: `dumdom.core/unmount` (see [docs above](#unmount)).
 - New feature: `dumdom.core/render-once` (see [docs above](#render-once)).
 - Major implementation change: Move Dumdom's vdom representation from Snabbdom's
   object model to Clojure maps. This moves more of the implementation from
