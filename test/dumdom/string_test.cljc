@@ -81,11 +81,11 @@
                                   [:p "World"]]))))
 
   (testing "Renders block element with innerHTML"
-    (is (= "<div><p style=\"color: red\">Hello</p></div>"
+    (is (= "<div data-dumdom-key=\"-2004279067\"><p style=\"color: red\">Hello</p></div>"
            (dumdom/render-string [:div {:dangerouslySetInnerHTML {:__html "<p style=\"color: red\">Hello</p>"}}]))))
 
   (testing "Renders inline element with innerHTML"
-    (is (= "<span><em>Hello</em></span>"
+    (is (= "<span data-dumdom-key=\"1009226262\"><em>Hello</em></span>"
            (dumdom/render-string [:span {:dangerouslySetInnerHTML {:__html "<em>Hello</em>"}}]))))
 
   (testing "Renders multiple child elements, strings and numbers alike"
