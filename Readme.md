@@ -734,6 +734,8 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ### 2021.06.28
 
+- Force elements with innerHTML to have a key. Works around shortcomings in
+  Snabbdom related to innerHTML manipulation.
 - New featyre: `dumdom.core/unmount` (see [docs above](#unmount)).
 - New feature: `dumdom.core/render-once` (see [docs above](#render-once)).
 - Major implementation change: Move Dumdom's vdom representation from Snabbdom's

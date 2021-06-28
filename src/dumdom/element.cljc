@@ -192,7 +192,10 @@
                    (map (fn [[k v]] [(camel-key k) v]))
                    (remove (fn [[k v]] (nil? v)))
                    (into {}))
-        attrs (set/rename-keys attrs attr-mappings)]
+        attrs (set/rename-keys attrs attr-mappings)
+        el-key (or (:key attrs)
+                   (when (contains? attrs :dangerouslySetInnerHTML)
+                     (hash [(:dangerouslySetInnerHTML attrs) k])))]
     (cond-> {:attrs (apply dissoc attrs :style :mounted-style :leaving-style :disappearing-style
                            :component :value :key :ref :dangerouslySetInnerHTML event-keys)
              :props (cond-> {}
@@ -216,7 +219,7 @@
                       {:insert #(callback (.-elm %))
                        :destroy #(callback nil)}))
              :dataset dataset}
-      (:key attrs) (assoc :key (:key attrs)))))
+      el-key (assoc :key el-key))))
 
 (declare create)
 

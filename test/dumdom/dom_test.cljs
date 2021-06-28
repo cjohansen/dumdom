@@ -66,7 +66,7 @@
              (.-innerHTML el)))))
 
   (testing "Renders inner html"
-    (is (= "<div><p>Ok</p></div>"
+    (is (= "<div data-dumdom-key=\"460591683\"><p>Ok</p></div>"
            (render-str (d/div {:dangerouslySetInnerHTML {:__html "<p>Ok</p>"}}))))))
 
 (deftest ref-test
