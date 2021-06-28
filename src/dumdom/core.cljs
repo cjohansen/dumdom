@@ -88,6 +88,11 @@
     (when component/*render-eagerly?*
       (reset! component/eager-render-required? false))))
 
+(defn unmount
+  "Unmount an element previously mounted by dumdom.core/render"
+  [element]
+  (-> element .-dataset .-dumdomId unregister-vnode))
+
 (def component component/component)
 (def component? component/component?)
 (def render-string string/render)
