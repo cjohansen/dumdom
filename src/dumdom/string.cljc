@@ -1,42 +1,35 @@
 (ns dumdom.string
   (:require [clojure.string :as str]
-            [dumdom.element :as e]
-            [dumdom.dom :as d]))
+            [dumdom.element :as e]))
 
 (defn- tag-name [node]
-  #?(:cljs (.-sel node)
-     :clj (:tag-name node)))
+  (:sel node))
 
 (defn- children [node]
-  #?(:cljs (.-children node)
-     :clj (:children node)))
+  (:children node))
 
 (defn- attributes [node]
-  #?(:cljs (let [attrs (js->clj (.. node -data -attrs))]
-             (merge (js->clj (.. node -data -attrs))
-                    (js->clj (.. node -data -props))
-                    (->> (js->clj (.. node -data -dataset))
-                         (map (fn [[k v]] [(str "data-" (name k)) v])))))
-     :clj (:attributes node)))
+  (let [attrs (-> node :data :attrs)]
+    (merge (some-> node :data :attrs)
+           (some-> node :data :props)
+           (some->> (-> node :data :dataset)
+                    (map (fn [[k v]] [(str "data-" (name k)) v]))
+                    (into {})))))
 
 (defn- el-key [node]
-  #?(:cljs (some-> node .-key)
-     :clj (:key node)))
+  (:key node))
 
 (defn- style [node]
-  #?(:cljs (js->clj (.. node -data -style))
-     :clj (:style node)))
+  (-> node :data :style))
 
 (defn- text-node? [vnode]
-  #?(:cljs (nil? (.-sel vnode))
-     :clj (not (map? vnode))))
+  (nil? (:sel vnode)))
 
 (defn- comment-node? [vnode]
   (= "!" (tag-name vnode)))
 
 (defn- text [vnode]
-  #?(:cljs (.-text vnode)
-     :clj vnode))
+  (:text vnode))
 
 (defn- kebab-case [s]
   (str/lower-case (str/replace s #"([a-z])([A-Z])" "$1-$2")))
@@ -56,7 +49,7 @@
 
 (defn- attrs [vnode]
   (let [k (el-key vnode)
-        attributes (cond-> (dissoc (attributes vnode) :innerHTML "innerHTML")
+        attributes (cond-> (dissoc (attributes vnode) :innerHTML)
                      k (assoc :data-dumdom-key (escape (pr-str k))))
         style (style vnode)]
     (->> (merge attributes
@@ -80,11 +73,11 @@
     (text-node? vnode) (text vnode)
     :default (str "<" (tag-name vnode) (attrs vnode) ">"
                   (let [attrs (attributes vnode)]
-                    (or (get attrs :innerHTML)
-                        (get attrs "innerHTML")
-                        (str/join "" (map dom-str (children vnode)))))
+                    (if (contains? attrs :innerHTML)
+                      (:innerHTML attrs)
+                      (str/join "" (map dom-str (children vnode)))))
                   (closing-tag (tag-name vnode)))))
 
 (defn render [component & [path k]]
-  (let [component (e/inflate-hiccup d/render component)]
+  (let [component (e/inflate-hiccup component)]
     (dom-str (component (or path []) (or k 0)))))

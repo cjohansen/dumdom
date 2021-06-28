@@ -1,6 +1,5 @@
 (ns dumdom.component
-  (:require [dumdom.element :as e]
-            [dumdom.dom :as d]))
+  (:require [dumdom.element :as e]))
 
 (def ^:dynamic *render-eagerly?*
   "When this var is set to `true`, every existing component will re-render on the
@@ -20,55 +19,80 @@
       (not= (:data component-state) data)
       (and *render-eagerly?* @eager-render-required?)))
 
+(defn set-key [rendered key]
+  (let [k (or key (:key rendered))]
+    (cond-> rendered
+      k (assoc :key (cond
+                      (or (string? k)
+                          (number? k)) k
+                      (keyword? k) (str k)
+                      :default (hash k))))))
+
+(defn setup-animation-hooks [rendered animation {:keys [will-enter will-appear]}]
+  (when will-appear
+    (swap! animation assoc :will-appear will-appear))
+  (cond-> rendered
+    will-enter (assoc :willEnter #(swap! animation assoc :will-enter will-enter))
+    will-appear (assoc :willAppear #(swap! animation dissoc :will-appear))))
+
 (defn- setup-mount-hook [rendered {:keys [on-mount on-render will-appear did-appear will-enter did-enter]} data args animation]
-  (when (or on-mount on-render will-enter will-appear)
-    (let [insert-hook (.. rendered -data -hook -insert)]
-      (set! (.-insert (.. rendered -data -hook))
-            (fn [vnode]
-              (when insert-hook (insert-hook vnode))
-              (when on-mount (apply on-mount (.-elm vnode) data args))
-              (when on-render (apply on-render (.-elm vnode) data nil args))
-              (let [{:keys [will-enter will-appear]} @animation]
-                (when-let [callback (or will-enter will-appear)]
-                  (swap! animation assoc :ready? false)
-                  (apply callback
-                         (.-elm vnode)
-                         (fn []
-                           (swap! animation assoc :ready? true)
-                           (when-let [completion (if (= callback will-enter)
-                                                   did-enter
-                                                   did-appear)]
-                             (apply completion (.-elm vnode) data args)))
-                         data
-                         args))))))))
+  (cond-> rendered
+    (or on-mount on-render will-enter will-appear)
+    (update-in
+     [:data :hook :insert]
+     (fn [insert-hook]
+       (fn [vnode]
+         (when insert-hook (insert-hook vnode))
+         (when on-mount (apply on-mount (.-elm vnode) data args))
+         (when on-render (apply on-render (.-elm vnode) data nil args))
+         (let [{:keys [will-enter will-appear]} @animation]
+           (when-let [callback (or will-enter will-appear)]
+             (swap! animation assoc :ready? false)
+             (apply callback
+                    (.-elm vnode)
+                    (fn []
+                      (swap! animation assoc :ready? true)
+                      (when-let [completion (if (= callback will-enter)
+                                              did-enter
+                                              did-appear)]
+                        (apply completion (.-elm vnode) data args)))
+                    data
+                    args))))))))
 
 (defn- setup-update-hook [rendered {:keys [on-update on-render]} data old-data args]
-  (when (or on-update on-render)
-    (set! (.-update (.. rendered -data -hook))
-          (fn [old-vnode vnode]
-            (when on-update (apply on-update (.-elm vnode) data old-data args))
-            (when on-render (apply on-render (.-elm vnode) data old-data args))))))
+  (cond-> rendered
+    (or on-update on-render)
+    (assoc-in
+     [:data :hook :update]
+     (fn [old-vnode vnode]
+       (when on-update (apply on-update (.-elm vnode) data old-data args))
+       (when on-render (apply on-render (.-elm vnode) data old-data args))))))
 
 (defn- setup-unmount-hook [rendered component data args animation on-destroy]
-  (set! (.-destroy (.. rendered -data -hook))
-        (fn [vnode]
-          (when-let [on-unmount (:on-unmount component)]
-            (apply on-unmount (.-elm vnode) data args))
-          (on-destroy)))
-  (when-let [will-leave (:will-leave component)]
-    (set! (.. rendered -data -hook -remove)
-          (fn [vnode snabbdom-callback]
-            (let [callback (fn []
-                             (when-let [did-leave (:did-leave component)]
-                               (apply did-leave (.-elm vnode) data args))
-                             (snabbdom-callback))]
-              (if (:ready? @animation)
-                (apply will-leave (.-elm vnode) callback data args)
-                (add-watch animation :leave
-                  (fn [k r o n]
-                    (when (:ready? n)
-                      (remove-watch animation :leave)
-                      (apply will-leave (.-elm vnode) callback data args))))))))))
+  (cond-> rendered
+    :always
+    (assoc-in
+     [:data :hook :destroy]
+     (fn [vnode]
+       (when-let [on-unmount (:on-unmount component)]
+         (apply on-unmount (.-elm vnode) data args))
+       (on-destroy)))
+
+    (:will-leave component)
+    (assoc-in
+     [:data :hook :remove]
+     (fn [vnode snabbdom-callback]
+       (let [callback (fn []
+                        (when-let [did-leave (:did-leave component)]
+                          (apply did-leave (.-elm vnode) data args))
+                        (snabbdom-callback))]
+         (if (:ready? @animation)
+           (apply (:will-leave component) (.-elm vnode) callback data args)
+           (add-watch animation :leave
+             (fn [k r o n]
+               (when (:ready? n)
+                 (remove-watch animation :leave)
+                 (apply (:will-leave component) (.-elm vnode) callback data args))))))))))
 
 (defn component
   "Returns a component function that uses the provided function for rendering. The
@@ -144,27 +168,25 @@
                      instance (@instances fullpath)
                      animation (atom {:ready? true})]
                  (if (should-component-update? instance data)
-                   (when-let [rendered (when-let [renderer (apply render data args)]
-                                         ((e/inflate-hiccup d/render renderer) fullpath 0))]
-                     #?(:cljs (when-let [k (or key (.-key rendered))]
-                                (set! (.-key rendered) (cond
-                                                         (or (string? k)
-                                                             (number? k)) k
-                                                         (keyword? k) (str k)
-                                                         :default (hash k)))))
-                     #?(:cljs (when-let [will-enter (:will-enter opt)]
-                                (set! (.-willEnter rendered)
-                                      #(swap! animation assoc :will-enter will-enter))))
-                     #?(:cljs (when-let [will-appear (:will-appear opt)]
-                                (swap! animation assoc :will-appear will-appear)
-                                (set! (.-willAppear rendered) #(swap! animation dissoc :will-appear))))
-                     #?(:cljs (setup-mount-hook rendered opt data args animation))
-                     #?(:cljs (setup-update-hook rendered opt data (:data instance) args))
-                     #?(:cljs (setup-unmount-hook rendered opt data args animation #(swap! instances dissoc fullpath)))
-                     (swap! instances assoc fullpath (assoc instance
-                                                            :vdom rendered
-                                                            :data data))
-                     rendered)
+                   (let [rendered
+                         (some->
+                          (when-let [vdom (apply render data args)]
+                            ((e/inflate-hiccup vdom) fullpath 0))
+                          #?(:cljs (set-key key))
+                          #?(:cljs (setup-animation-hooks animation opt))
+                          #?(:cljs (setup-unmount-hook opt data args animation #(swap! instances dissoc fullpath))))]
+                     (swap! instances assoc fullpath {:vdom rendered :data data})
+                     ;; The insert and update hooks are added after the instance
+                     ;; is cached. When used from the cache, we never want
+                     ;; insert or update hooks to be called. Snabbdom will
+                     ;; occasionally call these even when there are no changes,
+                     ;; because it uses identity to determine if a vdom node
+                     ;; represents a change. Since dumdom always produces a new
+                     ;; JavaScript object, Snabbdom's check will have false
+                     ;; positives.
+                     (some-> rendered
+                             #?(:cljs (setup-mount-hook opt data args animation))
+                             #?(:cljs (setup-update-hook opt data (:data instance) args))))
                    (:vdom instance))))]
          #?(:cljs (set! (.-dumdom comp-fn) true))
          comp-fn)))))

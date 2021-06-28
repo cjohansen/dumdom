@@ -56,13 +56,13 @@
     (let [comp (sut/component (fn [data]
                                 (d/div {} (:val data)))
                               {:keyfn :id})]
-      (is (= "c1" (.-key (render (comp {:id "c1" :val 1})))))))
+      (is (= "c1" (:key (render (comp {:id "c1" :val 1})))))))
 
   (testing "keyfn overrides vdom node key"
     (let [comp (sut/component (fn [data]
                                 (d/div {:key "key"} (:val data)))
                               {:keyfn :id})]
-      (is (= "c1" (.-key (render (comp {:id "c1" :val 1})))))))
+      (is (= "c1" (:key (render (comp {:id "c1" :val 1})))))))
 
   (testing "Passes constant args to component, but does not re-render when they change"
     (let [calls (atom [])

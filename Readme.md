@@ -717,15 +717,34 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ## Changelog
 
+### 2021.06.28
+
+- Major implementation change: Move Dumdom's vdom representation from Snabbdom's
+  object model to Clojure maps. This moves more of the implementation from
+  JavaScript to Clojure, and more importantly addresses som weird behavior in
+  complex DOM layouts. The vdom objects created by Snabbdom are mutated by
+  Snabbdom to maintain a reference to the rendered elements. In other words, the
+  vdom objects we provide as input to Snabbdom ends up doubling as Snabbdom's
+  internal state. Hanging on to these from the outside and feeding them back to
+  Snabbdom at a later point (e.g. when `should-component-update?` is `false`)
+  _mostly_ works, but has been proven to cause very unfortunate behavior in
+  certain bespoke situations.
+
+  As always, there are no changes to the public API. However, this is a invasive
+  change to Dumdom's implementation, so rigorous testing is adviced.
+
+  **NB!** The internal data-structure of virtual DOM nodes have changed as a
+  consequence, both for Clojure (different map structure) and ClojureScript
+  (maps, not Snabbdom objects). This is considered implementation changes, as
+  these are not documented features of Dumdom. If you have somehow ended up
+  relying on those you should investigate changes further.
+
 ### 2021.06.21
 
 - Render comment nodes in place of `nil`s. This works around a quirk of Snabbdom
   (as compared to React) where replacing a `nil` with an element can prematurely
   cause transition effects due to how Snabbdom reuses DOM elements. See [this
   issue](https://github.com/snabbdom/snabbdom/issues/973) for more information.
-- Always bundle the minified Snabbdom file. This makes errors from Snabbdom a
-  little more opaque under development, but ensures that the minified file goes
-  to production, which was not always the case before.
 
 ### 2021.06.18
 

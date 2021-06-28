@@ -1,7 +1,6 @@
 (ns dumdom.inflate
   (:require [cljs.reader :as reader]
-            [dumdom.core :as dumdom]
-            [snabbdom]))
+            [dumdom.core :as dumdom]))
 
 (defn- init-node! [element]
   (dumdom/set-root-id element)
@@ -50,6 +49,6 @@
 (defn render [component element]
   (let [current-node (or (dumdom/root-node element) (init-node! element))
         element-id (.. element -dataset -dumdomId)
-        vnode (component [element-id] 0)]
+        vnode (clj->js (component [element-id] 0))]
     (dumdom/patch (clj->js (to-vnode current-node)) vnode)
     (dumdom/register-vnode element-id vnode)))

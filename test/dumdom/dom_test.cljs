@@ -15,7 +15,7 @@
            (render-str (d/div {:className "test"} (d/div {:id "yap"} "Hello"))))))
 
   (testing "Renders CSS number values as pixel values"
-    (is (= "<div style=\"width: 100px; right: 30px; top: 20px; height: 50px; margin: 20px; padding: 50px; position: absolute; bottom: 40px; flex: 1; opacity: 0; left: 10px\">Hello</div>"
+    (is (= "<div style=\"bottom: 40px; top: 20px; width: 100px; flex: 1; opacity: 0; padding: 50px; right: 30px; position: absolute; height: 50px; left: 10px; margin: 20px\">Hello</div>"
            (render-str (d/div {:style {:width 100
                                        :height 50
                                        :position "absolute"
