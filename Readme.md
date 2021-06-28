@@ -514,6 +514,16 @@ Render the virtual DOM node created by the component into the specified DOM
 element. Component can be either hiccup-style data, like `[:div {} "Hello"]` or
 the result of calling component functions, e.g. `(dumdom.dom/div {} "Hello")`.
 
+<a id="render-once"></a>
+#### `(dumdom.core/render-once component element)`
+
+Like `dumdom.core/render`, but entirely stateless. `render` needs to use memory
+in order for subsequent calls to render as little as possible as fast as
+possible. If you don't intend to update the rendered DOM structure,
+`render-once` is more efficient as it does not use any memory. Subsequent calls
+to this function with the same arguments will always destructively re-render the
+entire tree represented by the component.
+
 <a id="component"></a>
 #### `(dumdom.core/component render-fn [opt])`
 
@@ -719,6 +729,7 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ### 2021.06.28
 
+- New feature: `dumdom.core/render-once` (see [docs above](#render-once)).
 - Major implementation change: Move Dumdom's vdom representation from Snabbdom's
   object model to Clojure maps. This moves more of the implementation from
   JavaScript to Clojure, and more importantly addresses som weird behavior in

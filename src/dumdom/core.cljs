@@ -49,7 +49,7 @@
 
 (defn render
   "Render the virtual DOM node created by the component into the specified DOM
-  element"
+  element, and mount it for fast future re-renders."
   [component element]
   (let [current-node (or (root-node element) (init-node! element))
         element-id (.. element -dataset -dumdomId)
@@ -71,6 +71,20 @@
       (do
         (set! (.-innerHTML element) "")
         (unregister-vnode element-id)))
+    (when component/*render-eagerly?*
+      (reset! component/eager-render-required? false))))
+
+(defn render-once
+  "Like render, but without mounting the element for future updates. This should
+  only be used when you don't expect to re-render the component into the same
+  element. Subsequent calls to render into the same element will always cause a
+  full rebuild of the DOM. This function does not acumulate state."
+  [component element]
+  (let [current-node (init-node! element)
+        component (e/inflate-hiccup component)
+        vnode (component [element-id] 0)]
+    (when-let [vnode (some-> (component [element-id] 0) clj->js)]
+      (patch current-node vnode))
     (when component/*render-eagerly?*
       (reset! component/eager-render-required? false))))
 
