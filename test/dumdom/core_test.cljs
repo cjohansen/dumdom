@@ -359,7 +359,23 @@
       (sut/render (component {:text "LOL"}) el)
       (let [rendered (.-firstChild el)]
         (sut/render (d/h1 {} "Gone!") el)
-        (is (= [rendered {:text "LOL"}] @on-unmount))))))
+        (is (= [rendered {:text "LOL"}] @on-unmount)))))
+
+  (testing "Calls on-unmount when removing nested component"
+    (let [el (js/document.createElement "div")
+          on-unmount (atom [])
+          inner-component (sut/component
+                           (fn [data] (d/div {} (:text data)))
+                           {:on-unmount (fn [node & args]
+                                          (swap! on-unmount conj :inner))})
+          outer-component (sut/component
+                           (fn [data] (inner-component data))
+                           {:on-unmount (fn [node & args]
+                                          (swap! on-unmount conj :outer))})]
+      (sut/render (outer-component {:text "LOL"}) el)
+      (let [rendered (.-firstChild el)]
+        (sut/render (d/h1 {} "Gone!") el)
+        (is (= [:outer :inner] @on-unmount))))))
 
 (deftest animation-callbacks-test
   (testing "Calls will-appear when parent mounts"

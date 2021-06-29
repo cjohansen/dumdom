@@ -732,8 +732,11 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ## Changelog
 
-### 2021.06.28
+### 2021.06.29
 
+- Bugfix: When a component rendered another component directly (e.g. with no
+  additional wrapping DOM elements), Dumdom would not call the inner component's
+  `:on-unmount` hook - now it does.
 - Force elements with innerHTML to have a key. Works around shortcomings in
   Snabbdom related to innerHTML manipulation.
 - New featyre: `dumdom.core/unmount` (see [docs above](#unmount)).

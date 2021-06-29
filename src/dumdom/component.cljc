@@ -71,12 +71,15 @@
 (defn- setup-unmount-hook [rendered component data args animation on-destroy]
   (cond-> rendered
     :always
-    (assoc-in
+    (update-in
      [:data :hook :destroy]
-     (fn [vnode]
-       (when-let [on-unmount (:on-unmount component)]
-         (apply on-unmount (.-elm vnode) data args))
-       (on-destroy)))
+     (fn [destroy-hook]
+       (fn [vnode]
+         (when-let [on-unmount (:on-unmount component)]
+           (apply on-unmount (.-elm vnode) data args))
+         (when destroy-hook
+           (destroy-hook vnode))
+         (on-destroy))))
 
     (:will-leave component)
     (assoc-in
