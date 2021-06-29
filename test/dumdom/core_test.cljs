@@ -818,3 +818,12 @@
         (sut/render (comp {:a 42}) el)
         (sut/render (comp {:a 42}) el)
         (is (= 2 (count @on-render)))))))
+
+(deftest NestedComponentsTest
+  (testing "Preserves key from nested component"
+    (let [el (js/document.createElement "div")
+          inner-component (sut/component
+                           (fn [data] (d/div {} (:text data)))
+                           {:keyfn :id})
+          outer-component (sut/component (fn [data] (inner-component data)))]
+      (is (= 42 (:key ((outer-component {:text "Hello" :id 42}) [] 0)))))))
