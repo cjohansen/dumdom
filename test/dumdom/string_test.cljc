@@ -63,15 +63,15 @@
              (dumdom/render-string (comp {:text "LOL"}))))))
 
   (testing "Renders component key as data attribute"
-    (is (= "<div data-dumdom-key=\"&quot;some-key&quot;\">LOL</div>"
+    (is (= "<div data-dumdom-key=\"&quot;some-key.0&quot;\">LOL</div>"
            (dumdom/render-string (d/div {:key "some-key"} "LOL")))))
 
   (testing "Escapes ampersands in keys"
-    (is (= "<div data-dumdom-key=\"&quot;some&amp;key&quot;\">LOL</div>"
+    (is (= "<div data-dumdom-key=\"&quot;some&amp;key.0&quot;\">LOL</div>"
            (dumdom/render-string (d/div {:key "some&key"} "LOL")))))
 
   (testing "Respects existing HTML entities in keys"
-    (is (= "<div data-dumdom-key=\"&quot;some&#34;key&quot;\">LOL</div>"
+    (is (= "<div data-dumdom-key=\"&quot;some&#34;key.0&quot;\">LOL</div>"
            (dumdom/render-string (d/div {:key "some&#34;key"} "LOL")))))
 
   (testing "Renders hiccup to string"
@@ -81,11 +81,11 @@
                                   [:p "World"]]))))
 
   (testing "Renders block element with innerHTML"
-    (is (= "<div data-dumdom-key=\"-2004279067\"><p style=\"color: red\">Hello</p></div>"
+    (is (= "<div data-dumdom-key=\"&quot;298141744.0&quot;\"><p style=\"color: red\">Hello</p></div>"
            (dumdom/render-string [:div {:dangerouslySetInnerHTML {:__html "<p style=\"color: red\">Hello</p>"}}]))))
 
   (testing "Renders inline element with innerHTML"
-    (is (= "<span data-dumdom-key=\"1009226262\"><em>Hello</em></span>"
+    (is (= "<span data-dumdom-key=\"&quot;-473860037.0&quot;\"><em>Hello</em></span>"
            (dumdom/render-string [:span {:dangerouslySetInnerHTML {:__html "<em>Hello</em>"}}]))))
 
   (testing "Renders multiple child elements, strings and numbers alike"

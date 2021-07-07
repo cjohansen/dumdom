@@ -19,14 +19,10 @@
       (not= (:data component-state) data)
       (and *render-eagerly?* @eager-render-required?)))
 
-(defn set-key [rendered key]
+(defn set-key [rendered key kmap]
   (let [k (or key (:key rendered))]
     (cond-> rendered
-      k (assoc :key (cond
-                      (or (string? k)
-                          (number? k)) k
-                      (keyword? k) (str k)
-                      :default (hash k))))))
+      k (assoc :key (e/primitive-key (e/enumerate-key k kmap))))))
 
 (defn setup-animation-hooks [rendered animation {:keys [will-enter will-appear]}]
   (when will-appear
@@ -165,17 +161,19 @@
    (let [instances (atom {})]
      (fn [data & args]
        (let [comp-fn
-             (fn [path k]
+             (fn [path kmap]
                (let [key (when-let [keyfn (:keyfn opt)] (keyfn data))
-                     fullpath (conj path (or key k))
+                     component-key (e/enumerate-key key kmap)
+                     fullpath (conj path component-key)
                      instance (@instances fullpath)
                      animation (atom {:ready? true})]
                  (if (should-component-update? instance data)
                    (let [rendered
                          (some->
                           (when-let [vdom (apply render data args)]
-                            ((e/inflate-hiccup vdom) fullpath 0))
-                          #?(:cljs (set-key key))
+                            ((e/inflate-hiccup vdom) fullpath {}))
+                          (assoc :dumdom/component-key component-key)
+                          (set-key key kmap)
                           #?(:cljs (setup-animation-hooks animation opt))
                           #?(:cljs (setup-unmount-hook opt data args animation #(swap! instances dissoc fullpath))))]
                      (swap! instances assoc fullpath {:vdom rendered :data data})

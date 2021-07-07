@@ -78,6 +78,6 @@
                       (str/join "" (map dom-str (children vnode)))))
                   (closing-tag (tag-name vnode)))))
 
-(defn render [component & [path k]]
+(defn render [component & [path kmap]]
   (let [component (e/inflate-hiccup component)]
-    (dom-str (component (or path []) (or k 0)))))
+    (dom-str (component (or path []) (or kmap {})))))

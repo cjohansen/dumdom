@@ -54,7 +54,7 @@
   (let [current-node (or (root-node element) (init-node! element))
         element-id (.. element -dataset -dumdomId)
         component (e/inflate-hiccup component)
-        vnode (component [element-id] 0)]
+        vnode (component [element-id] {})]
     (if vnode
       (let [vnode (clj->js vnode)]
         ;; If the root node does not have a key, Snabbdom will consider it the same

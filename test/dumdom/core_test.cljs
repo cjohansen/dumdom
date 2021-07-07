@@ -1,8 +1,8 @@
 (ns dumdom.core-test
   (:require [cljs.test :as t :refer-macros [async is testing]]
             [devcards.core :refer-macros [deftest]]
+            dumdom.component
             [dumdom.core :as sut]
-            [dumdom.component]
             [dumdom.dom :as d]
             [dumdom.test-helper :refer [render render-str]]))
 
@@ -33,11 +33,11 @@
                                 (let [v (first @mutable-state)]
                                   (swap! mutable-state rest)
                                   (d/div {} v))))]
-      (is (= "<div>1</div>" (render-str (comp {:number 1}) [] 0)))
-      (is (= "<div>2</div>" (render-str (comp {:number 1}) [] 1)))
-      (is (= "<div>1</div>" (render-str (comp {:number 1}) [] 0)))
-      (is (= "<div>2</div>" (render-str (comp {:number 1}) [] 1)))
-      (is (= "<div>3</div>" (render-str (comp {:number 2}) [] 1)))))
+      (is (= "<div>1</div>" (render-str (comp {:number 1}) [] {nil 0})))
+      (is (= "<div>2</div>" (render-str (comp {:number 1}) [] {nil 1})))
+      (is (= "<div>1</div>" (render-str (comp {:number 1}) [] {nil 0})))
+      (is (= "<div>2</div>" (render-str (comp {:number 1}) [] {nil 1})))
+      (is (= "<div>3</div>" (render-str (comp {:number 2}) [] {nil 1})))))
 
   (testing "Ignores provided position when component has a keyfn"
     (let [mutable-state (atom [1 2 3])
@@ -46,23 +46,23 @@
                                   (swap! mutable-state rest)
                                   (d/div {} v)))
                               {:keyfn :id})]
-      (is (= "<div data-dumdom-key=\"&quot;c1&quot;\">1</div>" (render-str (comp {:id "c1" :number 1}) [] 0)))
-      (is (= "<div data-dumdom-key=\"&quot;c1&quot;\">1</div>" (render-str (comp {:id "c1" :number 1}) [] 1)))
-      (is (= "<div data-dumdom-key=\"&quot;c2&quot;\">2</div>" (render-str (comp {:id "c2" :number 1}) [] 0)))
-      (is (= "<div>3</div>" (render-str (comp {:number 1}) [] 0)))
-      (is (= "<div data-dumdom-key=\"&quot;c2&quot;\">2</div>" (render-str (comp {:id "c2" :number 1}) [] 1)))))
+      (is (= "<div data-dumdom-key=\"&quot;c1.0&quot;\">1</div>" (render-str (comp {:id "c1" :number 1}) [] {nil 0})))
+      (is (= "<div data-dumdom-key=\"&quot;c1.0&quot;\">1</div>" (render-str (comp {:id "c1" :number 1}) [] {nil 1})))
+      (is (= "<div data-dumdom-key=\"&quot;c2.0&quot;\">2</div>" (render-str (comp {:id "c2" :number 1}) [] {nil 0})))
+      (is (= "<div>3</div>" (render-str (comp {:number 1}) [] {nil 0})))
+      (is (= "<div data-dumdom-key=\"&quot;c2.0&quot;\">2</div>" (render-str (comp {:id "c2" :number 1}) [] {nil 1})))))
 
   (testing "Sets key on vdom node"
     (let [comp (sut/component (fn [data]
                                 (d/div {} (:val data)))
                               {:keyfn :id})]
-      (is (= "c1" (:key (render (comp {:id "c1" :val 1})))))))
+      (is (= "c1.0" (:key (render (comp {:id "c1" :val 1})))))))
 
   (testing "keyfn overrides vdom node key"
     (let [comp (sut/component (fn [data]
                                 (d/div {:key "key"} (:val data)))
                               {:keyfn :id})]
-      (is (= "c1" (:key (render (comp {:id "c1" :val 1})))))))
+      (is (= "c1.0" (:key (render (comp {:id "c1" :val 1})))))))
 
   (testing "Passes constant args to component, but does not re-render when they change"
     (let [calls (atom [])
@@ -316,6 +316,17 @@
               [{:text "Hello"} {:text "LOL"} 2]
               [{:text "Aight"} {:text "Hello"} 2]] @on-render))))
 
+  (testing "Does not call on-render when there's no change"
+    (let [el (js/document.createElement "div")
+          on-render (atom 0)
+          component (sut/component
+                     (fn [data] (d/div {} (:text data)))
+                     {:on-render (fn [& args] (swap! on-render inc))})]
+      (sut/render (component {:text "Hello"}) el)
+      (sut/render (component {:text "Hello"}) el)
+      (sut/render (component {:text "Hello"}) el)
+      (is (= 1 @on-render))))
+
   (testing "Passes previous data to on-update"
     (let [el (js/document.createElement "div")
           on-update (atom [])
@@ -396,7 +407,7 @@
                      (fn [data] (d/div {} (:text data)))
                      {:will-appear (fn [node callback & args] (reset! will-appear callback))
                       :did-appear (fn [node & args]
-                                   (reset! did-appear (apply vector node args)))})]
+                                    (reset! did-appear (apply vector node args)))})]
       (sut/render (d/div {} (component {:text "LOL"})) el)
       (is (nil? @did-appear))
       (@will-appear)
@@ -603,7 +614,7 @@
             props {:transitionName {:enter "swoosh" :enterActive "lol"}}]
         (sut/render (sut/CSSTransitionGroup props []) el)
         (sut/render (sut/CSSTransitionGroup props [(d/div {:key "#3"} "I will enter")])
-         el)
+                    el)
         (js/setTimeout
          (fn []
            (is (= "swoosh lol" (.. el -firstChild -firstChild -className)))
@@ -676,108 +687,108 @@
        el)
       (is (= "example-appear" (.. el -firstChild -firstChild -className)))))
 
-   (testing "Does not add appear class name when appear transition is disabled"
-     (let [el (js/document.createElement "div")]
-       (sut/render
-        (sut/CSSTransitionGroup
-         {:transitionName "example"}
-         [(d/div {:key "#1"} "I will appear")])
-        el)
-       (is (= "" (.. el -firstChild -firstChild -className)))))
+  (testing "Does not add appear class name when appear transition is disabled"
+    (let [el (js/document.createElement "div")]
+      (sut/render
+       (sut/CSSTransitionGroup
+        {:transitionName "example"}
+        [(d/div {:key "#1"} "I will appear")])
+       el)
+      (is (= "" (.. el -firstChild -firstChild -className)))))
 
-   (testing "Adds appear class name to existing ones"
-     (let [el (js/document.createElement "div")]
-       (sut/render
-        (sut/CSSTransitionGroup
-         {:transitionName "example"
-          :transitionAppear true}
-         [(d/div {:key "#2" :className "item"} "I will appear")])
-        el)
-       (is (= "item example-appear" (.. el -firstChild -firstChild -className)))))
+  (testing "Adds appear class name to existing ones"
+    (let [el (js/document.createElement "div")]
+      (sut/render
+       (sut/CSSTransitionGroup
+        {:transitionName "example"
+         :transitionAppear true}
+        [(d/div {:key "#2" :className "item"} "I will appear")])
+       el)
+      (is (= "item example-appear" (.. el -firstChild -firstChild -className)))))
 
-   (testing "Adds appear-active class name on next tick"
-     (async done
-       (let [el (js/document.createElement "div")]
-         (sut/render
-          (sut/CSSTransitionGroup
-           {:transitionName "example"
-            :transitionAppear true}
-           [(d/div {:key "#3"} "I will appear")])
-          el)
-         (js/setTimeout
-          (fn []
-            (is (= "example-appear example-appear-active" (.. el -firstChild -firstChild -className)))
-            (done))
-          0))))
+  (testing "Adds appear-active class name on next tick"
+    (async done
+      (let [el (js/document.createElement "div")]
+        (sut/render
+         (sut/CSSTransitionGroup
+          {:transitionName "example"
+           :transitionAppear true}
+          [(d/div {:key "#3"} "I will appear")])
+         el)
+        (js/setTimeout
+         (fn []
+           (is (= "example-appear example-appear-active" (.. el -firstChild -firstChild -className)))
+           (done))
+         0))))
 
-   (testing "Removes appear transition class names after timeout"
-     (async done
-       (let [el (js/document.createElement "div")]
-         (sut/render
-          (sut/CSSTransitionGroup
-           {:transitionName "example"
-            :transitionAppear true
-            :transitionAppearTimeout 10}
-           [(d/div {:key "#4" :className "do not remove"} "I will appear")])
-          el)
-         (js/setTimeout
-          (fn []
-            (is (= "do not remove" (.. el -firstChild -firstChild -className)))
-            (done))
-          10)))))
+  (testing "Removes appear transition class names after timeout"
+    (async done
+      (let [el (js/document.createElement "div")]
+        (sut/render
+         (sut/CSSTransitionGroup
+          {:transitionName "example"
+           :transitionAppear true
+           :transitionAppearTimeout 10}
+          [(d/div {:key "#4" :className "do not remove"} "I will appear")])
+         el)
+        (js/setTimeout
+         (fn []
+           (is (= "do not remove" (.. el -firstChild -firstChild -className)))
+           (done))
+         10)))))
 
 (deftest CSSTransitionGroupLeaveTest
-   (testing "Adds leave class name according to the transition name"
-     (let [el (js/document.createElement "div")]
-       (sut/render
-        (sut/CSSTransitionGroup
-         {:transitionName "example"}
-         [(d/div {:key "#1"} "I will leave")])
-        el)
-       (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
-       (is (= "example-leave" (.. el -firstChild -firstChild -className)))))
+  (testing "Adds leave class name according to the transition name"
+    (let [el (js/document.createElement "div")]
+      (sut/render
+       (sut/CSSTransitionGroup
+        {:transitionName "example"}
+        [(d/div {:key "#1"} "I will leave")])
+       el)
+      (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
+      (is (= "example-leave" (.. el -firstChild -firstChild -className)))))
 
-   (testing "Adds leave class name to existing ones"
-     (let [el (js/document.createElement "div")]
-       (sut/render
-        (sut/CSSTransitionGroup
-         {:transitionName "example"}
-         [(d/div {:key "#2" :className "item"} "I will leave")])
-        el)
-       (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
-       (is (= "item example-leave" (.. el -firstChild -firstChild -className)))))
+  (testing "Adds leave class name to existing ones"
+    (let [el (js/document.createElement "div")]
+      (sut/render
+       (sut/CSSTransitionGroup
+        {:transitionName "example"}
+        [(d/div {:key "#2" :className "item"} "I will leave")])
+       el)
+      (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
+      (is (= "item example-leave" (.. el -firstChild -firstChild -className)))))
 
-   (testing "Adds leave-active class name on next tick"
-     (async done
-       (let [el (js/document.createElement "div")]
-         (sut/render
-          (sut/CSSTransitionGroup
-           {:transitionName "example"}
-           [(d/div {:key "#3"} "I will leave")])
-          el)
-         (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
-         (js/setTimeout
-          (fn []
-            (is (= "example-leave example-leave-active" (.. el -firstChild -firstChild -className)))
-            (done))
-          0))))
+  (testing "Adds leave-active class name on next tick"
+    (async done
+      (let [el (js/document.createElement "div")]
+        (sut/render
+         (sut/CSSTransitionGroup
+          {:transitionName "example"}
+          [(d/div {:key "#3"} "I will leave")])
+         el)
+        (sut/render (sut/CSSTransitionGroup {:transitionName "example"} []) el)
+        (js/setTimeout
+         (fn []
+           (is (= "example-leave example-leave-active" (.. el -firstChild -firstChild -className)))
+           (done))
+         0))))
 
-   (testing "Removes node after leave timeout"
-     (async done
-       (let [el (js/document.createElement "div")]
-         (sut/render
-          (sut/CSSTransitionGroup
-           {:transitionName "example"
-            :transitionLeaveTimeout 10}
-           [(d/div {:key "#4"} "I will leave")])
-          el)
-         (sut/render (sut/CSSTransitionGroup {:transitionName "example"
-                                              :transitionLeaveTimeout 10} []) el)
-         (js/setTimeout
-          (fn []
-            (is (nil? (.. el -firstChild -firstChild)))
-            (done))
-          10)))))
+  (testing "Removes node after leave timeout"
+    (async done
+      (let [el (js/document.createElement "div")]
+        (sut/render
+         (sut/CSSTransitionGroup
+          {:transitionName "example"
+           :transitionLeaveTimeout 10}
+          [(d/div {:key "#4"} "I will leave")])
+         el)
+        (sut/render (sut/CSSTransitionGroup {:transitionName "example"
+                                             :transitionLeaveTimeout 10} []) el)
+        (js/setTimeout
+         (fn []
+           (is (nil? (.. el -firstChild -firstChild)))
+           (done))
+         10)))))
 
 (deftest EagerRenderModeTest
   (testing "Does not re-render old components when new ones are defined by default"
@@ -826,4 +837,67 @@
                            (fn [data] (d/div {} (:text data)))
                            {:keyfn :id})
           outer-component (sut/component (fn [data] (inner-component data)))]
-      (is (= 42 (:key ((outer-component {:text "Hello" :id 42}) [] 0)))))))
+      (is (= "42.0.0" (:key (render (outer-component {:text "Hello" :id 42}))))))))
+
+(deftest KeyReuseTest
+  (testing "Properly renders two elements with the same key"
+    (let [el (js/document.createElement "div")
+          on-render (atom [])
+          comp (sut/component
+                (fn [{:keys [text]}] (d/p {} text))
+                {:keyfn (constantly "oops")
+                 :on-mount (fn [node & args]
+                             (set! (.-innerHTML node) "Mounted"))
+                 :on-render (fn [node data & args]
+                              (swap! on-render conj data))})]
+      (sut/render [:div
+                   (comp {:text "Same data!"})
+                   (comp {:text "Same data!"})] el)
+      (is (= "<div><p>Mounted</p><p>Mounted</p></div>" (.-innerHTML el)))
+      (is (= [{:text "Same data!"}
+              {:text "Same data!"}] @on-render))))
+
+  (testing "Differentiates children of components with duplicate keys"
+    (let [el (js/document.createElement "div")
+          on-render (atom [])
+          icon (sut/component
+                (fn [data] [:div])
+                {:on-mount (fn [node & args]
+                             (set! (.-innerHTML node) "Mounted"))})
+          comp (sut/component
+                (fn [{:keys [text]}]
+                  [:section
+                   [:h1 text]
+                   [icon]])
+                {:keyfn (constantly "duplicate")})]
+      (sut/render [:div
+                   (comp {:text "First thing"})
+                   (comp {:text "Second thing"})] el)
+      (is (= (str "<div>"
+                  "<section><h1>First thing</h1><div>Mounted</div></section>"
+                  "<section><h1>Second thing</h1><div>Mounted</div></section>"
+                  "</div>")
+             (.-innerHTML el)))))
+
+  (testing "Differentiates children of elements with duplicate keys"
+    (let [el (js/document.createElement "div")
+          on-render (atom [])
+          icon (sut/component
+                (fn [data] [:div])
+                {:on-mount (fn [node & args]
+                             (set! (.-innerHTML node) "Mounted"))})
+          comp (sut/component
+                (fn [{:keys [text]}]
+                  [:div
+                   [:h1 text]
+                   [icon]]))]
+      (sut/render [:div
+                   [:section {:key "ohnoes!"}
+                    (comp {:text "First thing"})]
+                   [:section {:key "ohnoes!"}
+                    (comp {:text "Second thing"})]] el)
+      (is (= (.-innerHTML el)
+             (str "<div>"
+                  "<section><div><h1>First thing</h1><div>Mounted</div></div></section>"
+                  "<section><div><h1>Second thing</h1><div>Mounted</div></div></section>"
+                  "</div>"))))))

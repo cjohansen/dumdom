@@ -181,7 +181,7 @@
 (defn data-attr? [[k v]]
   (re-find #"^data-" (name k)))
 
-(defn- prep-attrs [attrs k]
+(defn- prep-attrs [attrs]
   (let [event-keys (filter #(and (str/starts-with? (name %) "on") (ifn? (attrs %))) (keys attrs))
         dataset (->> attrs
                      (filter data-attr?)
@@ -195,7 +195,7 @@
         attrs (set/rename-keys attrs attr-mappings)
         el-key (or (:key attrs)
                    (when (contains? attrs :dangerouslySetInnerHTML)
-                     (hash [(:dangerouslySetInnerHTML attrs) k])))]
+                     (hash (:dangerouslySetInnerHTML attrs))))]
     (cond-> {:attrs (apply dissoc attrs :style :mounted-style :leaving-style :disappearing-style
                            :component :value :key :ref :dangerouslySetInnerHTML event-keys)
              :props (cond-> {}
@@ -280,11 +280,21 @@
       {:text c}
       c)))
 
+(defn primitive-key [k]
+  (->> (update k 0 (fn [k]
+                     (cond
+                       (or (string? k)
+                           (number? k)) k
+                       (keyword? k) (str k)
+                       :default (hash k))))
+       (str/join ".")))
+
 ;; This is a port of Snabbdom's `h` function, but without the varargs support.
 (defn create-vdom-node [sel attrs children]
   (let [cmap? (map? children)]
     (cond-> {:sel sel
-             :data (dissoc attrs :key)}
+             :data (dissoc attrs :key :dumdom/component-key)
+             :dumdom/component-key (:dumdom/component-key attrs)}
       (primitive? children)
       (assoc :text children)
 
@@ -300,7 +310,7 @@
       add-namespace
 
       (:key attrs)
-      (assoc :key (:key attrs)))))
+      (assoc :key (primitive-key (:key attrs))))))
 
 (defn inflate-hiccup [sexp]
   (cond
@@ -317,22 +327,45 @@
         (let [[element attrs] (parse-hiccup-symbol (name tag-name) (first args))]
           (apply create element (prep-hiccup-attrs attrs) (flatten-seqs (rest args))))))))
 
+(defn enumerate-key [k kmap]
+  [k (get kmap k 0)])
+
+(defn realize-children [path xs]
+  (loop [xs (seq xs)
+         res []
+         ks {}]
+    (if (nil? xs)
+      (seq res)
+      (let [x (first xs)
+            child (if (fn? x)
+                    (x path ks)
+                    x)]
+        (recur
+         (next xs)
+         (conj res child)
+         (let [[k n] (:dumdom/component-key child)]
+           (assoc ks k (inc n))))))))
+
 (defn create [tag-name attrs & children]
-  (fn [path k]
-    (let [fullpath (conj path k)]
+  (fn [path kmap]
+    (let [attrs (prep-attrs attrs)
+          k (enumerate-key (:key attrs) kmap)
+          fullpath (conj path k)]
       (create-vdom-node
        tag-name
-       (-> (prep-attrs attrs k)
-           (assoc-in [:hook :update]
-                     (fn [old-vnode new-vnode]
-                       (doseq [node (filter #(some-> % .-willEnter) (.-children new-vnode))]
-                         ((.-willEnter node)))
-                       (doseq [node (filter #(some-> % .-willAppear) (.-children new-vnode))]
-                         ((.-willAppear node))))))
+       (cond-> attrs
+         (:key attrs) (assoc :key k)
+
+         k (assoc :dumdom/component-key k)
+
+         :always
+         (assoc-in [:hook :update]
+                   (fn [old-vnode new-vnode]
+                     (doseq [node (filter #(some-> % .-willEnter) (.-children new-vnode))]
+                       ((.-willEnter node)))
+                     (doseq [node (filter #(some-> % .-willAppear) (.-children new-vnode))]
+                       ((.-willAppear node))))))
        (->> children
             (mapcat #(if (seq? %) % [%]))
             (map inflate-hiccup)
-            (map-indexed #(do
-                            (if (fn? %2)
-                              (%2 fullpath %1)
-                              %2))))))))
+            (realize-children fullpath))))))
