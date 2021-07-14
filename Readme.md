@@ -735,7 +735,7 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 ### 2021.07.08
 
 - Enumerate keys, so duplicated keys on the same level in the virtual DOM tree
-  does not cause elements or components to get mixed up with each other. This
+  do not cause elements or components to get mixed up with each other. This
   fixes a bug where two components sharing key *and* data would share a
   cache-entry, and only the first instance would have its life-cycle hooks
   called.
