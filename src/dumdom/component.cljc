@@ -60,9 +60,12 @@
     (or on-update on-render)
     (assoc-in
      [:data :hook :update]
-     (fn [old-vnode vnode]
-       (when on-update (apply on-update (.-elm vnode) data old-data args))
-       (when on-render (apply on-render (.-elm vnode) data old-data args))))))
+     (fn hook [old-vnode vnode]
+       (when-not #?(:cljs (.-called hook)
+                    :clj true)
+         #?(:cljs (set! (.-called hook) true))
+         (when on-update (apply on-update (.-elm vnode) data old-data args))
+         (when on-render (apply on-render (.-elm vnode) data old-data args)))))))
 
 (defn- setup-unmount-hook [rendered component data args animation on-destroy]
   (cond-> rendered
@@ -185,9 +188,16 @@
                      ;; represents a change. Since dumdom always produces a new
                      ;; JavaScript object, Snabbdom's check will have false
                      ;; positives.
-                     (some-> rendered
-                             #?(:cljs (setup-mount-hook opt data args animation))
-                             #?(:cljs (setup-update-hook opt data (:data instance) args))))
+                     #?(:cljs (cond-> rendered
+                                rendered
+                                (setup-mount-hook opt data args animation)
+
+                                ;; If the instance is nil, this is a new render,
+                                ;; and we don't want to trigger any updates
+                                ;; until it's been re-rendered with new data
+                                (and rendered instance)
+                                (setup-update-hook opt data (:data instance) args))
+                        :clj rendered))
                    (:vdom instance))))]
          #?(:cljs (set! (.-dumdom comp-fn) true))
          comp-fn)))))

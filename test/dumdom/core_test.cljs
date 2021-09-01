@@ -239,7 +239,63 @@
       (sut/render (component {:text "LOL"}) el)
       (sut/render (component {:text "Hello"}) el)
       (sut/render (component {:text "Aight"}) el)
-      (is (= [{:text "Hello"} {:text "Aight"}] @on-update)))))
+      (is (= [{:text "Hello"} {:text "Aight"}] @on-update))))
+
+  (testing "Does not call on-update when re-rendering without changes"
+    (let [el (js/document.createElement "div")
+          hooks (atom [])
+          component (sut/component
+                     (fn [data]
+                       [:div (:text data)])
+                     {:on-update (fn [node data]
+                                   (swap! hooks conj [:on-update :component data]))})
+          app (sut/component
+               (fn [data]
+                 [:div.app (component data)])
+               {:on-update (fn [node data]
+                             (swap! hooks conj [:on-update :app data]))})]
+      (sut/render (app {:text "Hello, visitor"}) el)
+      (sut/render (app {:text "Hello, visitor"}) el)
+      (is (= @hooks []))))
+
+  (testing "Only calls on-update once after each change"
+    (let [el (js/document.createElement "div")
+          hooks (atom [])
+          component (sut/component
+                     (fn [data]
+                       [:div (:text data)])
+                     {:on-update (fn [node data]
+                                   (swap! hooks conj [:on-update :component data]))})
+          app (sut/component
+               (fn [data]
+                 [:div.app (component data)])
+               {:on-update (fn [node data]
+                             (swap! hooks conj [:on-update :app data]))})]
+      (sut/render (app {:text "Hello, visitor"}) el)
+      (sut/render (app {:text "Hello, visitor"}) el)
+      (sut/render (app {:text "Hello, friend"}) el)
+      (sut/render (app {:text "Hello, friend"}) el)
+      (is (= @hooks [[:on-update :app {:text "Hello, friend"}]
+                     [:on-update :component {:text "Hello, friend"}]]))))
+
+  (testing "Does not call on-update when parent changes"
+    (let [el (js/document.createElement "div")
+          hooks (atom [])
+          component (sut/component
+                     (fn [data]
+                       [:div (:text data)])
+                     {:on-update (fn [node data]
+                                   (swap! hooks conj [:on-update :component data]))})
+          app (sut/component
+               (fn [data]
+                 [:div.app
+                  [:h1 (:title data)]
+                  (component (:content data))])
+               {:on-update (fn [node data]
+                             (swap! hooks conj [:on-update :app data]))})]
+      (sut/render (app {:title "#1" :content {:text "Hello, visitor"}}) el)
+      (sut/render (app {:title "#2" :content {:text "Hello, visitor"}}) el)
+      (is (= @hooks [[:on-update :app {:title "#2" :content {:text "Hello, visitor"}}]])))))
 
 (deftest on-render-test
   (testing "Calls on-render when component first mounts"
