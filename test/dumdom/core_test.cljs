@@ -663,18 +663,24 @@
         (set! (.-innerHTML style) (str ".transition-example-enter {transition: color 10ms; color: #000;}"
                                        ".transition-example-enter-active {color: #f00;}"))
         (js/document.body.appendChild el)
-        (sut/render (sut/CSSTransitionGroup {:transitionName "transition-example"} []) el)
-        (sut/render
-         (sut/CSSTransitionGroup
-          {:transitionName "transition-example"}
-          [(d/div {:key "#5"} "Check test document CSS")])
-         el)
         (js/setTimeout
          (fn []
-           (is (= "" (.. el -firstChild -firstChild -className)))
-           (.removeChild (.-parentNode el) el)
-           (done))
-         100)))))
+           (sut/render (sut/CSSTransitionGroup {:transitionName "transition-example"} []) el)
+           (js/setTimeout
+            (fn []
+              (sut/render
+               (sut/CSSTransitionGroup
+                {:transitionName "transition-example"}
+                [(d/div {:key "#5"} "Check test document CSS")])
+               el)
+              (js/setTimeout
+               (fn []
+                 (is (= "" (.. el -firstChild -firstChild -className)))
+                 (.removeChild (.-parentNode el) el)
+                 (done))
+               50))
+            50))
+         50)))))
 
 (deftest CSSTransitionGroupAppearTest
   (testing "Adds appear class name according to the transition name"
