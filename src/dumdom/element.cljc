@@ -344,7 +344,7 @@
          (next xs)
          (conj res child)
          (let [[k n] (:dumdom/component-key child)]
-           (assoc ks k (inc n))))))))
+           (assoc ks k (some-> n inc))))))))
 
 (defn create [tag-name attrs & children]
   (fn [path kmap]
