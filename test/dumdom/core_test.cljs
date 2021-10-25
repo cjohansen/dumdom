@@ -963,3 +963,15 @@
                   "<section><div><h1>First thing</h1><div>Mounted</div></div></section>"
                   "<section><div><h1>Second thing</h1><div>Mounted</div></div></section>"
                   "</div>"))))))
+
+(deftest RenderNestedLists
+  (testing "Renders nested lists without hiccups"
+    (let [el (js/document.createElement "div")]
+      (sut/render (d/div {}
+                    (list (list (d/h1 {} (list (list "Hello")))))
+                    (list (list [:p {} (list (list "Yup"))]))) el)
+      (is (= (str "<div>"
+                  "<h1>Hello</h1>"
+                  "<p>Yup</p>"
+                  "</div>")
+             (.-innerHTML el))))))

@@ -9,7 +9,7 @@
   and optional children. Returns a function that renders the virtual DOM. This
   function expects a vector path and a key that addresses the component."
   [type attrs & children]
-  (let [el-fn (apply element/create type attrs children)]
+  (let [el-fn (apply element/create type attrs (element/flatten-seqs children))]
     #?(:cljs (set! (.-dumdom el-fn) true))
     el-fn))
 

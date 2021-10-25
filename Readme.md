@@ -732,6 +732,12 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ## Changelog
 
+### 2021.10.25
+
+- Properly render hiccup and Quiescent-style `(d/div {} ,,,)` with nested lists
+  by flattening nested lists. In other words, `(d/div {} (list (list "Hello")))`
+  renders the same as `(d/div {} "Hello")`.
+
 ### 2021.07.14
 
 - Enumerate keys, so duplicated keys on the same level in the virtual DOM tree
