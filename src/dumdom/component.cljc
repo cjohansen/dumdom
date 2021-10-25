@@ -175,7 +175,8 @@
                          (some->
                           (when-let [vdom (apply render data args)]
                             ((e/inflate-hiccup vdom) fullpath {}))
-                          (assoc :dumdom/component-key component-key)
+                          (assoc :dumdom/component-key component-key
+                                 :dumdom/component-name (:name opt))
                           (set-key key kmap)
                           #?(:cljs (setup-animation-hooks animation opt))
                           #?(:cljs (setup-unmount-hook opt data args animation #(swap! instances dissoc fullpath))))]

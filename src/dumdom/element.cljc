@@ -2,6 +2,13 @@
   (:require [clojure.set :as set]
             [clojure.string :as str]))
 
+(def ^:dynamic *emit-component-comments?*
+  "When this var is set to `true`, an HTML comment block containing the
+  component's name will be emitted for every named component. Useful
+  during development to get an overview of which component is responsible
+  for rendering a given fragment of the DOM."
+  false)
+
 (defn- event-entry [attrs k]
   [(.toLowerCase (.substring (name k) 2)) (attrs k)])
 
@@ -346,6 +353,11 @@
          (let [[k n] (:dumdom/component-key child)]
            (assoc ks k (some-> n inc))))))))
 
+(defn add-component-comment-node [component]
+  (if-let [component-name (:dumdom/component-name component)]
+    [(create-vdom-node "!" {} component-name) component]
+    [component]))
+
 (defn create [tag-name attrs & children]
   (fn [path kmap]
     (let [attrs (prep-attrs attrs)
@@ -365,7 +377,8 @@
                        ((.-willEnter node)))
                      (doseq [node (filter #(some-> % .-willAppear) (.-children new-vnode))]
                        ((.-willAppear node))))))
-       (->> children
-            (mapcat #(if (seq? %) % [%]))
-            (map inflate-hiccup)
-            (realize-children fullpath))))))
+       (cond->> (->> children
+                     (mapcat #(if (seq? %) % [%]))
+                     (map inflate-hiccup)
+                     (realize-children fullpath))
+         *emit-component-comments?* (mapcat add-component-comment-node))))))

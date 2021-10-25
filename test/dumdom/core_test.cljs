@@ -4,6 +4,7 @@
             dumdom.component
             [dumdom.core :as sut]
             [dumdom.dom :as d]
+            dumdom.element
             [dumdom.test-helper :refer [render render-str]]))
 
 (sut/purge!)
@@ -975,3 +976,16 @@
                   "<p>Yup</p>"
                   "</div>")
              (.-innerHTML el))))))
+
+(deftest component-comment-test
+  (testing "Prepends component comment when *emit-component-comments?* is true"
+    (let [el (js/document.createElement "div")
+          comp (sut/component (fn [{}] [:p "This is awesome!"])
+                              {:name "Awesomesauce"})]
+      (binding [dumdom.element/*emit-component-comments?* true]
+        (sut/render [:div [comp]] el)
+        (is (= (str "<div>"
+                    "<!--Awesomesauce-->"
+                    "<p>This is awesome!</p>"
+                    "</div>")
+               (.-innerHTML el)))))))

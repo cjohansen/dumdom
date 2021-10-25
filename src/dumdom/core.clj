@@ -42,7 +42,7 @@
   (let [[docstr forms] (extract-docstr forms)
         [options forms] (extract-opts forms)
         [argvec & body] forms
-        options (merge {:name (str name)} options)]
+        options (merge {:name (str (:name (:ns &env)) "/" name)} options)]
     `(def ~name ~docstr (dumdom.core/component (fn ~argvec ~@body) ~options))))
 
 (def render-string string/render)
