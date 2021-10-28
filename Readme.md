@@ -595,6 +595,9 @@ The DOM node will not be removed until the callback is called.
 called (at the same time as :on-unmount). Is passed the underlying DOM node, the
 most recent value and the most recent constant args passed to the render fn.
 
+`:name` - A string representing the name of the component. Useful when
+[rendering component comments](#render-comments) during development.
+
 <a id="defcomponent"></a>
 #### `(dumdom.core/defcomponent name & args)`
 
@@ -616,9 +619,12 @@ For example:
 Is shorthand for:
 
 ```clj
+(ns your.app)
+
 (def widget (dumdom.core/component
   (fn [value constant-value] (some-child-components))
-  {:on-mount #(...)
+  {:name "your.app/widget"
+   :on-mount #(...)
    :on-render #(...)}))
 ```
 
@@ -721,6 +727,18 @@ development setup, add
 (set! dumdom.component/*render-eagerly?* true)
 ```
 
+<a id="render-comments"></a>
+#### `dumdom.component/*render-comments?*`
+
+When this var is set to `true` (defaults to `false`), every named component will
+be prepended by a DOM comment displaying the component's name. Enabling this
+feature is particularly useful during development to get an overview of which
+component is responsible for rendering a given fragment of the DOM.
+
+```clj
+(set! dumdom.component/*render-comments?* true)
+```
+
 ## Examples
 
 Unfortunately, there is no TodoMVC implementation yet, but there is
@@ -731,6 +749,10 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 ([source](https://github.com/uosl/heckendorf)) made with dumdom.
 
 ## Changelog
+
+### XXXX.XX.XX
+
+- New feature: `dumdom.component/*render-comments?*` (see [docs above](#render-comments))
 
 ### 2021.10.25
 
@@ -753,7 +775,7 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
   `:on-unmount` hook - now it does.
 - Force elements with innerHTML to have a key. Works around shortcomings in
   Snabbdom related to innerHTML manipulation.
-- New featyre: `dumdom.core/unmount` (see [docs above](#unmount)).
+- New feature: `dumdom.core/unmount` (see [docs above](#unmount)).
 - New feature: `dumdom.core/render-once` (see [docs above](#render-once)).
 - Major implementation change: Move Dumdom's vdom representation from Snabbdom's
   object model to Clojure maps. This moves more of the implementation from
