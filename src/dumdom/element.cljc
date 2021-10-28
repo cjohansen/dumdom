@@ -2,8 +2,24 @@
   (:require [clojure.set :as set]
             [clojure.string :as str]))
 
+(def ^:dynamic *handle-event*)
+
+(defn event-handler [h]
+  (if (fn? h)
+    h
+    (when-let [f *handle-event*]
+      ;; At this point we need to "early" bind the late bound var. It made it
+      ;; this far, but now it must be frozen in time, so it sticks around for
+      ;; the asynchronous events it will handle after being rendered to the DOM.
+      ;;
+      ;; If this isn't a function _nothing_ will happen. Future versions of
+      ;; dumdom should optionally log a warning when that happens.
+      (fn [e]
+        (f e h)))))
+
 (defn- event-entry [attrs k]
-  [(.toLowerCase (.substring (name k) 2)) (attrs k)])
+  [(.toLowerCase (.substring (name k) 2))
+   (event-handler (attrs k))])
 
 (defn- camelCase [s]
   (let [[f & rest] (str/split s #"-")]

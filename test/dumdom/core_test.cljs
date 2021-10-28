@@ -975,3 +975,54 @@
                   "<p>Yup</p>"
                   "</div>")
              (.-innerHTML el))))))
+
+(defn trigger-event [el event-name]
+  (->> (doto (js/document.createEvent "HTMLEvents")
+         (.initEvent event-name true false))
+       (.dispatchEvent el)))
+
+(deftest event-data-test
+  (testing "Handles event data with a function"
+    (let [el (js/document.createElement "div")
+          event-data (atom nil)
+          component (d/div {:onClick [:event "d/div onClick"]} "Click it")]
+      (sut/render
+       component
+       el
+       {:handle-event #(reset! event-data %&)})
+      (trigger-event (.-firstChild el) "click")
+      (is (= 2 (count @event-data)))
+      (is (= [:event "d/div onClick"] (second @event-data)))))
+
+  (testing "Handles event data with a function on hiccup"
+    (let [el (js/document.createElement "div")
+          event-data (atom nil)
+          component [:div {:onClick [:event "d/div onClick"]} "Click it"]]
+      (sut/render
+       component
+       el
+       {:handle-event #(reset! event-data %&)})
+      (trigger-event (.-firstChild el) "click")
+      (is (= 2 (count @event-data)))
+      (is (= [:event "d/div onClick"] (second @event-data)))))
+
+  (testing "Uses the passed in handle-event function with cached vdom"
+    (let [el (js/document.createElement "div")
+          event-fns (atom [])
+          component [:div {:onClick [:event "d/div onClick"]} "Click it"]]
+      (sut/render
+       component
+       el
+       {:handle-event #(swap! event-fns conj :f1)})
+      (trigger-event (.-firstChild el) "click")
+      (sut/render
+       component
+       el
+       {:handle-event #(swap! event-fns conj :f2)})
+      (trigger-event (.-firstChild el) "click")
+      (sut/render
+       component
+       el
+       {:handle-event #(swap! event-fns conj :f3)})
+      (trigger-event (.-firstChild el) "click")
+      (is (= [:f1 :f2 :f3] @event-fns)))))
