@@ -53,13 +53,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2021.10.25"}
+cjohansen/dumdom {:mvn/version "2021.10.29"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2021.10.25"]
+[cjohansen/dumdom "2021.10.29"]
 ```
 
 ## Example
@@ -313,6 +313,7 @@ Event handlers can be either functions or data disptched via a render-global
 event handler. Using data is suggested, as it improves dumdom's ability to
 compare data between calls to `dumdom.core/render`.
 
+<a id="event-handler-data"></a>
 #### Event handler data
 
 `dumdom.core/render` takes a map as an optional third argument. By passing a
@@ -790,9 +791,11 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ## Changelog
 
-### XXXX.XX.XX
+### 2021.10.29
 
-- New feature: `dumdom.component/*render-comments?*` (see [docs above](#render-comments))
+- New feature: `dumdom.component/*render-comments?*` (see [docs
+  above](#render-comments)). Thanks [Anders Furseth](https://github.com/duckyuck).
+- New feature: [Event handlers as data](#event-handler-data).
 
 ### 2021.10.25
 
