@@ -362,6 +362,11 @@
          (let [[k n] (:dumdom/component-key child)]
            (assoc ks k (some-> n inc))))))))
 
+(defn add-comment-node [{:dumdom/keys [component-name render-comments?] :as component}]
+  (cond->> [component]
+    (and render-comments? component-name)
+    (cons (create-vdom-node "!" {} component-name))))
+
 (defn create [tag-name attrs & children]
   (fn [path kmap]
     (let [attrs (prep-attrs attrs)
@@ -384,4 +389,5 @@
        (->> children
             (mapcat #(if (seq? %) % [%]))
             (map inflate-hiccup)
-            (realize-children fullpath))))))
+            (realize-children fullpath)
+            (mapcat add-comment-node))))))

@@ -976,6 +976,19 @@
                   "</div>")
              (.-innerHTML el))))))
 
+(deftest component-comment-test
+  (testing "Prepends component comment when *render-comments?* is true"
+    (let [el (js/document.createElement "div")
+          comp (sut/component (fn [{}] [:p "This is awesome!"])
+                              {:name "Awesomesauce"})]
+      (binding [dumdom.component/*render-comments?* true]
+        (sut/render [:div [comp]] el)
+        (is (= (str "<div>"
+                    "<!--Awesomesauce-->"
+                    "<p>This is awesome!</p>"
+                    "</div>")
+               (.-innerHTML el)))))))
+
 (defn trigger-event [el event-name]
   (->> (doto (js/document.createEvent "HTMLEvents")
          (.initEvent event-name true false))
