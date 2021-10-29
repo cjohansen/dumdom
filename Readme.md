@@ -305,8 +305,48 @@ work harder to align the DOM with the virtual representation:
 
 ### Event listeners
 
-To attach events to your virtual DOM nodes, provide functions to camel-cased
-event name keys in the attribute map:
+Event handlers can be attached to either camelCased or snaked-cased properties,
+e.g. `:onClick` and `:on-click` both work. `:on-click` is suggested as the
+idiomatic approach.
+
+Event handlers can be either functions or data disptched via a render-global
+event handler. Using data is suggested, as it improves dumdom's ability to
+compare data between calls to `dumdom.core/render`.
+
+#### Event handler data
+
+`dumdom.core/render` takes a map as an optional third argument. By passing a
+function as `:handle-event`, you can have a single global handler that will be
+triggered for any virtual element event handler property that is not a function.
+In other words: event-handlers can be expressed as data.
+
+To handle DOM events with a global handler, give event handler properties data,
+and pass a `handle-function`:
+
+```clj
+(require '[dumdom.core :as dd])
+
+(def el (document.getElementById "app"))
+
+(dd/render
+ [:div
+  [:h1 "Fruits"]
+  [:ul
+   [:li {:on-click [[:fruit/select :apple]]} "Apple"]
+   [:li {:on-click [[:fruit/select :banana]]} "Banana"]
+   [:li {:on-click [[:fruit/select :kiwi]]} "Kiwi"]]]
+  app
+  {:handle-event (fn [e data]
+                     (prn "Event triggered" (.-target e) data))})
+```
+
+The `:handle-event` function is called with two arguments: the event object, and
+the data assigned to the event handler attribute.
+
+#### Event handler functions
+
+Event handler functions will be called with one argument - the JavaScript event
+object:
 
 ```clj
 [:a {:href "#"
