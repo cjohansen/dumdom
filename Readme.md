@@ -21,9 +21,10 @@ dumdom does not adhere to the "semantic" versioning scheme.
 
 In addition to being API compatible with Quiescent, **dumdom** supports:
 
+- Hiccup syntax for components
+- Event handlers as data
 - Rendering to strings (useful for server-side rendering from both the JVM and node.js)
 - Efficient "inflation" of server-rendered markup on the client side
-- Hiccup syntax for components
 
 ## Table of contents
 
