@@ -318,12 +318,12 @@ compare data between calls to `dumdom.core/render`.
 #### Event handler data
 
 `dumdom.core/render` takes a map as an optional third argument. By passing a
-function as `:handle-event`, you can have a single global handler that will be
-triggered for any virtual element event handler property that is not a function.
-In other words: event-handlers can be expressed as data.
+function as `:handle-event`, you can have a single top-level handler that will
+be triggered for any virtual element event handler property that is not a
+function. In other words: event-handlers can be expressed as data.
 
-To handle DOM events with a global handler, give event handler properties data,
-and pass a `handle-function`:
+To handle DOM events with a top-level handler, give event handler properties
+data, and pass a `handle-function`:
 
 ```clj
 (require '[dumdom.core :as dd])
@@ -337,13 +337,16 @@ and pass a `handle-function`:
    [:li {:on-click [[:fruit/select :apple]]} "Apple"]
    [:li {:on-click [[:fruit/select :banana]]} "Banana"]
    [:li {:on-click [[:fruit/select :kiwi]]} "Kiwi"]]]
-  app
-  {:handle-event (fn [e data]
-                     (prn "Event triggered" (.-target e) data))})
+ app
+ {:handle-event (fn [e actions]
+                  (doseq [action actions]
+                    (prn "Triggered action" data (.-target e))))})
 ```
 
-The `:handle-event` function is called with two arguments: the event object, and
-the data assigned to the event handler attribute.
+The `:handle-event` function is called with two arguments: the event object and
+the data assigned to the event handler attribute. dumdom does not impose any
+restrictions on the structure of event data - if an event handler is not a
+function, data is passed on to the top-level `:handle-event`.
 
 #### Event handler functions
 
