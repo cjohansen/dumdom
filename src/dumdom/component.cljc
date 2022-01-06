@@ -45,9 +45,14 @@
      [:data :hook :insert]
      (fn [insert-hook]
        (fn [vnode]
+         (tap> ['snabbdom-insert-hook (:dumdom/component-name rendered) (:dumdom/component-key rendered)])
          (when insert-hook (insert-hook vnode))
-         (when on-mount (apply on-mount (.-elm vnode) data args))
-         (when on-render (apply on-render (.-elm vnode) data nil args))
+         (when on-mount
+           (tap> ['on-mount (:dumdom/component-name rendered) (:dumdom/component-key rendered)])
+           (apply on-mount (.-elm vnode) data args))
+         (when on-render
+           (tap> ['on-render (:dumdom/component-name rendered) (:dumdom/component-key rendered)])
+           (apply on-render (.-elm vnode) data nil args))
          (let [{:keys [will-enter will-appear]} @animation]
            (when-let [callback (or will-enter will-appear)]
              (swap! animation assoc :ready? false)
@@ -68,11 +73,17 @@
     (assoc-in
      [:data :hook :update]
      (fn hook [old-vnode vnode]
+       (tap> ['snabbdom-update-hook (:dumdom/component-name rendered) (:dumdom/component-key rendered) {:called? (.-called hook)
+                                                                                                        :parent (some-> vnode .-parentNode .-tagName)}])
        (when-not #?(:cljs (.-called hook)
                     :clj true)
          #?(:cljs (set! (.-called hook) true))
-         (when on-update (apply on-update (.-elm vnode) data old-data args))
-         (when on-render (apply on-render (.-elm vnode) data old-data args)))))))
+         (when on-update
+           (tap> ['on-update (:dumdom/component-name rendered) (:dumdom/component-key rendered)])
+           (apply on-update (.-elm vnode) data old-data args))
+         (when on-render
+           (tap> ['on-render (:dumdom/component-name rendered) (:dumdom/component-key rendered)])
+           (apply on-render (.-elm vnode) data old-data args)))))))
 
 (defn- setup-unmount-hook [rendered component data args animation on-destroy]
   (cond-> rendered
@@ -81,7 +92,9 @@
      [:data :hook :destroy]
      (fn [destroy-hook]
        (fn [vnode]
+         (tap> ['snabbdom-destroy-hook (:dumdom/component-name rendered) (:dumdom/component-key rendered)])
          (when-let [on-unmount (:on-unmount component)]
+           (tap> ['on-unmount (:dumdom/component-name rendered) (:dumdom/component-key rendered)])
            (apply on-unmount (.-elm vnode) data args))
          (when destroy-hook
            (destroy-hook vnode))
@@ -91,16 +104,21 @@
     (assoc-in
      [:data :hook :remove]
      (fn [vnode snabbdom-callback]
+       (tap> ['snabbdom-remove-hook (:dumdom/component-name rendered) (:dumdom/component-key rendered)])
        (let [callback (fn []
                         (when-let [did-leave (:did-leave component)]
+                          (tap> ['did-leave (:dumdom/component-name rendered) (:dumdom/component-key rendered)])
                           (apply did-leave (.-elm vnode) data args))
                         (snabbdom-callback))]
          (if (:ready? @animation)
-           (apply (:will-leave component) (.-elm vnode) callback data args)
+           (do
+             (tap> ['will-leave (:dumdom/component-name rendered) (:dumdom/component-key rendered)])
+             (apply (:will-leave component) (.-elm vnode) callback data args))
            (add-watch animation :leave
              (fn [k r o n]
                (when (:ready? n)
                  (remove-watch animation :leave)
+                 (tap> ['will-leave (:dumdom/component-name rendered) (:dumdom/component-key rendered)])
                  (apply (:will-leave component) (.-elm vnode) callback data args))))))))))
 
 (defn component
@@ -188,6 +206,7 @@
                           (set-key key kmap)
                           #?(:cljs (setup-animation-hooks animation opt))
                           #?(:cljs (setup-unmount-hook opt data args animation #(swap! instances dissoc fullpath))))]
+                     (tap> ['component-fn (:dumdom/component-name rendered) (:dumdom/component-key rendered)])
                      (swap! instances assoc fullpath {:vdom rendered :data data})
                      ;; The insert and update hooks are added after the instance
                      ;; is cached. When used from the cache, we never want
