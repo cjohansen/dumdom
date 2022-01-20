@@ -1,5 +1,6 @@
 (ns dumdom.component
-  (:require [dumdom.element :as e]))
+  (:require [clojure.string :as str]
+            [dumdom.element :as e]))
 
 (def ^:dynamic *render-eagerly?*
   "When this var is set to `true`, every existing component will re-render on the
@@ -25,11 +26,6 @@
   (or (not (contains? component-state :data))
       (not= (:data component-state) data)
       (and *render-eagerly?* @eager-render-required?)))
-
-(defn set-key [rendered key kmap]
-  (let [k (or key (:key rendered))]
-    (cond-> rendered
-      k (assoc :key (e/primitive-key (e/enumerate-key k kmap))))))
 
 (defn setup-animation-hooks [rendered animation {:keys [will-enter will-appear]}]
   (when will-appear
@@ -103,6 +99,17 @@
                  (remove-watch animation :leave)
                  (apply (:will-leave component) (.-elm vnode) callback data args))))))))))
 
+(defn resolve-key [rendered component-name keyfn-key kmap]
+  (let [k (->> [component-name
+                (str keyfn-key)
+                (some-> (:dumdom/component-key rendered) first)]
+               (remove empty?)
+               (str/join ".")
+               (e/enumerate-key kmap))]
+    (assoc rendered
+           :dumdom/component-key k
+           :key (str/join "." k))))
+
 (defn component
   "Returns a component function that uses the provided function for rendering. The
   resulting component will only call through to its rendering function when
@@ -168,13 +175,17 @@
   ([render opt]
    (when *render-eagerly?*
      (reset! eager-render-required? true))
-   (let [instances (atom {})]
+   (let [instances (atom {})
+         component-name (or (:name opt)
+                            #?(:cljs (not-empty (.-name render)))
+                            (str #?(:cljs (random-uuid)
+                                    :clj (java.util.UUID/randomUUID))))]
      (fn [data & args]
        (let [comp-fn
              (fn [path kmap]
                (let [key (when-let [keyfn (:keyfn opt)] (keyfn data))
-                     component-key (e/enumerate-key key kmap)
-                     fullpath (conj path component-key)
+                     lookup-key (e/enumerate-key kmap key)
+                     fullpath (conj path lookup-key)
                      instance (@instances fullpath)
                      animation (atom {:ready? true})]
                  (if (should-component-update? instance data)
@@ -182,10 +193,13 @@
                          (some->
                           (when-let [vdom (apply render data args)]
                             ((e/inflate-hiccup vdom) fullpath {}))
-                          (assoc :dumdom/component-key component-key
-                                 :dumdom/render-comments? *render-comments?*
-                                 :dumdom/component-name (:name opt))
-                          (set-key key kmap)
+                          (resolve-key component-name key kmap)
+                          (assoc :dumdom/render-comments? *render-comments?*
+                                 :dumdom/lookup-key lookup-key)
+                          (update :dumdom/component-name
+                                  (fn [s]
+                                    (str component-name
+                                         (when s (str "/" s)))))
                           #?(:cljs (setup-animation-hooks animation opt))
                           #?(:cljs (setup-unmount-hook opt data args animation #(swap! instances dissoc fullpath))))]
                      (swap! instances assoc fullpath {:vdom rendered :data data})

@@ -293,15 +293,6 @@
       {:text c}
       c)))
 
-(defn primitive-key [k]
-  (->> (update k 0 (fn [k]
-                     (cond
-                       (or (string? k)
-                           (number? k)) k
-                       (keyword? k) (str k)
-                       :default (hash k))))
-       (str/join ".")))
-
 ;; This is a port of Snabbdom's `h` function, but without the varargs support.
 (defn create-vdom-node [sel attrs children]
   (let [cmap? (map? children)]
@@ -323,7 +314,7 @@
       add-namespace
 
       (:key attrs)
-      (assoc :key (primitive-key (:key attrs))))))
+      (assoc :key (:key attrs)))))
 
 (defn inflate-hiccup [sexp]
   (cond
@@ -340,8 +331,9 @@
         (let [[element attrs] (parse-hiccup-symbol (name tag-name) (first args))]
           (apply create element (prep-hiccup-attrs attrs) (flatten-seqs (rest args))))))))
 
-(defn enumerate-key [k kmap]
-  [k (get kmap k 0)])
+(defn enumerate-key [kmap k]
+  (let [k (if (string? k) k (str k))]
+    [k (get kmap k 0)]))
 
 (defn realize-children [path xs]
   (loop [xs (seq xs)
@@ -356,8 +348,10 @@
         (recur
          (next xs)
          (conj res child)
-         (let [[k n] (:dumdom/component-key child)]
-           (assoc ks k (some-> n inc))))))))
+         (let [[k n] (:dumdom/component-key child)
+               [lk lk-n] (:dumdom/lookup-key child)]
+           (cond-> (assoc ks k (some-> (or n 0) inc))
+             lk (assoc lk (some-> (or lk-n 0) inc)))))))))
 
 (defn add-comment-node [{:dumdom/keys [component-name render-comments?] :as component}]
   (cond->> [component]
@@ -367,12 +361,12 @@
 (defn create [tag-name attrs & children]
   (fn [path kmap]
     (let [attrs (prep-attrs attrs)
-          k (enumerate-key (:key attrs) kmap)
+          k (enumerate-key kmap (:key attrs))
           fullpath (conj path k)]
       (create-vdom-node
        tag-name
        (cond-> attrs
-         (:key attrs) (assoc :key k)
+         (:key attrs) (assoc :key (str/join "." k))
 
          k (assoc :dumdom/component-key k)
 

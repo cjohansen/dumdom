@@ -1,5 +1,6 @@
 (ns dumdom.test-helper
-  (:require [dumdom.core :as dumdom]
+  (:require [clojure.string :as str]
+            [dumdom.core :as dumdom]
             [dumdom.element :as e]))
 
 (defn render
@@ -10,6 +11,9 @@
 
 (defn render-str [& args]
   (apply dumdom/render-string args))
+
+(defn render-stripped-str [& args]
+  (str/replace (apply dumdom/render-string args) #" data-dumdom-key=\"[^\"]+\"" ""))
 
 (defn to-vdom [sexp]
   (let [f (e/inflate-hiccup sexp)]

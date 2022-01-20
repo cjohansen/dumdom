@@ -19,4 +19,7 @@
 (defn ^:after-load render-on-relaod []
   (test-run))
 
-(test-run)
+(defonce started?
+  (do
+    (test-run)
+    true))

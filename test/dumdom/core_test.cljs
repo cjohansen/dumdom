@@ -4,18 +4,18 @@
             dumdom.component
             [dumdom.core :as sut]
             [dumdom.dom :as d]
-            [dumdom.test-helper :refer [render render-str]]))
+            [dumdom.test-helper :refer [render render-stripped-str render-str]]))
 
 (sut/purge!)
 
 (deftest component-render
   (testing "Renders component"
     (let [comp (sut/component (fn [data] (d/div {:className "lol"} data)))]
-      (is (= "<div class=\"lol\">1</div>" (render-str (comp 1))))))
+      (is (= "<div class=\"lol\">1</div>" (render-stripped-str (comp 1))))))
 
   (testing "Does not optimize away initial render when data is nil"
     (let [comp (sut/component (fn [data] (d/div {:className "lol"})))]
-      (is (= "<div class=\"lol\"></div>" (render-str (comp nil))))))
+      (is (= "<div class=\"lol\"></div>" (render-stripped-str (comp nil))))))
 
   (testing "Does not re-render when immutable value hasn't changed"
     (let [mutable-state (atom [1 2 3])
@@ -23,9 +23,9 @@
                                 (let [v (first @mutable-state)]
                                   (swap! mutable-state rest)
                                   (d/div {} v))))]
-      (is (= "<div>1</div>" (render-str (comp {:number 1}))))
-      (is (= "<div>1</div>" (render-str (comp {:number 1}))))
-      (is (= "<div>2</div>" (render-str (comp {:number 2}))))))
+      (is (= "<div>1</div>" (render-stripped-str (comp {:number 1}))))
+      (is (= "<div>1</div>" (render-stripped-str (comp {:number 1}))))
+      (is (= "<div>2</div>" (render-stripped-str (comp {:number 2}))))))
 
   (testing "Re-renders instance of component at different position in tree"
     (let [mutable-state (atom [1 2 3])
@@ -33,36 +33,45 @@
                                 (let [v (first @mutable-state)]
                                   (swap! mutable-state rest)
                                   (d/div {} v))))]
-      (is (= "<div>1</div>" (render-str (comp {:number 1}) [] {nil 0})))
-      (is (= "<div>2</div>" (render-str (comp {:number 1}) [] {nil 1})))
-      (is (= "<div>1</div>" (render-str (comp {:number 1}) [] {nil 0})))
-      (is (= "<div>2</div>" (render-str (comp {:number 1}) [] {nil 1})))
-      (is (= "<div>3</div>" (render-str (comp {:number 2}) [] {nil 1})))))
+      (is (= "<div>1</div>" (render-stripped-str (comp {:number 1}) [] {"" 0})))
+      (is (= "<div>2</div>" (render-stripped-str (comp {:number 1}) [] {"" 1})))
+      (is (= "<div>1</div>" (render-stripped-str (comp {:number 1}) [] {"" 0})))
+      (is (= "<div>2</div>" (render-stripped-str (comp {:number 1}) [] {"" 1})))
+      (is (= "<div>3</div>" (render-stripped-str (comp {:number 2}) [] {"" 1})))))
 
   (testing "Ignores provided position when component has a keyfn"
     (let [mutable-state (atom [1 2 3])
-          comp (sut/component (fn [data]
-                                (let [v (first @mutable-state)]
-                                  (swap! mutable-state rest)
-                                  (d/div {} v)))
-                              {:keyfn :id})]
-      (is (= "<div data-dumdom-key=\"&quot;c1.0&quot;\">1</div>" (render-str (comp {:id "c1" :number 1}) [] {nil 0})))
-      (is (= "<div data-dumdom-key=\"&quot;c1.0&quot;\">1</div>" (render-str (comp {:id "c1" :number 1}) [] {nil 1})))
-      (is (= "<div data-dumdom-key=\"&quot;c2.0&quot;\">2</div>" (render-str (comp {:id "c2" :number 1}) [] {nil 0})))
-      (is (= "<div>3</div>" (render-str (comp {:number 1}) [] {nil 0})))
-      (is (= "<div data-dumdom-key=\"&quot;c2.0&quot;\">2</div>" (render-str (comp {:id "c2" :number 1}) [] {nil 1})))))
+          comp (sut/component
+                (fn [data]
+                  (let [v (first @mutable-state)]
+                    (swap! mutable-state rest)
+                    (d/div {} v)))
+                {:keyfn :id
+                 :name "comp"})]
+      (is (= "<div data-dumdom-key=\"&quot;comp.c1.0&quot;\">1</div>" (render-str (comp {:id "c1" :number 1}) [] {"" 0})))
+      (is (= "<div data-dumdom-key=\"&quot;comp.c1.0&quot;\">1</div>" (render-str (comp {:id "c1" :number 1}) [] {"" 1})))
+      (is (= "<div data-dumdom-key=\"&quot;comp.c2.0&quot;\">2</div>" (render-str (comp {:id "c2" :number 1}) [] {"" 0})))
+      (is (= "<div>3</div>" (render-stripped-str (comp {:number 1}) [] {"" 0})))
+      (is (= "<div data-dumdom-key=\"&quot;comp.c2.0&quot;\">2</div>" (render-str (comp {:id "c2" :number 1}) [] {"" 1})))))
 
   (testing "Sets key on vdom node"
-    (let [comp (sut/component (fn [data]
-                                (d/div {} (:val data)))
-                              {:keyfn :id})]
-      (is (= "c1.0" (:key (render (comp {:id "c1" :val 1})))))))
+    (let [comp (sut/component
+                (fn [data]
+                  (d/div {} (:val data)))
+                {:name "NamedComp"
+                 :keyfn :id})]
+      (is (= "NamedComp.c1.0" (:key (render (comp {:id "c1" :val 1})))))))
 
-  (testing "keyfn overrides vdom node key"
-    (let [comp (sut/component (fn [data]
-                                (d/div {:key "key"} (:val data)))
-                              {:keyfn :id})]
-      (is (= "c1.0" (:key (render (comp {:id "c1" :val 1})))))))
+  (testing "keyfn combines with vdom node key"
+    ;; Component and element keys MUST be combined in order to recognize that
+    ;; one component replaces another at the same position with a
+    ;; similar-looking DOM element in its root position.
+    (let [comp (sut/component
+                (fn [data]
+                  (d/div {:key "key"} (:val data)))
+                {:keyfn :id
+                 :name "KeyedComp"})]
+      (is (= "KeyedComp.c1.key.0" (:key (render (comp {:id "c1" :val 1})))))))
 
   (testing "Passes constant args to component, but does not re-render when they change"
     (let [calls (atom [])
@@ -82,8 +91,8 @@
     (let [comp (sut/component (fn [data]
                                 (d/p {} "From component")))]
       (is (= "<div class=\"wrapper\"><p>From component</p></div>"
-             (render-str (d/div {:className "wrapper"}
-                           (comp {:id "v1"} 1 2 3)))))))
+             (render-stripped-str (d/div {:className "wrapper"}
+                                    (comp {:id "v1"} 1 2 3)))))))
 
   (testing "Does not freak out when rendering nil children"
     (let [comp (sut/component (fn [data]
@@ -92,10 +101,10 @@
                                   nil
                                   (d/p {} "Ok"))))]
       (is (= "<div class=\"wrapper\"><div><h1>Hello</h1><p>Ok</p></div><div>Meh</div></div>"
-             (render-str (d/div {:className "wrapper"}
-                           (comp {})
-                           nil
-                           (d/div {} "Meh")))))))
+             (render-stripped-str (d/div {:className "wrapper"}
+                                    (comp {})
+                                    nil
+                                    (d/div {} "Meh")))))))
 
   (testing "Allows components to return nil"
     (let [comp (sut/component (fn [data] nil))]
@@ -216,7 +225,48 @@
                       :keyfn #(str "key")})]
       (sut/render (d/div {} (component {:text "LOL"})) el)
       (sut/render (d/div {} (d/div {} "Look:") (component {:text "Hello"})) el)
-      (is (= 1 (count @on-mount))))))
+      (is (= 1 (count @on-mount)))))
+
+  (testing "Calls on-mount on nested components without dedicated elements"
+    (let [el (js/document.createElement "div")
+          on-mount (atom [])
+          child-component (sut/component
+                           (fn [_] [:div "Inner"])
+                           {:on-mount (fn [node & args]
+                                        (swap! on-mount conj :child))})
+          parent-component (sut/component
+                            (fn [data] (child-component data))
+                            {:on-mount (fn [node & args]
+                                         (swap! on-mount conj :parent))})]
+      (sut/render (parent-component {}) el)
+      (is (= [:child :parent]
+             @on-mount))))
+
+  (testing "Calls on-mount when nested component child is swapped out"
+    (let [el (js/document.createElement "div")
+          on-mount (atom [])
+          child-1 (sut/component
+                   (fn [_] [:div {:key "lol"} "Inner #1"])
+                   {:name "Child1"
+                    :on-mount (fn [node & args]
+                                (swap! on-mount conj :child-1))})
+          child-2 (sut/component
+                   (fn [_] [:div "Inner #2"])
+                   {:name "Child2"
+                    :on-mount (fn [node & args]
+                                (swap! on-mount conj :child-2))})
+          parent-component (sut/component
+                            (fn [data]
+                              (if (:one? data)
+                                (child-1 data)
+                                (child-2 data)))
+                            {:name "Parent"
+                             :on-mount (fn [node & args]
+                                         (swap! on-mount conj :parent))})]
+      (sut/render (parent-component {:one? true}) el)
+      (sut/render (parent-component {:one? false}) el)
+      (is (= [:child-1 :parent :child-2 :parent]
+             @on-mount)))))
 
 (deftest on-update-test
   (testing "Does not call on-update when component first mounts"
@@ -578,7 +628,25 @@
                      {:will-leave (fn [node callback & args] (reset! will-leave callback))})]
       (sut/render (d/div {} (d/div {} (component {:text "LOL"}))) el)
       (sut/render (d/div {}) el)
-      (is (nil? @will-leave)))))
+      (is (nil? @will-leave))))
+
+  (testing "Calls on-unmount when removing nested component"
+    (let [el (js/document.createElement "div")
+          on-unmount (atom [])
+          child (sut/component
+                 (fn [data] [:div "Child"])
+                 {:on-unmount (fn [node & args]
+                                (swap! on-unmount conj :child))})
+          parent (sut/component
+                  (fn [data]
+                    (if (:child? data)
+                      (child data)
+                      [:div "Parent"]))
+                  {:on-unmount (fn [node & args]
+                                 (swap! on-unmount conj :parent))})]
+      (sut/render (parent {:child? true}) el)
+      (sut/render (parent {:child? false}) el)
+      (is (= [:parent :child] @on-unmount)))))
 
 (deftest TransitionGroup-test
   (testing "TransitionGroup creates span component"
@@ -897,9 +965,12 @@
     (let [el (js/document.createElement "div")
           inner-component (sut/component
                            (fn [data] (d/div {} (:text data)))
-                           {:keyfn :id})
-          outer-component (sut/component (fn [data] (inner-component data)))]
-      (is (= "42.0.0" (:key (render (outer-component {:text "Hello" :id 42}))))))))
+                           {:keyfn :id
+                            :name "Inner"})
+          outer-component (sut/component
+                           (fn [data] (inner-component data))
+                           {:name "Outer"})]
+      (is (= "Outer.Inner.42.0" (:key (render (outer-component {:text "Hello" :id 42}))))))))
 
 (deftest KeyReuseTest
   (testing "Properly renders two elements with the same key"
