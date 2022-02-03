@@ -54,13 +54,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2021.10.29"}
+cjohansen/dumdom {:mvn/version "2022.02.03"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2021.10.29"]
+[cjohansen/dumdom "2022.02.03"]
 ```
 
 ## Example
@@ -795,6 +795,13 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ## Changelog
 
+### 2022.02.03
+
+- Fix a bug where components rendering other components in the root positioned
+  caused life-cycle hooks to not be called correctly in the nested component.
+  Thanks to [Anders Furset](https://github.com/duckyuck) for solving this with
+  me.
+
 ### 2021.10.29
 
 - New feature: `dumdom.component/*render-comments?*` (see [docs
@@ -999,7 +1006,7 @@ Initial release
 
 ## License
 
-Copyright © 2018-2021 Christian Johansen
+Copyright © 2018-2022 Christian Johansen
 
 Distributed under the Eclipse Public License either version 1.0 or (at your
 option) any later version.
