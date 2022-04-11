@@ -54,8 +54,13 @@
   ;; avoids having to walk the entire vdom structure before
   ;; passing it to snabbdom.
   (when-let [component (e/inflate-hiccup component)]
-    (binding [e/*handle-event* handle-event]
+    (binding [e/*handle-event* (or handle-event e/*handle-event*)]
       (some-> (component [element-id] {}) clj->js))))
+
+(defn set-event-handler! [f]
+  (when (and f (not (ifn? f)))
+    (throw (ex-info "Event handler must be a function" {:f f})))
+  (set! e/*handle-event* f))
 
 (defn render
   "Render the virtual DOM node created by the component into the specified DOM

@@ -1078,6 +1078,17 @@
       (is (= 2 (count @event-data)))
       (is (= [:event "d/div onClick"] (second @event-data)))))
 
+  (testing "Handles event data with a global function"
+    (let [el (js/document.createElement "div")
+          event-data (atom nil)
+          component (d/div {:onClick [:event "d/div onClick"]} "Click it")]
+      (sut/set-event-handler! #(reset! event-data %&))
+      (sut/render component el)
+      (trigger-event (.-firstChild el) "click")
+      (sut/set-event-handler! nil)
+      (is (= 2 (count @event-data)))
+      (is (= [:event "d/div onClick"] (second @event-data)))))
+
   (testing "Handles event data with a function on hiccup"
     (let [el (js/document.createElement "div")
           event-data (atom nil)
