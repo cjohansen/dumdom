@@ -54,13 +54,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2022.02.03"}
+cjohansen/dumdom {:mvn/version "2022.04.11"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2022.02.03"]
+[cjohansen/dumdom "2022.04.11"]
 ```
 
 ## Example
@@ -317,18 +317,20 @@ compare data between calls to `dumdom.core/render`.
 <a id="event-handler-data"></a>
 #### Event handler data
 
-`dumdom.core/render` takes a map as an optional third argument. By passing a
-function as `:handle-event`, you can have a single top-level handler that will
-be triggered for any virtual element event handler property that is not a
-function. In other words: event-handlers can be expressed as data.
-
-To handle DOM events with a top-level handler, give event handler properties
-data, and pass a `handle-function`:
+By setting a function with `dumdom.core/set-event-handler!`, you can have a
+single top-level handler that will be triggered for any virtual element event
+handler property that is not a function. In other words: event-handlers can be
+expressed as data.
 
 ```clj
 (require '[dumdom.core :as dd])
 
 (def el (document.getElementById "app"))
+
+(dd/set-event-handler!
+ (fn [e actions]
+   (doseq [action actions]
+     (prn "Triggered action" data (.-target e)))))
 
 (dd/render
  [:div
@@ -337,16 +339,13 @@ data, and pass a `handle-function`:
    [:li {:on-click [[:fruit/select :apple]]} "Apple"]
    [:li {:on-click [[:fruit/select :banana]]} "Banana"]
    [:li {:on-click [[:fruit/select :kiwi]]} "Kiwi"]]]
- app
- {:handle-event (fn [e actions]
-                  (doseq [action actions]
-                    (prn "Triggered action" data (.-target e))))})
+ app)
 ```
 
-The `:handle-event` function is called with two arguments: the event object and
-the data assigned to the event handler attribute. dumdom does not impose any
+The global event hanlder function is called with two arguments: the event object
+and the data assigned to the event handler attribute. dumdom does not impose any
 restrictions on the structure of event data - if an event handler is not a
-function, data is passed on to the top-level `:handle-event`.
+function, data is passed on to the top-level handler.
 
 #### Event handler functions
 
@@ -794,6 +793,12 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 ([source](https://github.com/uosl/heckendorf)) made with dumdom.
 
 ## Changelog
+
+### 2022.04.11
+
+- Fix detection of non-function event handlers
+- Support mixing dots for hiccup classes with _both_ `:className` and `:class`
+- Add support for global event handler outside the call to `render`
 
 ### 2022.02.03
 
