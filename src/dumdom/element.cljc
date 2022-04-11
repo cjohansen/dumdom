@@ -194,8 +194,11 @@
 (defn data-attr? [[k v]]
   (re-find #"^data-" (name k)))
 
+(defn event-handler? [attr-name]
+  (re-find #"on([A-Z]|-)" (name attr-name)))
+
 (defn- prep-attrs [attrs]
-  (let [event-keys (filter #(and (str/starts-with? (name %) "on") (ifn? (attrs %))) (keys attrs))
+  (let [event-keys (filter event-handler? (keys attrs))
         dataset (->> attrs
                      (filter data-attr?)
                      (map (fn [[k v]] [(str/replace (name k) #"^data-" "") v]))
