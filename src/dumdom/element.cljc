@@ -244,11 +244,12 @@
 (defn parse-hiccup-symbol [sym attrs]
   (let [[_ id] (re-find #"#([^\.#]+)" sym)
         [el & classes] (-> (str/replace sym #"#([^#\.]+)" "")
-                           (str/split #"\."))]
+                           (str/split #"\."))
+        class-attr (if (:className attrs) :className :class)]
     [el
      (cond-> attrs
        id (assoc :id id)
-       (seq classes) (update :className #(str/join " " (if % (conj classes %) classes))))]))
+       (seq classes) (update class-attr #(str/join " " (if % (conj classes %) classes))))]))
 
 (defn explode-styles [s]
   (->> (str/split s #";")
