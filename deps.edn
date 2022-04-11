@@ -2,7 +2,7 @@
  :deps {org.clojure/clojure {:mvn/version "1.10.3"}
         org.clojure/clojurescript {:mvn/version "1.10.866"}}
  :aliases {:dev {:extra-paths ["dev" "test" "resources"]
-                 :extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.13"}
+                 :extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.14"}
                               com.bhauman/cljs-test-display {:mvn/version "0.1.1"}
                               devcards/devcards {:mvn/version "0.2.7"}
                               cjohansen/quiescent {:mvn/version "16.2.0-3"}}}
