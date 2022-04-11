@@ -15,7 +15,7 @@
         (f e h)))))
 
 (defn- event-entry [attrs k]
-  [(.toLowerCase (.substring (name k) 2))
+  [(.toLowerCase (str/replace (name k) #"^on-?" ""))
    (event-handler (attrs k))])
 
 (defn- camelCase [s]
