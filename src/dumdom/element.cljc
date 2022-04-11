@@ -15,7 +15,7 @@
         (f e h)))))
 
 (defn- event-entry [attrs k]
-  [(.toLowerCase (str/replace (name k) #"^on-?" ""))
+  [(.toLowerCase (str/replace (name k) #"^on" ""))
    (event-handler (attrs k))])
 
 (defn- camelCase [s]
@@ -195,11 +195,10 @@
   (re-find #"^data-" (name k)))
 
 (defn event-handler? [attr-name]
-  (re-find #"on([A-Z]|-)" (name attr-name)))
+  (re-find #"on[A-Z]" (name attr-name)))
 
 (defn- prep-attrs [attrs]
-  (let [event-keys (filter event-handler? (keys attrs))
-        dataset (->> attrs
+  (let [dataset (->> attrs
                      (filter data-attr?)
                      (map (fn [[k v]] [(str/replace (name k) #"^data-" "") v]))
                      (into {}))
@@ -209,6 +208,7 @@
                    (remove (fn [[k v]] (nil? v)))
                    (into {}))
         attrs (set/rename-keys attrs attr-mappings)
+        event-keys (filter event-handler? (keys attrs))
         el-key (or (:key attrs)
                    (when (contains? attrs :dangerouslySetInnerHTML)
                      (hash (:dangerouslySetInnerHTML attrs))))]

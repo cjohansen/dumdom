@@ -133,6 +133,16 @@
                    [:img {:border "2"}]] el)
       (is (= "<div><!--nil--><img border=\"2\"></div>" (.-innerHTML el)))))
 
+  (testing "Renders hiccup with mixed class sources"
+    (let [el (js/document.createElement "div")]
+      (sut/render [:div
+                   [:div.lol {:class "hello"} "Hi"]
+                   [:div.lol {:className "bubye"} "Hi"]] el)
+      (is (= (str "<div>"
+                  "<div class=\"hello lol\">Hi</div>"
+                  "<div class=\"bubye lol\">Hi</div>"
+                  "</div>") (.-innerHTML el)))))
+
   (testing "Renders custom elements in hiccup"
     (let [el (js/document.createElement "div")
           comp (sut/component (fn [data]
@@ -1070,6 +1080,18 @@
     (let [el (js/document.createElement "div")
           event-data (atom nil)
           component (d/div {:onClick [:event "d/div onClick"]} "Click it")]
+      (sut/render
+       component
+       el
+       {:handle-event #(reset! event-data %&)})
+      (trigger-event (.-firstChild el) "click")
+      (is (= 2 (count @event-data)))
+      (is (= [:event "d/div onClick"] (second @event-data)))))
+
+  (testing "Handles event data with dashed event handler name"
+    (let [el (js/document.createElement "div")
+          event-data (atom nil)
+          component [:div {:on-click [:event "d/div onClick"]} "Click it"]]
       (sut/render
        component
        el

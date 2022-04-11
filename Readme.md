@@ -54,13 +54,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2022.04.11"}
+cjohansen/dumdom {:mvn/version "2022.04.12"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2022.04.11"]
+[cjohansen/dumdom "2022.04.12"]
 ```
 
 ## Example
@@ -794,7 +794,7 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 ## Changelog
 
-### 2022.04.11
+### 2022.04.12
 
 - Fix detection of non-function event handlers
 - Support mixing dots for hiccup classes with _both_ `:className` and `:class`
