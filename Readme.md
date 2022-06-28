@@ -310,7 +310,7 @@ Event handlers can be attached to either camelCased or snaked-cased properties,
 e.g. `:onClick` and `:on-click` both work. `:on-click` is suggested as the
 idiomatic approach.
 
-Event handlers can be either functions or data disptched via a render-global
+Event handlers can be either functions or data dispatched via a render-global
 event handler. Using data is suggested, as it improves dumdom's ability to
 compare data between calls to `dumdom.core/render`.
 
