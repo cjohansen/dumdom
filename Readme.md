@@ -330,7 +330,7 @@ expressed as data.
 (dd/set-event-handler!
  (fn [e actions]
    (doseq [action actions]
-     (prn "Triggered action" data (.-target e)))))
+     (prn "Triggered action" action (.-target e)))))
 
 (dd/render
  [:div
