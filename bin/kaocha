@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+clojure -A:dev:test-clj -M -m kaocha.runner "$@"
