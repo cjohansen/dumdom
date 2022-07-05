@@ -135,7 +135,7 @@ components, or other React-oriented tooling, **dumdom** might not be the best
 fit for you.
 
 Because **dumdom** does not offer any kind of component local state, it cannot
-be used as a wholistic UI framework - it's just a rendering library. It does not
+be used as a holistic UI framework - it's just a rendering library. It does not
 come with any system for routing, dispatching actions, or managing state (either
 inside or outside of components), and is generally a batteries-not-included
 tool. I consider this a strength, others may see it differently.
@@ -210,7 +210,7 @@ visually oriented code can be tested with devcards instead. Add a devcard to
 If you have ideas for new features, please open an issue to discuss the idea and
 the API before implementing it to avoid putting lots of work into a pull request
 that might be rejected. I intend to keep **dumdom** a focused package, and don't
-want it to accrete a too wide/too losely coherent set of features.
+want it to accrete a too wide/too loosely coherent set of features.
 
 ### Running from Emacs
 
@@ -342,7 +342,7 @@ expressed as data.
  app)
 ```
 
-The global event hanlder function is called with two arguments: the event object
+The global event handler function is called with two arguments: the event object
 and the data assigned to the event handler attribute. dumdom does not impose any
 restrictions on the structure of event data - if an event handler is not a
 function, data is passed on to the top-level handler.
@@ -408,7 +408,7 @@ you can pass any number of arguments to a component beware that only the first
 one is used to influence rendering decisions.
 
 This design is inherited from Quiescent, and the idea is that you can pass along
-things like core.async message channels without having them interferring with
+things like core.async message channels without having them interfering with
 the rendering decisions. When passing more than one argument to a dumdom
 component, make sure that any except the first one are constant for the lifetime
 of the component.
@@ -838,7 +838,7 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 - New feature: `dumdom.core/render-once` (see [docs above](#render-once)).
 - Major implementation change: Move Dumdom's vdom representation from Snabbdom's
   object model to Clojure maps. This moves more of the implementation from
-  JavaScript to Clojure, and more importantly addresses som weird behavior in
+  JavaScript to Clojure, and more importantly addresses some weird behavior in
   complex DOM layouts. The vdom objects created by Snabbdom are mutated by
   Snabbdom to maintain a reference to the rendered elements. In other words, the
   vdom objects we provide as input to Snabbdom ends up doubling as Snabbdom's
@@ -848,7 +848,7 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
   certain bespoke situations.
 
   As always, there are no changes to the public API. However, this is a invasive
-  change to Dumdom's implementation, so rigorous testing is adviced.
+  change to Dumdom's implementation, so rigorous testing is advised.
 
   **NB!** The internal data-structure of virtual DOM nodes have changed as a
   consequence, both for Clojure (different map structure) and ClojureScript
