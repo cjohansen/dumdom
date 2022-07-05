@@ -559,7 +559,7 @@ element. Component can be either hiccup-style data, like `[:div {} "Hello"]` or
 the result of calling component functions, e.g. `(dumdom.dom/div {} "Hello")`.
 
 <a id="unmount"></a>
-#### `(dumdom.core/unmounet element)`
+#### `(dumdom.core/unmount element)`
 
 Clear the element and discard any internal state related to it.
 
