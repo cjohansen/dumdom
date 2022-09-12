@@ -244,15 +244,26 @@
        (not (map-entry? sexp))
        (or (keyword? (first sexp)) (fn? (first sexp)))))
 
+(defn class-list [classes]
+  (cond
+    (empty? classes) []
+    (coll? classes) (map #(if (keyword? %) (name %) %) classes)
+    (keyword? classes) [(name classes)]
+    :else [classes]))
+
 (defn parse-hiccup-symbol [sym attrs]
   (let [[_ id] (re-find #"#([^\.#]+)" sym)
         [el & classes] (-> (str/replace sym #"#([^#\.]+)" "")
                            (str/split #"\."))
-        class-attr (if (:className attrs) :className :class)]
+        classes (->> (concat
+                      (class-list (:class attrs))
+                      (class-list (:className attrs))
+                      classes)
+                     (remove empty?))]
     [el
-     (cond-> attrs
+     (cond-> (dissoc attrs :class :className)
        id (assoc :id id)
-       (seq classes) (update class-attr #(str/join " " (if % (conj classes %) classes))))]))
+       (seq classes) (update :className #(str/join " " (if % (conj classes %) classes))))]))
 
 (defn explode-styles [s]
   (->> (str/split s #";")

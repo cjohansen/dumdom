@@ -114,6 +114,13 @@
            nil
            "Click it"]))))
 
+(deftest renders-mixed-class-sources
+  (is (= "<a href=\"/\" class=\"text-m button\">Click it</a>"
+         (dumdom/render-string
+          [:a.button {:class [:text-m] :href "/"}
+           nil
+           "Click it"]))))
+
 (deftest renders-data-attributes
   (is (= "<div data-stuff=\"Yes\">Content</div>"
          (dumdom/render-string [:div {:data-stuff "Yes"} "Content"]))))

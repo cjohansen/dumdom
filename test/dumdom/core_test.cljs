@@ -143,6 +143,19 @@
                   "<div class=\"bubye lol\">Hi</div>"
                   "</div>") (.-innerHTML el)))))
 
+  (testing "Renders hiccup with all the class sources"
+    (let [el (js/document.createElement "div")]
+      (sut/render [:div.lol {:class "hello"
+                             :className "bubye"} "Hi"] el)
+      (is (= "<div class=\"hello bubye lol\">Hi</div>" (.-innerHTML el)))))
+
+  (testing "Supports list of classes"
+    (let [el (js/document.createElement "div")]
+      (sut/render [:div.lol {:class ["hello" :ahoi]
+                             :className ["bubye" :ok]} "Hi"] el)
+      (is (= "<div class=\"hello ahoi bubye ok lol\">Hi</div>"
+             (.-innerHTML el)))))
+
   (testing "Renders custom elements in hiccup"
     (let [el (js/document.createElement "div")
           comp (sut/component (fn [data]
