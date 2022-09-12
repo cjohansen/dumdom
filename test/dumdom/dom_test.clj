@@ -18,7 +18,7 @@
                    :style nil
                    :props {}
                    :dataset {}}
-            :dumdom/component-key [nil 0]
+            :dumdom/component-key ["" 0]
             :children [{:text "Hello world"}]}
            (render (sut/div {} "Hello world")))))
 
@@ -28,7 +28,7 @@
                    :style {:border "1px solid red"}
                    :dataset {}
                    :props {:value "Hello"}}
-            :dumdom/component-key [nil 0]
+            :dumdom/component-key ["" 0]
             :children [{:text "Hello world"}]}
            (render (sut/input {:width 10
                                :value "Hello"
@@ -41,20 +41,20 @@
                    :style nil
                    :dataset {}
                    :props {}}
-            :dumdom/component-key [nil 0]
+            :dumdom/component-key ["" 0]
             :children [{:sel "h1"
                         :data {:style {:border "1px solid cyan"}
                                :dataset {}
                                :props {}
                                :attrs {}}
-                        :dumdom/component-key [nil 0]
+                        :dumdom/component-key ["" 0]
                         :children [{:text "Hello"}]}
                        {:sel "img"
                         :data {:style nil
                                :attrs {:border "2"}
                                :props {}
                                :dataset {}}
-                        :dumdom/component-key [nil 1]
+                        :dumdom/component-key ["" 1]
                         :children []}]}
            (render (sut/div {}
                             (sut/h1 {:style {:border "1px solid cyan"}} "Hello")
@@ -66,13 +66,13 @@
                    :style nil
                    :dataset {}
                    :props {}}
-            :dumdom/component-key [nil 0]
+            :dumdom/component-key ["" 0]
             :children [{:sel "h1"
                         :data {:style nil
                                :attrs {:class "something nice and beautiful"}
                                :dataset {}
                                :props {}}
-                        :dumdom/component-key [nil 0]
+                        :dumdom/component-key ["" 0]
                         :children [{:text "Hello"}]}]}
            (render (sut/div {} [:h1.something.nice.and.beautiful "Hello"])))))
 
@@ -82,20 +82,20 @@
                    :style nil
                    :dataset {}
                    :props {}}
-            :dumdom/component-key [nil 0]
+            :dumdom/component-key ["" 0]
             :children [{:sel "h1"
                         :data {:style nil
                                :attrs {:id "helau", :class "andhere here"}
                                :dataset {}
                                :props {}}
-                        :dumdom/component-key [nil 0]
+                        :dumdom/component-key ["" 0]
                         :children [{:text "Hello"}]}
                        {:sel "h1"
                         :data {:style nil
                                :attrs {:id "first", :class "lol"}
                                :dataset {}
                                :props {}}
-                        :dumdom/component-key [nil 1]
+                        :dumdom/component-key ["" 1]
                         :children [{:text "Hello"}]}]}
            (render (sut/div {}
                             [:h1.here#helau {:className "andhere"} "Hello"]
