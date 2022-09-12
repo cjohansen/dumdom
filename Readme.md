@@ -267,9 +267,22 @@ might be one or more children, or a list of children. Beware that children
 should not be provided as a vector, lest it be interpreted as a new hiccup
 element.
 
-**Note:** dumdom currently does not support inlining class names and ids on the
-tag name selector (e.g. `:div.someclass#someid`). This might be added in a
-future release.
+Class names and ids can be inlined on the tag name selector (e.g.
+`:div.someclass#someid`). Classes inlined on the selector can even be combined
+with classes provided with `:class`:
+
+```clj
+[:div.mtm {:class (when open? :open)}]
+```
+
+Classes can be strings, keywords, or even collections of strings and keywords:
+
+```clj
+[:div#the-game
+  {:class [:game
+           (when (:offline? game) :offline)
+           (when (:loading? game) :loading)]}]
+```
 
 For API compatibility with Quiescent, elements can also be created with the
 functions in `dumdom.dom`:
