@@ -9,12 +9,16 @@
   (:children node))
 
 (defn- attributes [node]
-  (let [attrs (-> node :data :attrs)]
-    (merge (some-> node :data :attrs)
-           (some-> node :data :props)
-           (some->> (-> node :data :dataset)
-                    (map (fn [[k v]] [(str "data-" (name k)) v]))
-                    (into {})))))
+  (merge (some-> node :data :attrs)
+         (some-> node :data :props)
+         (some->> node :data :dataset
+                  (map (fn [[k v]] [(str "data-" (name k)) v]))
+                  (into {}))
+         (some->> node :data :on
+                  (filter (comp string? second))
+                  (map (fn [[k v]]
+                         [(str "on" (str/capitalize k)) v]))
+                  (into {}))))
 
 (defn- el-key [node]
   (:key node))

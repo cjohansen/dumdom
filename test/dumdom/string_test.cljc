@@ -124,3 +124,7 @@
 (deftest renders-data-attributes
   (is (= "<div data-stuff=\"Yes\">Content</div>"
          (dumdom/render-string [:div {:data-stuff "Yes"} "Content"]))))
+
+(deftest renders-string-event-handlers
+  (is (= "<div onClick=\"alert(\"Most certainly!\")\">Content</div>"
+         (dumdom/render-string [:div {:onClick "alert(\"Most certainly!\")"} "Content"]))))

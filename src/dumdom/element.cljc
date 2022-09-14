@@ -7,12 +7,16 @@
 (defn event-handler [h]
   (if (fn? h)
     h
-    (when-let [f *handle-event*]
+    (if-let [f *handle-event*]
       ;; At this point we need to "early" bind the late bound var. It made it
       ;; this far, but now it must be frozen in time, so it sticks around for
       ;; the asynchronous events it will handle after being rendered to the DOM.
       (fn [e]
-        (f e h)))))
+        (f e h))
+      (when (string? h)
+        ;; Strings could be inline JavaScript, so will be allowed when there is
+        ;; no global event handler.
+        h))))
 
 (defn- event-entry [attrs k]
   [(.toLowerCase (str/replace (name k) #"^on" ""))
