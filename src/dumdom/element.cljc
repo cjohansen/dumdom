@@ -253,7 +253,10 @@
     (empty? classes) []
     (coll? classes) (map #(if (keyword? %) (name %) %) classes)
     (keyword? classes) [(name classes)]
-    :else [classes]))
+    (string? classes) [classes]
+    (nil? classes) []
+    :else (throw (ex-info "Received class name that is neither string, keyword, or a collection of those"
+                          {:classes classes}))))
 
 (defn parse-hiccup-symbol [sym attrs]
   (let [[_ id] (re-find #"#([^\.#]+)" sym)

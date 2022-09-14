@@ -811,6 +811,8 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 
 - Fix regression in the string render where inline JavaScript in event handler
   attributes where removed.
+- Throw an error when trying to use non-{string, keyword, collection} class
+  names.
 
 ### 2022.09.12
 
