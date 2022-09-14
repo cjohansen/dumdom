@@ -2,7 +2,7 @@
   (:require [clojure.set :as set]
             [clojure.string :as str]))
 
-(def ^:dynamic *handle-event*)
+(def ^:dynamic *handle-event* nil)
 
 (defn event-handler [h]
   (if (fn? h)
