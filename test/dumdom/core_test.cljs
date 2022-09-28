@@ -156,6 +156,13 @@
       (is (= "<div class=\"hello ahoi bubye ok lol\">Hi</div>"
              (.-innerHTML el)))))
 
+  (testing "Supports keyword classes"
+    (is (= (let [el (js/document.createElement "div")]
+             (sut/render [:div {:class :ahoi
+                                :className "bubye"} "Hi"] el)
+             (.-innerHTML el))
+           "<div class=\"ahoi bubye\">Hi</div>")))
+
   (testing "Renders custom elements in hiccup"
     (let [el (js/document.createElement "div")
           comp (sut/component (fn [data]

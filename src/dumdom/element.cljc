@@ -250,10 +250,10 @@
 
 (defn class-list [classes]
   (cond
-    (empty? classes) []
-    (coll? classes) (map #(if (keyword? %) (name %) %) classes)
     (keyword? classes) [(name classes)]
     (string? classes) [classes]
+    (empty? classes) []
+    (coll? classes) (map #(if (keyword? %) (name %) %) classes)
     (nil? classes) []
     :else (throw (ex-info "Received class name that is neither string, keyword, or a collection of those"
                           {:classes classes}))))
