@@ -1,6 +1,7 @@
 'use strict';
 
-var snabbdom = {};
+goog.module("dumdom.snabbdom");
+goog.module.declareLegacyNamespace();
 
 function createElement(tagName, options) {
     return document.createElement(tagName, options);
@@ -999,19 +1000,19 @@ function jsx(tag, data, ...children) {
 (function (jsx) {
 })(jsx || (jsx = {}));
 
-snabbdom.array = array;
-snabbdom.attachTo = attachTo;
-snabbdom.attributesModule = attributesModule;
-snabbdom.classModule = classModule;
-snabbdom.datasetModule = datasetModule;
-snabbdom.eventListenersModule = eventListenersModule;
-snabbdom.h = h;
-snabbdom.htmlDomApi = htmlDomApi;
-snabbdom.init = init$1;
-snabbdom.jsx = jsx;
-snabbdom.primitive = primitive;
-snabbdom.propsModule = propsModule;
-snabbdom.styleModule = styleModule;
-snabbdom.thunk = thunk;
-snabbdom.toVNode = toVNode;
-snabbdom.vnode = vnode;
+exports.array = array;
+exports.attachTo = attachTo;
+exports.attributesModule = attributesModule;
+exports.classModule = classModule;
+exports.datasetModule = datasetModule;
+exports.eventListenersModule = eventListenersModule;
+exports.h = h;
+exports.htmlDomApi = htmlDomApi;
+exports.init = init$1;
+exports.jsx = jsx;
+exports.primitive = primitive;
+exports.propsModule = propsModule;
+exports.styleModule = styleModule;
+exports.thunk = thunk;
+exports.toVNode = toVNode;
+exports.vnode = vnode;
