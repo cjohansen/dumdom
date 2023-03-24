@@ -1,7 +1,6 @@
 (ns dumdom.dev
   (:require [dumdom.core :as dumdom :refer [defcomponent]]
-            [dumdom.dom :as d]
-            [snabbdom :as snabbdom]))
+            [dumdom.snabbdom :as snabbdom]))
 
 (enable-console-print!)
 

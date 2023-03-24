@@ -3,7 +3,7 @@
             [dumdom.dom :as d]
             [dumdom.element :as e]
             [dumdom.string :as string]
-            [snabbdom :as snabbdom])
+            [dumdom.snabbdom :as snabbdom])
   (:require-macros [dumdom.core]))
 
 (def ^:private current-nodes

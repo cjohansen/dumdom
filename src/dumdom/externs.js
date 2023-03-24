@@ -18,6 +18,13 @@ var vdomNode = {
   text: ""
 };
 
+var create;
+var update;
+var remove;
+var destroy;
+var pre;
+var dumdomId;
+
 /**
  * Externs for snabbdom. Previously generated with
  * http://jmmk.github.io/javascript-externs-generator, now compiled by hand.
