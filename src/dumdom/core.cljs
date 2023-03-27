@@ -62,6 +62,13 @@
     (throw (ex-info "Event handler must be a function" {:f f})))
   (set! e/*handle-event* f))
 
+(defn dispatch-event-data
+  "Dispatch"
+  [e data]
+  (if e/*handle-event*
+    (e/*handle-event* e data)
+    (throw (js/Error. "Cannot dispatch custom event data without a global event handler. Call dumdom.core/set-event-handler!"))))
+
 (defn render
   "Render the virtual DOM node created by the component into the specified DOM
   element, and mount it for fast future re-renders."
