@@ -372,6 +372,22 @@ object:
                 (prn "You clicked me!"))} "Click me!"]
 ```
 
+#### Custom event data dispatch
+
+Sometimes you want to manually dispatch event data - perhaps you need to perform
+some runtime JavaScript before dispatching the event, or something similar. You
+can use `dumdom.core/dispatch-event-data` for this:
+
+```
+(require '[dumdom.core :as d])
+
+[:a {:href "#"
+     :onClick (fn [e]
+                (.preventDefault e)
+                (d/dispatch-event-data e [[:fruit/select :apple]]))}
+  "Choose the apple!"]
+```
+
 ### Creating components
 
 You create components with `defcomponent` or `component` - the first is
@@ -810,6 +826,7 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 ### 2023.03.27
 
 - Support using dumdom with shadow-cljs.
+- Add `dumdom.core/dispatch-event-data`
 
 ### 2022.09.28
 
