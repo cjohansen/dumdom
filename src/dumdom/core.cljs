@@ -24,10 +24,10 @@
                       snabbdom/datasetModule]))
 
 (defn set-root-id [element]
-  (set! (.. element -dataset -dumdomId) (swap! element-id inc)))
+  (set! (.. ^js element -dataset -dumdomId) (swap! element-id inc)))
 
 (defn root-node [element]
-  (@current-nodes (.. element -dataset -dumdomId)))
+  (@current-nodes (.. ^js element -dataset -dumdomId)))
 
 (defn register-vnode [element-id vnode]
   (swap! current-nodes assoc element-id vnode))
@@ -76,7 +76,7 @@
   (when (and (:handle-event opt) (not (ifn? (:handle-event opt))))
     (throw (ex-info "Called dumdom.core/render with a handle-event that is not a function" opt)))
   (let [current-node (or (root-node element) (init-node! element))
-        element-id (.. element -dataset -dumdomId)]
+        element-id (.. ^js element -dataset -dumdomId)]
     (if-let [vnode (create-vdom component element-id opt)]
       (do
         ;; If the root node does not have a key, Snabbdom will consider it the
@@ -105,7 +105,7 @@
   (when (and (:handle-event opt) (not (ifn? (:handle-event opt))))
     (throw (ex-info "Called dumdom.core/render-once with a handle-event that is not a function" opt)))
   (let [current-node (init-node! element)
-        element-id (.. element -dataset -dumdomId)]
+        element-id (.. ^js element -dataset -dumdomId)]
     (when-let [vnode (create-vdom component element-id opt)]
       (patch current-node vnode))
     (when component/*render-eagerly?*
@@ -114,7 +114,7 @@
 (defn unmount
   "Unmount an element previously mounted by dumdom.core/render"
   [element]
-  (-> element .-dataset .-dumdomId unregister-vnode))
+  (-> ^js element .-dataset .-dumdomId unregister-vnode))
 
 (def component component/component)
 (def component? component/component?)
