@@ -54,13 +54,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2022.09.28"}
+cjohansen/dumdom {:mvn/version "2023.04.26"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2022.09.28"]
+[cjohansen/dumdom "2023.04.26"]
 ```
 
 ## Example
@@ -822,6 +822,11 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 ([source](https://github.com/uosl/heckendorf)) made with dumdom.
 
 ## Changelog
+
+### 2023.04.26
+
+- Make dumdom actually work well in all of these combinations: figwheel or
+  shadow-cljs with simple or advanced compilation.
 
 ### 2023.03.27
 
