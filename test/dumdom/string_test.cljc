@@ -128,3 +128,7 @@
 (deftest renders-string-event-handlers
   (is (= "<div onClick=\"alert(\"Most certainly!\")\">Content</div>"
          (dumdom/render-string [:div {:onClick "alert(\"Most certainly!\")"} "Content"]))))
+
+(deftest renders-false-attributes-properly
+  (is (= "<input>" (dumdom/render-string [:input {:checked false}]))))
+

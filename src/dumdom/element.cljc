@@ -208,8 +208,13 @@
                      (into {}))
         attrs (->> attrs
                    (remove data-attr?)
-                   (map (fn [[k v]] [(camel-key k) v]))
-                   (remove (fn [[k v]] (nil? v)))
+                   (map (fn [[k v]]
+                          (let [attr-name (camel-key k)]
+                            [attr-name (cond
+                                         (true? v) attr-name
+                                         (false? v) nil
+                                         :else v)])))
+                   (remove (fn [[_k v]] (nil? v)))
                    (into {}))
         attrs (set/rename-keys attrs attr-mappings)
         event-keys (filter event-handler? (keys attrs))
