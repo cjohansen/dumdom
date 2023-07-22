@@ -288,7 +288,7 @@
     (cond
       (and (nil? xs) (nil? x)) (seq res)
       (seq? x) (recur (into res (flatten-seqs x)) xs)
-      :default (recur (conj res x) xs))))
+      :else (recur (conj res x) xs))))
 
 (defn add-namespace [vnode]
   (cond-> vnode
@@ -344,7 +344,7 @@
 
     (not (hiccup? sexp)) sexp
 
-    :default
+    :else
     (let [tag-name (first sexp)
           args (rest sexp)
           args (if (map? (first args)) args (concat [{}] args))]
@@ -394,7 +394,7 @@
 
          :always
          (assoc-in [:hook :update]
-                   (fn [old-vnode new-vnode]
+                   (fn [_old-vnode new-vnode]
                      (doseq [node (filter #(some-> % .-willEnter) (.-children new-vnode))]
                        ((.-willEnter node)))
                      (doseq [node (filter #(some-> % .-willAppear) (.-children new-vnode))]
