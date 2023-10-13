@@ -15,6 +15,8 @@
   "A counter used to assign unique ids to root elements"
   (atom -1))
 
+(def ^:private rendering? (atom false))
+
 (def patch
   "The snabbdom patch function used by render"
   (snabbdom/init #js [snabbdom/eventListenersModule
@@ -62,17 +64,20 @@
     (throw (ex-info "Event handler must be a function" {:f f})))
   (set! e/*handle-event* f))
 
-(defn dispatch-event-data
+(defn ^:export dispatch-event-data
   "Dispatch"
   [e data]
   (if e/*handle-event*
-    (e/*handle-event* e data)
+    (if @rendering?
+      (js/requestAnimationFrame #(e/*handle-event* e data))
+      (e/*handle-event* e data))
     (throw (js/Error. "Cannot dispatch custom event data without a global event handler. Call dumdom.core/set-event-handler!"))))
 
 (defn render
   "Render the virtual DOM node created by the component into the specified DOM
   element, and mount it for fast future re-renders."
   [component element & [opt]]
+  (reset! rendering? true)
   (when (and (:handle-event opt) (not (ifn? (:handle-event opt))))
     (throw (ex-info "Called dumdom.core/render with a handle-event that is not a function" opt)))
   (let [current-node (or (root-node element) (init-node! element))
@@ -94,7 +99,8 @@
         (set! (.-innerHTML element) "")
         (unregister-vnode element-id)))
     (when component/*render-eagerly?*
-      (reset! component/eager-render-required? false))))
+      (reset! component/eager-render-required? false))
+    (reset! rendering? false)))
 
 (defn render-once
   "Like render, but without mounting the element for future updates. This should
@@ -102,6 +108,7 @@
   element. Subsequent calls to render into the same element will always cause a
   full rebuild of the DOM. This function does not acumulate state."
   [component element & [opt]]
+  (reset! rendering? true)
   (when (and (:handle-event opt) (not (ifn? (:handle-event opt))))
     (throw (ex-info "Called dumdom.core/render-once with a handle-event that is not a function" opt)))
   (let [current-node (init-node! element)
@@ -109,7 +116,8 @@
     (when-let [vnode (create-vdom component element-id opt)]
       (patch current-node vnode))
     (when component/*render-eagerly?*
-      (reset! component/eager-render-required? false))))
+      (reset! component/eager-render-required? false)))
+  (reset! rendering? false))
 
 (defn unmount
   "Unmount an element previously mounted by dumdom.core/render"
