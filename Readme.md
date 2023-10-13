@@ -54,13 +54,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2023.04.26"}
+cjohansen/dumdom {:mvn/version "2023.10.13"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2023.04.26"]
+[cjohansen/dumdom "2023.10.13"]
 ```
 
 ## Example
@@ -387,6 +387,12 @@ can use `dumdom.core/dispatch-event-data` for this:
                 (d/dispatch-event-data e [[:fruit/select :apple]]))}
   "Choose the apple!"]
 ```
+
+It is generally not recommended to call this function in your component while
+building the virtual DOM, or even in life-cycle hooks such as `:on-render` etc,
+because you can easily create render-loops this way. If called during rendering,
+the dispatch will happen asynchronously (e.g. after the current render). Beware
+that you still might create render loops this way.
 
 ### Creating components
 
@@ -822,6 +828,12 @@ Check out this cool [dungeon crawler](http://heck.8620.cx/)
 ([source](https://github.com/uosl/heckendorf)) made with dumdom.
 
 ## Changelog
+
+### 2023.10.13
+
+- Dispatch events asynchronously when `dumdom.core/dispatch-event-data` is
+  called during rendering (e.g. in life-cycle hooks, or even in component
+  functions).
 
 ### 2023.04.26
 
