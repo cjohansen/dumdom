@@ -132,3 +132,6 @@
 (deftest renders-false-attributes-properly
   (is (= "<input>" (dumdom/render-string [:input {:checked false}]))))
 
+(deftest renders-aria-attributes-properly
+  (is (= "<div aria-hidden=\"true\"></div>" (dumdom/render-string [:div {:aria-hidden "true"}]))))
+

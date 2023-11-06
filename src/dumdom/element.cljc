@@ -27,7 +27,10 @@
     (str f (str/join "" (map str/capitalize rest)))))
 
 (defn- camel-key [k]
-  (keyword (camelCase (name k))))
+  (let [n (name k)]
+    (if (re-find #"^aria-" n)
+      k
+      (keyword (camelCase n)))))
 
 (def ^:private skip-pixelize-attrs
   (->>
