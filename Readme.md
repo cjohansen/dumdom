@@ -820,12 +820,9 @@ component is responsible for rendering a given fragment of the DOM.
 
 ## Examples
 
-Unfortunately, there is no TodoMVC implementation yet, but there is
-[Yahtzee](https://github.com/cjohansen/yahtzee-cljs/)! Please get in touch if you've
-used dumdom for anything and I'll happily include a link to your app.
-
-Check out this cool [dungeon crawler](http://heck.8620.cx/)
-([source](https://github.com/uosl/heckendorf)) made with dumdom.
+- [TodoMVC](https://github.com/harismh/todomvc-dumdom)
+- [Yahtzee](https://github.com/cjohansen/yahtzee-cljs/)
+- [A dungeon crawler](http://heck.8620.cx/) made with dumdom! [Source](https://github.com/uosl/heckendorf).
 
 ## Changelog
 
