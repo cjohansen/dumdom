@@ -6,3 +6,4 @@ target
 checkouts
 .cpcache
 cljs-test-runner-out
+.clj-kondo/cjohansen/dumdom
