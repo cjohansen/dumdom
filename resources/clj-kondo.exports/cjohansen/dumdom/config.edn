@@ -1,0 +1,2 @@
+{:linters {:dumdom/component-options {:level :warning}}
+ :hooks {:analyze-call {dumdom.core/defcomponent dumdom.defcomponent/defcomponent}}}

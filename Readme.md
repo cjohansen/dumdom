@@ -181,6 +181,19 @@ would `devcards.core`:
   (my-dumdom-component {:value 0}))
 ```
 
+## Linting
+
+This library exports
+[clj-kondo configuration](https://github.com/clj-kondo/clj-kondo/blob/master/doc/config.md#importing)
+for linting the `defcomponent` macro. You may need to import the config. If you
+are using clojure-lsp, this should happen automatically.
+
+If you are not using clj-kondo, you could get away with using a `defcomponent`
+macro that supports linting as `defn`. Like
+[this one](https://gist.github.com/PEZ/357df3589dc49e83e49da77cb8943723). It
+won't help you spot errors with using the wrong dumdom component options,
+but at least will silence false positive warnings.
+
 ## Contribute
 
 Feel free to report bugs and, even better, provide bug fixing pull requests!
