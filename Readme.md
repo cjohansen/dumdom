@@ -54,13 +54,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2023.11.06"}
+cjohansen/dumdom {:mvn/version "2024.02.19"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2023.11.06"]
+[cjohansen/dumdom "2024.02.19"]
 ```
 
 ## Example
@@ -838,6 +838,11 @@ component is responsible for rendering a given fragment of the DOM.
 - [A dungeon crawler](http://heck.8620.cx/) made with dumdom! [Source](https://github.com/uosl/heckendorf).
 
 ## Changelog
+
+### 2024.02.19
+
+- Add [clj-kondo configuration](https://github.com/cjohansen/dumdom/pull/52) for
+  `defmacro`, thanks to [@PEZ](https://github.com/PEZ).
 
 ### 2023.11.06
 
