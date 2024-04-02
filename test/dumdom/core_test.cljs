@@ -209,7 +209,12 @@
       (sut/render [comp {:text "#1"}] el)
       (sut/render [comp {}] el)
       (sut/render [comp {:text "#2"}] el)
-      (is (= "<p>#2</p>" (.-innerHTML el))))))
+      (is (= "<p>#2</p>" (.-innerHTML el)))))
+
+  (testing "Renders blank string attribute"
+    (let [el (js/document.createElement "div")]
+      (sut/render [:input {:value ""}] el)
+      (is (= "<input value=\"\">" (.-innerHTML el))))))
 
 (deftest on-mount-test
   (testing "Calls on-mount when component first mounts"

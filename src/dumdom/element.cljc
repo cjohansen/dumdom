@@ -224,8 +224,12 @@
         el-key (or (:key attrs)
                    (when (contains? attrs :dangerouslySetInnerHTML)
                      (hash (:dangerouslySetInnerHTML attrs))))]
-    (cond-> {:attrs (apply dissoc attrs :style :mounted-style :leaving-style :disappearing-style
-                           :component :value :key :ref :dangerouslySetInnerHTML event-keys)
+    (cond-> {:attrs (cond-> (apply dissoc attrs :style :mounted-style :leaving-style :disappearing-style
+                                   :component :key :ref :dangerouslySetInnerHTML event-keys)
+                      ;; If the value is a blank string, the props module will
+                      ;; skip it, as it's falsey, which effectively ignores it.
+                      ;; Leave it as an attribute when it is a blank string.
+                      (not= "" (:value attrs)) (dissoc :value))
              :props (cond-> {}
                       (:value attrs) (assoc :value (:value attrs))
 
