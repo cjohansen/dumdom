@@ -54,13 +54,13 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 With tools.deps:
 
 ```clj
-cjohansen/dumdom {:mvn/version "2024.02.19"}
+cjohansen/dumdom {:mvn/version "2024.04.02"}
 ```
 
 With Leiningen:
 
 ```clj
-[cjohansen/dumdom "2024.02.19"]
+[cjohansen/dumdom "2024.04.02"]
 ```
 
 ## Example
@@ -838,6 +838,10 @@ component is responsible for rendering a given fragment of the DOM.
 - [A dungeon crawler](http://heck.8620.cx/) made with dumdom! [Source](https://github.com/uosl/heckendorf).
 
 ## Changelog
+
+### 2024.04.02
+
+- Bug fix: Do not skip empty string value attributes on inputs and options.
 
 ### 2024.02.19
 
