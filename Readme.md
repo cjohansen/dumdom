@@ -26,6 +26,15 @@ In addition to being API compatible with Quiescent, **dumdom** supports:
 - Rendering to strings (useful for server-side rendering from both the JVM and node.js)
 - Efficient "inflation" of server-rendered markup on the client side
 
+## What about Replicant?
+
+[Replicant](https://github.com/cjohansen/replicant) is Dumdom's spiritual
+successor. If you intend to start a new project, start it with Replicant. As
+promised, Dumdom is finished, stable and worthy of your trust. It's fine to use.
+However, Replicant was designed from the ground up after years of using Dumdom
+and is both pure Clojure(Script) (no JS dependencies) and a more pure
+implementation of the same core ideas.
+
 ## Table of contents
 
 * [Install](#install)
